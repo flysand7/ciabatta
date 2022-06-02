@@ -1,6 +1,6 @@
 
-GNUFLAGS=-Werror -Wall -Iinc -Icode
-CLFLAGS=/I:inc /link /incremental:no /subsystem:windows /nodefaultlib kernel32.lib 
+GNUFLAGS=-g -gcodeview -Werror -Wall -Iinc -Icode
+CLFLAGS=/Zi /I:inc /link /incremental:no /subsystem:windows /nodefaultlib kernel32.lib
 
 CC=clang
 CFLAGS=$(GNUFLAGS)

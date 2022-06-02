@@ -1,13 +1,12 @@
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-int main()
-{
+int main() {
     char *include = getenv("INCLUDE");
     printf(" ");
-    while(*include != 0) {
+    while (*include != 0) {
         printf("-I \"");
-        while(*include != ';' && *include != 0) {
+        while (*include != ';' && *include != 0) {
 			if (*include == '\\') {
 				printf("/");
 			} else {
@@ -15,7 +14,7 @@ int main()
 			}
             *include++;
         }
-        if(*include == ';') {
+        if (*include == ';') {
             ++include;
         }
         printf("\" ");

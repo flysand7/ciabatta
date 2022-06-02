@@ -1,6 +1,5 @@
-
-#include<_platform.h>
-#include<locale.h>
+#include <_platform.h>
+#include <locale.h>
 
 extern int main();
 
