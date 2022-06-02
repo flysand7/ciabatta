@@ -6,3 +6,4 @@ build
 *.ilk
 *.exp
 *.o
+*.4coder
