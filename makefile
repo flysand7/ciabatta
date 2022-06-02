@@ -14,7 +14,7 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.obj,$(SRC_FILES))
 ciabatta.lib: $(OBJ_FILES)
 	lib $(LDFLAGS) /out:$@ $^
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+$(OBJ_DIR)/%.obj: $(SRC_DIR)/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
