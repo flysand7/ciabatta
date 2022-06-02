@@ -1,8 +1,10 @@
-// MSVC won't use my <assert.h> unless i provide path explicitly
-// idk
-#include"..\inc\assert.h"
+
+#include <assert.h>
+#include <ctype.h>
 int main()
 {
-    assert(0);
+    for(char c = 'a'; c != 'z'; ++c) {
+        assert(isupper(toupper(c)));
+    }
     return 0;
 }
