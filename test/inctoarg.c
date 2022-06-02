@@ -8,8 +8,12 @@ int main()
     while(*include != 0) {
         printf("-I \"");
         while(*include != ';' && *include != 0) {
-            printf("%c", *include);
-            *include ++;
+			if (*include == '\\') {
+				printf("/");
+			} else {
+				printf("%c", *include);
+			}
+            *include++;
         }
         if(*include == ';') {
             ++include;

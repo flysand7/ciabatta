@@ -7,8 +7,6 @@
 	#define __STDC_WANT_LIB_EXT1__ 1
 #endif
 
-#ifdef 
-
 // Compiler Identification
 
 #if defined(_MSC_VER) && !defined(__clang__)
@@ -60,6 +58,4 @@
 #ifdef __STDC_WANT_LIB_EXT1__
 	typedef int errno_t;
 	typedef size_t rsize_t;
-#endif
-
 #endif

@@ -2,14 +2,16 @@
 // TODO: X-macros
 // TODO: data race possible (see 7.11.1.1 p. 5)
 // TODO: something about restoring locales (see 7.11.1.1 p. 8)
-
-#include<stddef.h>
+#include <locale.h>
+#include <limits.h>
+#include <string.h>
+#include <assert.h>
 
 #define _LC_FIRST       0
 #define _LC_LAST        5
 
 static struct lconv _locale;
-static char *_locale_str;
+static const char *_locale_str;
 
 char *setlocale(int category, const char *locale)
 {
