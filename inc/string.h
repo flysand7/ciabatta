@@ -1,5 +1,7 @@
 #include "_platform.h"
 
+int _wcsicmp(const wchar_t *string1, const wchar_t *string2);
+
 void *memcpy(void * restrict s1, const void * restrict s2, size_t n);
 void *memmove(void *s1, const void *s2, size_t n);
 char *strcpy(char * restrict s1, const char * restrict s2);

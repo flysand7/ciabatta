@@ -1,10 +1,10 @@
 
-GNUFLAGS=-g -gcodeview -Werror -Wall -Iinc -Icode
-CLFLAGS=/Zi /I:inc /link /incremental:no /subsystem:windows /nodefaultlib kernel32.lib
+# TODO: make shell variable-based path
+CLFLAGS=/X /GS- /Iinc /Icode $(shell test\inctoarg)
 
-CC=clang
-CFLAGS=$(GNUFLAGS)
-LDFLAGS=/nologo /nodefaultlib /entry:mainCRTStartup
+CC=clang-cl
+CFLAGS=$(CLFLAGS)
+LDFLAGS=/nologo /nodefaultlib /entry:mainCRTStartup /subsystem:console
 
 SRC_DIR := code
 OBJ_DIR := build
@@ -14,7 +14,14 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.obj,$(SRC_FILES))
 ciabatta.lib: $(OBJ_FILES)
 	lib $(LDFLAGS) /out:$@ $^
 
-$(OBJ_DIR)/%.obj: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) -c -o $@ $< $(CFLAGS)
 
-.PHONY: ciabatta.lib
+clean:
+	del /F /Q build\*
+	del /F /Q lib\ciabatta.lib
+
+inctoarg:
+	cl test\inctoarg.c
+
+.PHONY: inctoarg ciabatta.lib

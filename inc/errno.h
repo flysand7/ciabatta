@@ -4,5 +4,5 @@
 #define EILSEQ 2
 #define ERANGE 3
 
-// TODO: implement this
-#define errno 0
+// TODO:
+//_Thread_local int errno;

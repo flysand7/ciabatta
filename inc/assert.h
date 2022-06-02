@@ -1,20 +1,9 @@
-#if !defined(_assert_h)
-#define _assert_h
 
-#include "_platform.h"
+#pragma once
 
-extern void _assert_print(char *cond, char const *func, char const *file, char const *line);
+#include "_macros.h"
 
-// TODO: use abort() to break
-#if defined(_compiler_msvc)
-    #include <intrin.h>
-    #define _compiler_brk __debugbreak
-#else
-    #define _compiler_brk __builtin_trap
-#endif
-
-#define _str_(x) #x
-#define _str(x) _str_(x)
+extern void _assert_error(char *cond, char const *func, char const *file, char const *line);
 
 #if defined(NDEBUG)
     #define assert(ignore) ((void)0)
@@ -23,10 +12,7 @@ extern void _assert_print(char *cond, char const *func, char const *file, char c
     #define assert(condition)                                                 \
         do {                                                                  \
             if(!(condition)) {                                                \
-                _assert_print(#condition, _func, __FILE__, _str(__LINE__));   \
-                _compiler_brk();                                              \
+                _assert_error(#condition, _func, __FILE__, _str(__LINE__));   \
             }                                                                 \
         } while(0)
-#endif
-
 #endif

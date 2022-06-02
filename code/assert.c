@@ -3,6 +3,14 @@
 #include <stdlib.h>
 #include <_platform.h>
 
+// TODO: use abort() to break
+#if defined(_compiler_msvc)
+    #include <intrin.h>
+    #define brk __debugbreak
+#else
+    #define brk __builtin_trap
+#endif
+
 #if defined(_os_win)
     #define WIN32_LEAN_AND_MEAN
     #include<Windows.h>
@@ -22,7 +30,7 @@
         WriteConsole(conout, str, _assert_strlen(str), &written, NULL);
     }
 
-    extern void _assert_print(char *cond, char const *func, char const *file, char const *line)
+    extern void _assert_error(char *cond, char const *func, char const *file, char const *line)
     {
         HANDLE conout = GetStdHandle(STD_OUTPUT_HANDLE);
         if(conout != INVALID_HANDLE_VALUE) {
@@ -42,5 +50,6 @@
                 "Error",
                 MB_OK);
         }
+        brk();
     }
 #endif
