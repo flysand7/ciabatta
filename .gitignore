@@ -7,3 +7,4 @@ build
 *.exp
 *.o
 *.4coder
+*.rdbg
