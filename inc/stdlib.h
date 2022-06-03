@@ -1,4 +1,9 @@
-#include "_platform.h"
+
+#pragma once
+
+#if !defined(NULL)
+#define NULL ((void *)0)
+#endif
 
 // typedef struct div_t {
 //     int quot;
@@ -18,27 +23,31 @@
 // #define EXIT_FAILURE 1
 // #define EXIT_SUCCESS 0
 
-// #define RAND_MAX 65536
+#define RAND_MAX 65536
 // #define MB_CUR_MAX 5
-	
-// double atof(const char *nptr);
-// int atoi(const char *nptr);
-// long int atol(const char *nptr);
-// long long int atoll(const char *nptr);
-// double strtod(const char * restrict nptr, char ** restrict endptr);
-// float strtof(const char * restrict nptr, char ** restrict endptr);
-// long double strtold(const char * restrict nptr, char ** restrict endptr);
-// long int strtol(const char * restrict nptr, char ** restrict endptr, int base);
-// long long int strtoll(const char * restrict nptr, char ** restrict endptr, int base);
-// unsigned long int strtoul(const char * restrict nptr, char ** restrict endptr, int base);
-// unsigned long long int strtoull(const char * restrict nptr, char ** restrict endptr, int base);
-// int rand(void);
-// void srand(unsigned int seed);
-// void *aligned_alloc(size_t alignment, size_t size);
-// void *calloc(size_t nmemb, size_t size);
-// void free(void *ptr);
-// void *malloc(size_t size);
-// void *realloc(void *ptr, size_t size);
+
+double atof(const char *nptr);
+int atoi(const char *nptr);
+long int atol(const char *nptr);
+long long int atoll(const char *nptr);
+double strtod(const char * restrict nptr, char ** restrict endptr);
+float strtof(const char * restrict nptr, char ** restrict endptr);
+long double strtold(const char * restrict nptr, char ** restrict endptr);
+long int strtol(const char *restrict nptr, char **restrict endptr, int base);
+long long int strtoll(const char *restrict nptr, char **restrict endptr, int base);
+unsigned long int strtoul(const char *restrict nptr, char **restrict endptr, int base);
+unsigned long long int strtoull(const char *restrict nptr, char **restrict endptr, int base);
+int rand(void);
+void srand(unsigned int seed);
+
+typedef struct _os_heap _os_heap;
+void _heap_setup(_os_heap *heap);
+void *aligned_alloc(size_t alignment, size_t size);
+void *calloc(size_t nmemb, size_t size);
+void free(void *ptr);
+void *malloc(size_t size);
+void *realloc(void *ptr, size_t size);
+
 // _Noreturn void abort(void);
 // int atexit(void (*func)(void));
 // int at_quick_exit(void (*func)(void));

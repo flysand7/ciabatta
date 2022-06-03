@@ -1,9 +1,9 @@
-#include <_platform.h>
+
 #include <locale.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "win32.h"
 
 extern int main(int argc, char** argv);
 
@@ -58,8 +58,18 @@ void mainCRTStartup() {
         convert_wide_chars_to_ansi(args[i], args_wide[i], wide_len);
     }
 
+    _os_heap heap_data = {
+        .handle = heap,
+    };
+    _heap_setup(&heap_data);
+
+    srand(0);
     setlocale(LC_ALL, "C");
     int exit_code = main(arg_count, args);
 
     ExitProcess(exit_code);
 }
+
+// This symbol is required to be present if we're using floating-point
+// numbers
+int _fltused=0;
