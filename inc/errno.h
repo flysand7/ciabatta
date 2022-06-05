@@ -5,4 +5,4 @@
 #define ERANGE 3
 
 // TODO: make it thread-local
-int errno;
+extern int errno;
