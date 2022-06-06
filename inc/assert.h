@@ -1,5 +1,4 @@
 #pragma once
-
 #include "_macros.h"
 
 extern void _assert_error(char *cond, char const *func, char const *file, char const *line);
