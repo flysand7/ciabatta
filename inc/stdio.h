@@ -14,9 +14,9 @@ typedef int64_t fpos_t;
 #define FOPEN_MAX 20
 
 #ifdef _os_win
-	#define FILENAME_MAX 260
+#define FILENAME_MAX 260
 #else
-	#define FILENAME_MAX 4096
+#define FILENAME_MAX 4096
 #endif
 
 #define L_tmpnam FILENAME_MAX
@@ -27,10 +27,7 @@ typedef int64_t fpos_t;
 
 #define TMP_MAX  INT_MAX
 
-// TODO: complete these, they don't need to be macros btw, could be external globals
-#define stderr ((FILE*)NULL)
-#define stdin  ((FILE*)NULL)
-#define stdout ((FILE*)NULL)
+extern FILE *stdout, *stderr, *stdin;
 
 int remove(const char *filename);
 int rename(const char *oldname, const char *newname);
@@ -79,9 +76,9 @@ int ferror(FILE *stream);
 void perror(const char *s);
 
 #ifdef __STDC_WANT_LIB_EXT1__
-	#define L_tmpnam_s L_tmpnam
-	#define TMP_MAX_S  TMP_MAX
-	
-	errno_t tmpfile_s(FILE * restrict * restrict streamptr);
-	errno_t tmpnam_s(char *s, rsize_t maxsize);
+#define L_tmpnam_s L_tmpnam
+#define TMP_MAX_S  TMP_MAX
+
+errno_t tmpfile_s(FILE * restrict * restrict streamptr);
+errno_t tmpnam_s(char *s, rsize_t maxsize);
 #endif

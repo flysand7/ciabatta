@@ -2,6 +2,7 @@
 #include <locale.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "win32.h"
 
@@ -58,6 +59,12 @@ void mainCRTStartup() {
         convert_wide_chars_to_ansi(args[i], args_wide[i], wide_len);
     }
 
+    // Initialize terminal
+    stdout = (FILE*) GetStdHandle(STD_OUTPUT_HANDLE);
+    stderr = (FILE*) GetStdHandle(STD_ERROR_HANDLE);
+    stdin = (FILE*) GetStdHandle(STD_INPUT_HANDLE);
+
+    // Initialize heap
     _os_heap heap_data = {
         .handle = heap,
     };

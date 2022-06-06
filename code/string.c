@@ -49,6 +49,8 @@ size_t strlen(const char *s) {
 
 // __STDC_WANT_LIB_EXT1__
 size_t strnlen_s(const char *s, size_t maxsize) {
+    if (s == NULL) return 0;
+
     size_t i = 0;
     while (s[i] && i < maxsize) {
         i++;

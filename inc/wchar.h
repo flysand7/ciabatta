@@ -8,7 +8,7 @@ typedef wchar_t wint_t;
 #define WCHAR_MAX 0xffff
 
 #ifndef WEOF
-	#define WEOF 0
+#define WEOF 0
 #endif
 
 int fwprintf(FILE * restrict stream, const wchar_t * restrict format, ...);
@@ -26,8 +26,7 @@ int wscanf(const wchar_t * restrict format, ...);
 wint_t fgetwc(FILE *stream);
 wchar_t *fgetws(wchar_t * restrict s, int n, FILE * restrict stream);
 wint_t fputwc(wchar_t c, FILE *stream);
-int fputws(const wchar_t * restrict s,
-FILE * restrict stream);
+int fputws(const wchar_t * restrict s, FILE * restrict stream);
 int fwide(FILE *stream, int mode);
 wint_t getwc(FILE *stream);
 wint_t getwchar(void);
@@ -73,32 +72,29 @@ size_t mbsrtowcs(wchar_t * restrict dst, const char ** restrict src, size_t len,
 size_t wcsrtombs(char * restrict dst, const wchar_t ** restrict src, size_t len, mbstate_t * restrict ps);
 
 #ifdef __STDC_WANT_LIB_EXT1__
-	int fwprintf_s(FILE * restrict stream, const wchar_t * restrict format, ...);
-	int fwscanf_s(FILE * restrict stream, const wchar_t * restrict format, ...);
-	int snwprintf_s(wchar_t * restrict s, rsize_t n, const wchar_t * restrict format, ...);
-	int swprintf_s(wchar_t * restrict s, rsize_t n, const wchar_t * restrict format, ...);
-	int swscanf_s(const wchar_t * restrict s, const wchar_t * restrict format, ...);
-	int vfwprintf_s(FILE * restrict stream, const wchar_t * restrict format, va_list arg);
-	int vfwscanf_s(FILE * restrict stream, const wchar_t * restrict format, va_list arg);
-	int vsnwprintf_s(wchar_t * restrict s, rsize_t n, const wchar_t * restrict format, va_list arg);
-	int vswprintf_s(wchar_t * restrict s, rsize_t n, const wchar_t * restrict format, va_list arg);
-	int vswscanf_s(const wchar_t * restrict s, const wchar_t * restrict format, va_list arg);
-	int vwprintf_s(const wchar_t * restrict format, va_list arg);
-	int vwscanf_s(const wchar_t * restrict format, va_list arg);
-	int wprintf_s(const wchar_t * restrict format, ...);
-	int wscanf_s(const wchar_t * restrict format, ...);
-	errno_t wcscpy_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2);
-	errno_t wcsncpy_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2, rsize_t n);
-	errno_t wmemcpy_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2, rsize_t n);
-	errno_t wmemmove_s(wchar_t *s1, rsize_t s1max, const wchar_t *s2, rsize_t n);
-	errno_t wcscat_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2);
-	errno_t wcsncat_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2, rsize_t n);
-	wchar_t *wcstok_s(wchar_t * restrict s1, rsize_t * restrict s1max,
-	const wchar_t * restrict s2, wchar_t ** restrict ptr);
-	size_t wcsnlen_s(const wchar_t *s, size_t maxsize);
-	errno_t wcrtomb_s(size_t * restrict retval,
-	char * restrict s, rsize_t smax,
-	wchar_t wc, mbstate_t * restrict ps);
-	errno_t mbsrtowcs_s(size_t * restrict retval, wchar_t * restrict dst, rsize_t dstmax, const char ** restrict src, rsize_t len, mbstate_t * restrict ps);
-	errno_t wcsrtombs_s(size_t * restrict retval, char * restrict dst, rsize_t dstmax, const wchar_t ** restrict src, rsize_t len, mbstate_t * restrict ps);
-#endif	
+int fwprintf_s(FILE * restrict stream, const wchar_t * restrict format, ...);
+int fwscanf_s(FILE * restrict stream, const wchar_t * restrict format, ...);
+int snwprintf_s(wchar_t * restrict s, rsize_t n, const wchar_t * restrict format, ...);
+int swprintf_s(wchar_t * restrict s, rsize_t n, const wchar_t * restrict format, ...);
+int swscanf_s(const wchar_t * restrict s, const wchar_t * restrict format, ...);
+int vfwprintf_s(FILE * restrict stream, const wchar_t * restrict format, va_list arg);
+int vfwscanf_s(FILE * restrict stream, const wchar_t * restrict format, va_list arg);
+int vsnwprintf_s(wchar_t * restrict s, rsize_t n, const wchar_t * restrict format, va_list arg);
+int vswprintf_s(wchar_t * restrict s, rsize_t n, const wchar_t * restrict format, va_list arg);
+int vswscanf_s(const wchar_t * restrict s, const wchar_t * restrict format, va_list arg);
+int vwprintf_s(const wchar_t * restrict format, va_list arg);
+int vwscanf_s(const wchar_t * restrict format, va_list arg);
+int wprintf_s(const wchar_t * restrict format, ...);
+int wscanf_s(const wchar_t * restrict format, ...);
+errno_t wcscpy_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2);
+errno_t wcsncpy_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2, rsize_t n);
+errno_t wmemcpy_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2, rsize_t n);
+errno_t wmemmove_s(wchar_t *s1, rsize_t s1max, const wchar_t *s2, rsize_t n);
+errno_t wcscat_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2);
+errno_t wcsncat_s(wchar_t * restrict s1, rsize_t s1max, const wchar_t * restrict s2, rsize_t n);
+wchar_t *wcstok_s(wchar_t * restrict s1, rsize_t * restrict s1max, const wchar_t * restrict s2, wchar_t ** restrict ptr);
+size_t wcsnlen_s(const wchar_t *s, size_t maxsize);
+errno_t wcrtomb_s(size_t * restrict retval, char * restrict s, rsize_t smax, wchar_t wc, mbstate_t * restrict ps);
+errno_t mbsrtowcs_s(size_t * restrict retval, wchar_t * restrict dst, rsize_t dstmax, const char ** restrict src, rsize_t len, mbstate_t * restrict ps);
+errno_t wcsrtombs_s(size_t * restrict retval, char * restrict dst, rsize_t dstmax, const wchar_t ** restrict src, rsize_t len, mbstate_t * restrict ps);
+#endif
