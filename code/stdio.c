@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-#include <_platform.h>
+#include <_os.h>
 
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <string.h>

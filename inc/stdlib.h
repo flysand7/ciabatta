@@ -1,7 +1,18 @@
+
 #pragma once
 
 #if !defined(NULL)
     #define NULL ((void *)0)
+#endif
+
+#if !defined(__STDC_LIB_EXT1__)
+    #define __STDC_LIB_EXT1__
+#endif
+
+#ifdef __STDC_WANT_SECURE_LIB__
+    #if !defined(__STDC_WANT_LIB_EXT1__)
+        #define __STDC_WANT_LIB_EXT1__ 1
+    #endif
 #endif
 
 // typedef struct div_t {

@@ -1,4 +1,5 @@
-#include "_platform.h"
+
+#pragma once
 
 typedef struct mbstate_t mbstate_t;
 typedef uint16_t char16_t;

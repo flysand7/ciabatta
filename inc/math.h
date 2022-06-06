@@ -1,4 +1,5 @@
-#include "_platform.h"
+
+#pragma once
 
 typedef float float_t;
 typedef double double_t;

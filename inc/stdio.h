@@ -1,7 +1,22 @@
-#include "_platform.h"
+
+#pragma once
+
+#include <stdint.h>
 
 typedef struct FILE FILE;
 typedef int64_t fpos_t;
+
+#if !defined(__STDC_LIB_EXT1__)
+    #define __STDC_LIB_EXT1__
+    typedef int errno_t;
+    typedef size_t rsize_t;
+#endif
+
+#ifdef __STDC_WANT_SECURE_LIB__
+    #if !defined(__STDC_WANT_LIB_EXT1__)
+        #define __STDC_WANT_LIB_EXT1__ 1
+    #endif
+#endif
 
 #define _IOFBF 0x0000
 #define _IOLBF 0x0040
@@ -75,10 +90,9 @@ int feof(FILE *stream);
 int ferror(FILE *stream);
 void perror(const char *s);
 
-#ifdef __STDC_WANT_LIB_EXT1__
-#define L_tmpnam_s L_tmpnam
-#define TMP_MAX_S  TMP_MAX
-
-errno_t tmpfile_s(FILE * restrict * restrict streamptr);
-errno_t tmpnam_s(char *s, rsize_t maxsize);
+#if __STDC_WANT_LIB_EXT1__ == 1
+    #define L_tmpnam_s L_tmpnam
+    #define TMP_MAX_S  TMP_MAX
+    errno_t tmpfile_s(FILE * restrict * restrict streamptr);
+    errno_t tmpnam_s(char *s, rsize_t maxsize);
 #endif

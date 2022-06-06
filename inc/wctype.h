@@ -1,4 +1,5 @@
-#include "_platform.h"
+
+#pragma once
 
 typedef int wint_t;
 wctrans_t;

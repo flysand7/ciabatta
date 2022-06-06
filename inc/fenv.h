@@ -1,3 +1,6 @@
+
+#pragma once
+
 typedef unsigned long fexcept_t;
 typedef struct fenv_t fenv_t;
 	

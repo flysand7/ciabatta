@@ -1,6 +1,7 @@
-// On linux this will be UTF-32, on windows it's UTF-16
-#include "_platform.h"
 
+#pragma once
+
+// On linux this will be UTF-32, on windows it's UTF-16 (or maybe UCS-2?)
 typedef struct mbstate_t mbstate_t;
 typedef wchar_t wint_t;
 
