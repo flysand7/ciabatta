@@ -72,3 +72,4 @@ void *realloc(void *ptr, size_t size) {
     void *buffer = HeapReAlloc(_heap, 0, ptr, size);
     return buffer;
 }
+
