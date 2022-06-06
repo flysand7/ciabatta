@@ -1,6 +1,11 @@
-#include "_platform.h"
 
-int _wcsicmp(const wchar_t *string1, const wchar_t *string2);
+#pragma once
+
+#if !defined(NULL)
+    #define NULL ((void *)0)
+#endif
+
+// int _wcsicmp(const wchar_t *string1, const wchar_t *string2);
 
 void *memcpy(void * restrict s1, const void * restrict s2, size_t n);
 void *memmove(void *s1, const void *s2, size_t n);
@@ -25,7 +30,7 @@ void *memset(void *s, int c, size_t n);
 char *strerror(int errnum);
 size_t strlen(const char *s);
 
-#if __STDC_WANT_LIB_EXT1__
+#if __STDC_WANT_LIB_EXT1__ == 1
 errno_t memcpy_s(void * restrict s1, rsize_t s1max, const void * restrict s2, rsize_t n);
 errno_t memmove_s(void *s1, rsize_t s1max, const void *s2, rsize_t n);
 errno_t strcpy_s(char * restrict s1, rsize_t s1max, const char * restrict s2);

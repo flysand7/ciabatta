@@ -1,7 +1,7 @@
 #pragma once
 
 #if !defined(NULL)
-#define NULL ((void *)0)
+    #define NULL ((void *)0)
 #endif
 
 // typedef struct div_t {
