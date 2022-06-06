@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 // TODO: rewrite memmove to not allocate anything
 
@@ -194,8 +195,6 @@ size_t strlen(const char *s) {
     return i;
 }
 
-#if __STDC_WANT_LIB_EXT1__ == 1
-
 size_t strnlen_s(const char *s, size_t maxsize) {
     if (s == NULL) return 0;
 
@@ -205,5 +204,3 @@ size_t strnlen_s(const char *s, size_t maxsize) {
     }
     return i;
 }
-
-#endif
