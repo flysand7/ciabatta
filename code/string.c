@@ -61,8 +61,8 @@ char *strncpy(char *restrict s1, const char *restrict s2, size_t n)
 
 char *strncat(char *restrict s1, const char *restrict s2, size_t n)
 {
-    int start = strlen(s1);
-    for(int i = 0; i != n && *s2 != 0; ++i) {
+    size_t start = strlen(s1);
+    for(size_t i = 0; i != n && *s2 != 0; ++i) {
         s1[start+i] = s2[i];
     }
     s1[start+n] = 0;
@@ -90,7 +90,7 @@ int strcmp(const char *s1, const char *s2) {
 int strncmp(const char *s1, const char *s2, size_t n)
 {
     int diff;
-    int i = 0;
+    size_t i = 0;
     if(n != 0) do {
         diff = *s1 - *s2;
     } while(++i < n && diff != 0 && *s1 != 0 && *s2 != 0);
@@ -108,7 +108,7 @@ size_t strxfrm(char *restrict s1, const char *restrict s2, size_t n)
 {
     size_t len = strlen(s2);
     if(s1 != NULL && n != 0) {
-        for(int i = 0; i != n; ++i) {
+        for(size_t i = 0; i != n; ++i) {
             *s1 = *s2;
         }
     }
@@ -118,7 +118,7 @@ size_t strxfrm(char *restrict s1, const char *restrict s2, size_t n)
 void *memchr(const void *ptr, int c, size_t n)
 {
     const byte *s = ptr;
-    int i = 0;
+    size_t i = 0;
     for(; i != n && *s != c; ++i, ++s) {
         ++s;
     }
