@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set CIABATTA_OPTIONS=-Iinc -g -gcodeview -nodefaultlibs -D_CRT_SECURE_NO_WARNINGS
+set CIABATTA_OPTIONS=-Iinc -Wall -g -gcodeview -nodefaultlibs -D_CRT_SECURE_NO_WARNINGS
 set PLATFORM=win32
 if NOT "%1"=="fast" (
 

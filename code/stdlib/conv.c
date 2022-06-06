@@ -20,7 +20,7 @@ typedef unsigned intu;
 #define inrange(start, c, end) ((start) <= (c) && (c) <= (end))
 
 static bool isbase(int c, int base) {
-    int val;
+    int val = 0;
     if(isdigit(c)) {
         val = c-'0';
     }
@@ -48,7 +48,7 @@ static bool strprefix_i(char const *restrict str, char const *restrict prefix) {
 
 // Called only when isbase(c, base) for some base in range
 static long todigit(int c) {
-    int val;
+    int val = 0;
     if(isdigit(c)) {
         val = c-'0';
     }
@@ -70,6 +70,7 @@ static intull strtoi_generic(const char *restrict nptr,
     intull value = 0;
     int digits_read = 0;
     bool is_signed = (coefptr != NULL);
+    intl coef = 1;
     // Find max{abs(int)}. Signed integers have negative,
     // whose absolute value is 1 bigger than int_max.
     intull int_abs_max = int_max;
@@ -85,7 +86,6 @@ static intull strtoi_generic(const char *restrict nptr,
         ++str;
     }
     // Parse sign
-    intl coef = 1;
     if(is_signed) {
         if(*str == '-') {
             coef = -1;

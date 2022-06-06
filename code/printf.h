@@ -29,6 +29,7 @@ inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE 
 
             if (isdigit(*fmt)) {
                 // just a small atoi
+                // TODO: handle overflow, just in case(?)
                 while (isdigit(*fmt)) {
                     precision *= 10u;
                     precision += (*fmt - '0');

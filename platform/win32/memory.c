@@ -39,7 +39,7 @@ void *aligned_alloc(size_t alignment, size_t size) {
     if(alignment > 8) {
         min_req_size += alignment;
     }
-    void *block_start = HeapAlloc(_heap, HEAP_ZERO_MEMORY, size+alignment);
+    void *block_start = HeapAlloc(_heap, HEAP_ZERO_MEMORY, min_req_size);
     intptr_t block_start_i = (intptr_t)block_start;
     intptr_t aligned_block_start_i = align_forward(block_start_i, alignment);
     void *aligned_block_start = (void *)aligned_block_start_i;

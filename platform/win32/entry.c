@@ -21,11 +21,10 @@ static size_t count_wide_chars(const wchar_t* str) {
 static bool convert_wide_chars_to_ansi(char* out, const wchar_t* str, size_t len) {
     for (size_t i = 0; i < len; i++) {
         wchar_t ch = *str++;
-        if (ch <= 0 && ch > 0x7F) {
+        if (ch < 0 || 0x7F >= ch) {
             *out++ = 0;
             return false;
         }
-
         *out++ = ch;
     }
 

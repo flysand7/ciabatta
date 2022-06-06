@@ -22,11 +22,9 @@ void *memcpy(void *restrict s1, const void *restrict s2, size_t n) {
 
 void *memmove(void *s1, const void *s2, size_t n)
 {
-    byte *u1 = s1;
-    byte const *u2 = s2;
     void *buffer = malloc(n);
-    strcpy(buffer, s2);
-    strcpy(s1, buffer);
+    memcpy(buffer, s2, n);
+    memcpy(s1, buffer, n);
     free(buffer);
     return s1;
 }
@@ -90,7 +88,7 @@ int strcmp(const char *s1, const char *s2) {
 
 int strncmp(const char *s1, const char *s2, size_t n)
 {
-    int diff;
+    int diff = 0;
     size_t i = 0;
     if(n != 0) do {
         diff = *s1 - *s2;
