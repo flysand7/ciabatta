@@ -1,4 +1,3 @@
-
 #pragma once
 
 #if !defined(NULL)
@@ -72,7 +71,7 @@ void *realloc(void *ptr, size_t size);
 
 // #ifdef __STDC_WANT_LIB_EXT1__
 // 	typedef void (*constraint_handler_t)(const char * restrict msg, void * restrict ptr, errno_t error);
-	
+
 // 	constraint_handler_t set_constraint_handler_s(constraint_handler_t handler);
 // 	void abort_handler_s(const char * restrict msg, void * restrict ptr, errno_t error);
 // 	void ignore_handler_s(const char * restrict msg, void * restrict ptr, errno_t error);

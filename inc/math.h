@@ -21,11 +21,11 @@ typedef double double_t;
 #define FP_INFINITE  1
 #define FP_NAN       2
 
-FP_INFINITE
-FP_NAN
-FP_NORMAL
-FP_SUBNORMAL
-FP_ZERO
+//FP_INFINITE
+//FP_NAN
+//FP_NORMAL
+//FP_SUBNORMAL
+//FP_ZERO
 #define FP_FAST_FMA  1
 #define FP_FAST_FMAF 1
 #define FP_FAST_FMAL 1
@@ -39,8 +39,11 @@ FP_ZERO
 
 // TODO: implement this
 #define fpclassify(x) 0
-#define isfinite(x)   0
-#define isinf(x)      0
+
+// HACK: If its fine just remove the comment
+#define isfinite(x)   ((double)(x) != HUGE_VAL && (double)(x) != -HUGE_VAL)
+#define isinf(x)      (!(isinf(x)))
+
 #define isnan(x)      0
 #define isnormal(x)   0
 #define signbit(x)    0
