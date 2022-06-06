@@ -1,3 +1,6 @@
+
+#pragma once
+
 /*
 these are type generic so they're macrod and use C11's _Generic
 

@@ -1,4 +1,7 @@
-#include "_platform.h"
+
+#pragma once
+
+#include <time.h>
 
 #define thread_local _Thread_local
 #define ONCE_FLAG_INIT 1

@@ -1,4 +1,9 @@
-#include "_platform.h"
+
+#pragma once
+
+#if !defined(NULL)
+    #define NULL ((void *)0)
+#endif
 
 // The number of clock ticks per second
 #define CLOCKS_PER_SEC  ((clock_t)1000)

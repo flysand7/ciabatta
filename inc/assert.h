@@ -1,7 +1,12 @@
 #pragma once
-#include "_macros.h"
+#include "_compiler.h"
 
-extern void _assert_error(char *cond, char const *func, char const *file, char const *line);
+extern void _assert_error(
+    char *cond,
+    char const *func,
+    char const *file,
+    char const *line
+);
 
 #if defined(NDEBUG)
     #define assert(ignore) ((void)0)
@@ -10,7 +15,11 @@ extern void _assert_error(char *cond, char const *func, char const *file, char c
     #define assert(condition)                                                 \
         do {                                                                  \
             if(!(condition)) {                                                \
-                _assert_error(#condition, _func, __FILE__, _str(__LINE__));   \
+                _assert_error(                                                \
+                    #condition,                                               \
+                    _compiler_curfunc,                                        \
+                    __FILE__,                                                 \
+                    _str(__LINE__));                                          \
             }                                                                 \
         } while(0)
 #endif

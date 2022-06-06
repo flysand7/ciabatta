@@ -2,8 +2,10 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-// Even if the user doesn't enable LIB_EXT1 we still have it existing
-size_t strnlen_s(const char *s, size_t maxsize);
+#include <_os.h>
+
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <string.h>
 
 typedef void(*OutputFunc)(void* ctx, size_t n, const char str[]);
 

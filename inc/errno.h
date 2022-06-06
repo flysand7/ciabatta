@@ -1,4 +1,5 @@
-#include "_platform.h"
+
+#pragma once
 
 #define EDOM   1
 #define EILSEQ 2

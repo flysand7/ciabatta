@@ -1,6 +1,23 @@
-#include "_platform.h"
 
-int _wcsicmp(const wchar_t *string1, const wchar_t *string2);
+#pragma once
+
+#if !defined(NULL)
+    #define NULL ((void *)0)
+#endif
+
+#if !defined(__STDC_LIB_EXT1__)
+    #define __STDC_LIB_EXT1__
+    typedef int errno_t;
+    typedef size_t rsize_t;
+#endif
+
+#if __STDC_WANT_SECURE_LIB__ == 1
+    #if !defined(__STDC_WANT_LIB_EXT1__)
+        #define __STDC_WANT_LIB_EXT1__ 1
+    #endif
+#endif
+
+// int _wcsicmp(const wchar_t *string1, const wchar_t *string2);
 
 void *memcpy(void * restrict s1, const void * restrict s2, size_t n);
 void *memmove(void *s1, const void *s2, size_t n);
@@ -25,16 +42,16 @@ void *memset(void *s, int c, size_t n);
 char *strerror(int errnum);
 size_t strlen(const char *s);
 
-#if __STDC_WANT_LIB_EXT1__
-errno_t memcpy_s(void * restrict s1, rsize_t s1max, const void * restrict s2, rsize_t n);
-errno_t memmove_s(void *s1, rsize_t s1max, const void *s2, rsize_t n);
-errno_t strcpy_s(char * restrict s1, rsize_t s1max, const char * restrict s2);
-errno_t strncpy_s(char * restrict s1, rsize_t s1max,const char * restrict s2, rsize_t n);
-errno_t strcat_s(char * restrict s1, rsize_t s1max, const char * restrict s2);
-errno_t strncat_s(char * restrict s1, rsize_t s1max, const char * restrict s2, rsize_t n);
-char *strtok_s(char * restrict s1, rsize_t * restrict s1max, const char * restrict s2, char ** restrict ptr);
-errno_t memset_s(void *s, rsize_t smax, int c, rsize_t n);
-errno_t strerror_s(char *s, rsize_t maxsize, errno_t errnum);
-size_t strerrorlen_s(errno_t errnum);
-size_t strnlen_s(const char *s, size_t maxsize);
+#if __STDC_WANT_LIB_EXT1__ == 1
+    errno_t memcpy_s(void * restrict s1, rsize_t s1max, const void * restrict s2, rsize_t n);
+    errno_t memmove_s(void *s1, rsize_t s1max, const void *s2, rsize_t n);
+    errno_t strcpy_s(char * restrict s1, rsize_t s1max, const char * restrict s2);
+    errno_t strncpy_s(char * restrict s1, rsize_t s1max,const char * restrict s2, rsize_t n);
+    errno_t strcat_s(char * restrict s1, rsize_t s1max, const char * restrict s2);
+    errno_t strncat_s(char * restrict s1, rsize_t s1max, const char * restrict s2, rsize_t n);
+    char *strtok_s(char * restrict s1, rsize_t * restrict s1max, const char * restrict s2, char ** restrict ptr);
+    errno_t memset_s(void *s, rsize_t smax, int c, rsize_t n);
+    errno_t strerror_s(char *s, rsize_t maxsize, errno_t errnum);
+    size_t strerrorlen_s(errno_t errnum);
+    size_t strnlen_s(const char *str, size_t strsz);
 #endif

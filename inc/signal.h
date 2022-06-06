@@ -1,11 +1,12 @@
-#include "_platform.h"
+
+#pragma once
 
 typedef int sig_atomic_t;
 
 // TODO: implement this
-#define SIG_DFL (-1)
-#define SIG_ERR (-1)
-#define SIG_IGN (-1)
+#define SIG_DFL 0
+#define SIG_ERR 1
+#define SIG_IGN 2
 
 // not sure why but windows picked these, we can change it later
 #define SIGINT          2

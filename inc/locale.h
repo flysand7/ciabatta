@@ -1,9 +1,15 @@
-#include "_platform.h"
+
+#pragma once
+
+#define _COL_IGNORE_SPACE  0x1
+#define _COL_IGNORE_SYMBOL 0x2
 
 struct lconv {
+	// LC_NUMERIC
 	char *decimal_point; // "."
 	char *thousands_sep; // ""
 	char *grouping; // ""
+	// LC_MONETARY
 	char *mon_decimal_point; // ""
 	char *mon_thousands_sep; // ""
 	char *mon_grouping; // ""
