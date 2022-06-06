@@ -27,9 +27,7 @@
     #define _spec8l "ll"
 #endif
 
-#if INT16_LEAST_MAX == CHAR_MAX
-    #define _spec16l "hh"
-#elif INT16_LEAST_MAX == SHORT_MAX || INT16_LEAST_MAX==INT_MAX
+#if INT16_LEAST_MAX == SHORT_MAX || INT16_LEAST_MAX==INT_MAX
     #define _spec16l ""
 #elif INT16_LEAST_MAX == LONG_MAX
     #define _spec16l "l"
@@ -37,9 +35,7 @@
     #define _spec16l "ll"
 #endif
 
-#if INT32_LEAST_MAX == CHAR_MAX
-    #define _spec32l "hh"
-#elif INT32_LEAST_MAX == SHORT_MAX || INT32_LEAST_MAX==INT_MAX
+#if INT32_LEAST_MAX==INT_MAX
     #define _spec32l ""
 #elif INT32_LEAST_MAX == LONG_MAX
     #define _spec32l "l"
@@ -47,11 +43,7 @@
     #define _spec32l "ll"
 #endif
 
-#if INT64_LEAST_MAX == CHAR_MAX
-    #define _spec64l "hh"
-#elif INT64_LEAST_MAX == SHORT_MAX || INT64_LEAST_MAX==INT_MAX
-    #define _spec64l ""
-#elif INT64_LEAST_MAX == LONG_MAX
+#if INT64_LEAST_MAX == LONG_MAX
     #define _spec64l "l"
 #elif INT64_LEAST_MAX == LLONG_MAX
     #define _spec64l "ll"
@@ -68,9 +60,7 @@
     #define _spec8f "ll"
 #endif
 
-#if INT16_FAST_MAX == CHAR_MAX
-    #define _spec16f "hh"
-#elif INT16_FAST_MAX == SHORT_MAX || INT16_FAST_MAX==INT_MAX
+#if INT16_FAST_MAX == SHORT_MAX || INT16_FAST_MAX==INT_MAX
     #define _spec16f ""
 #elif INT16_FAST_MAX == LONG_MAX
     #define _spec16f "l"
@@ -78,9 +68,7 @@
     #define _spec16f "ll"
 #endif
 
-#if INT32_FAST_MAX == CHAR_MAX
-    #define _spec32f "hh"
-#elif INT32_FAST_MAX == SHORT_MAX || INT32_FAST_MAX==INT_MAX
+#if INT32_FAST_MAX==INT_MAX
     #define _spec32f ""
 #elif INT32_FAST_MAX == LONG_MAX
     #define _spec32f "l"
@@ -88,15 +76,13 @@
     #define _spec32f "ll"
 #endif
 
-#if INT64_FAST_MAX == CHAR_MAX
-    #define _spec64f "hh"
-#elif INT64_FAST_MAX == SHORT_MAX || INT64_FAST_MAX==INT_MAX
-    #define _spec64f ""
-#elif INT64_FAST_MAX == LONG_MAX
+#if INT64_FAST_MAX == LONG_MAX
     #define _spec64f "l"
 #elif INT64_FAST_MAX == LLONG_MAX
     #define _spec64f "ll"
 #endif
+
+#define _specmax "j"
 
 #define PRId8       _spec8   "d"
 #define PRId16      _spec16  "d"
@@ -111,6 +97,7 @@
 #define PRIdLEAST32 _spec32l "d"
 #define PRIdLEAST64 _spec64l "d"
 #define PRIdPTR     _specptr "d"
+#define PRIdMAX     _specmax "d"
 #define PRIi8       _spec8   "i"
 #define PRIi16      _spec16  "i"
 #define PRIi32      _spec32  "i"
@@ -124,6 +111,7 @@
 #define PRIiLEAST32 _spec32l "i"
 #define PRIiLEAST64 _spec64l "i"
 #define PRIiPTR     _specptr "i"
+#define PRIiMAX     _specmax "i"
 #define PRIo8       _spec8   "o"
 #define PRIo16      _spec16  "o"
 #define PRIo32      _spec16  "o"
@@ -137,6 +125,7 @@
 #define PRIoFAST32  _spec32f "o"
 #define PRIoFAST64  _spec64f "o"
 #define PRIoPTR     _specptr "o"
+#define PRIoMAX     _specmax "o"
 #define PRIu8       _spec8   "u"
 #define PRIu16      _spec16  "u"
 #define PRIu32      _spec16  "u"
@@ -150,6 +139,7 @@
 #define PRIuFAST32  _spec32f "u"
 #define PRIuFAST64  _spec64f "u"
 #define PRIuPTR     _specptr "u"
+#define PRIuMAX     _specmax "u"
 #define PRIx8       _spec8   "x"
 #define PRIx16      _spec16  "x"
 #define PRIx32      _spec32  "x"
@@ -163,6 +153,7 @@
 #define PRIxFAST32  _spec32f "x"
 #define PRIxFAST64  _spec64f "x"
 #define PRIxPTR     _specptr "x"
+#define PRIxMAX     _specmax "x"
 #define PRIX8       _spec8   "X"
 #define PRIX16      _spec16  "X"
 #define PRIX32      _spec32  "X"
@@ -176,5 +167,6 @@
 #define PRIXFAST32  _spec32f "X"
 #define PRIXFAST64  _spec64f "X"
 #define PRIXPTR     _specptr "X"
+#define PRIXMAX     _specmax "X"
 
 // TODO: scan formats for signed and unsigned integers
