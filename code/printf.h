@@ -75,6 +75,12 @@ inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE 
 
         FMT_CHAR_TYPE ch = *fmt++;
         switch (ch) {
+            case 'c': {
+                const char chr = va_arg(args, int);
+                out(ctx, 1, &chr);
+                full_length ++;
+                break;
+            }
             case 's': {
                 const FMT_CHAR_TYPE *str = va_arg(args, FMT_CHAR_TYPE*);
                 size_t len = FMT_STRLEN_S(str, precision ? precision : SIZE_MAX);
