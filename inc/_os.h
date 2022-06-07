@@ -15,5 +15,7 @@
 #endif
 
 // OS-dependent IO Functions
-void _file_write(void* ctx, size_t n, const char str[]);
+void _os_file_write(void* ctx, size_t n, const char str[]);
+void _os_exit(int code);
+void _os_init_eh();
 typedef struct FILE FILE;

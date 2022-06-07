@@ -1,5 +1,6 @@
 #pragma once
 #include "_compiler.h"
+#include "_macros.h"
 
 extern void _assert_error(
     char *cond,

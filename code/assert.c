@@ -20,5 +20,5 @@ extern void _assert_error(
     }
     printf("\tFile: %s\n", file);
     printf("\tLine: %s\n", line);
-    _compiler_brk();
+    abort();
 }

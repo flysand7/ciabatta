@@ -6,3 +6,4 @@
 
 #define _con(a,b) a ## b
 
+#define _countof(arr) (sizeof (arr) / sizeof ((arr)[0]))

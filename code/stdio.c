@@ -40,12 +40,12 @@ static void string_write(void *ctx, size_t n, const char *restrict str) {
 }
 
 int fprintf(FILE *file, const char *restrict fmt, ...) {
-	CALL_PRINTF(fmt_print_char, file, _file_write, fmt);
+	CALL_PRINTF(fmt_print_char, file, _os_file_write, fmt);
 	return result;
 }
 
 int printf(const char *restrict fmt, ...) {
-    CALL_PRINTF(fmt_print_char, stdout, _file_write, fmt);
+    CALL_PRINTF(fmt_print_char, stdout, _os_file_write, fmt);
 	return result;
 }
 
@@ -62,11 +62,11 @@ int sprintf(char *restrict s, const char *restrict fmt, ...) {
 }
 
 int vfprintf(FILE *file, const char *restrict fmt, va_list args) {
-	return fmt_print_char(file, _file_write, fmt, args);
+	return fmt_print_char(file, _os_file_write, fmt, args);
 }
 
 int vprintf(const char *restrict fmt, va_list args) {
-	return fmt_print_char(stdout, _file_write, fmt, args);
+	return fmt_print_char(stdout, _os_file_write, fmt, args);
 }
 
 int vsnprintf(char *restrict s, size_t n, const char *restrict fmt, va_list args) {

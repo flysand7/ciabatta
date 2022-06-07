@@ -1,4 +1,6 @@
 
+#include <_os.h>
+
 #include <locale.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -71,6 +73,7 @@ void mainCRTStartup() {
 
     srand(0);
     setlocale(LC_ALL, "C");
+    _os_init_eh();
     int exit_code = main(arg_count, args);
 
     ExitProcess(exit_code);
