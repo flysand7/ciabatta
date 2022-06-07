@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "win32.h"
+#include "win.h"
 
 extern int main(int argc, char** argv);
 

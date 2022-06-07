@@ -33,8 +33,7 @@ static SignalMapping map[] = {
     {EXCEPTION_SINGLE_STEP,           SIGSTEP},
 };
 
-static LONG _win32_handler(EXCEPTION_POINTERS *ExceptionInfo)
-{
+static LONG _win32_handler(EXCEPTION_POINTERS *ExceptionInfo) {
     EXCEPTION_RECORD *exception = ExceptionInfo->ExceptionRecord;
     DWORD code = exception->ExceptionCode;
     int signal = -1;

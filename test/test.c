@@ -9,16 +9,13 @@
 
 #include <signal.h>
 
-void my_va_handler(int a) {
-    printf("NULLPTR deref or something idk not an expert in signals\n");
+void onabort(int a) {
+    printf("I don't want to live anymore\n");
+    exit(-69);
 }
 
 int main(int argc, char** argv) {
-    signal(SIGSEGV, my_va_handler);
-    signal(SIGFPE,  my_va_handler);
-
-    int a = INT_MAX;
-    a /= 0;
-
+    signal(SIGABRT, onabort);
+    assert(0 != 0);
     return 0;
 }
