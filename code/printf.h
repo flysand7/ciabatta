@@ -75,6 +75,7 @@ inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE 
             fmt++;
 
             int_length = _Generic((size_t)0,
+                                  unsigned char:      CHAR,
                                   unsigned short:     SHORT,
                                   unsigned int:       INT,
                                   unsigned long:      LONG,
