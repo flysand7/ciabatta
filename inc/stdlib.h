@@ -1,9 +1,6 @@
-
 #pragma once
-
-#if !defined(NULL)
-    #define NULL ((void *)0)
-#endif
+// Defines NULL
+#include <stddef.h>
 
 #if !defined(__STDC_LIB_EXT1__)
     #define __STDC_LIB_EXT1__

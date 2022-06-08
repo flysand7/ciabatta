@@ -24,7 +24,7 @@
     #error "Unsupported Compiler"
 #endif
 
-#if defined(_compiler_msvc)
+#if defined(_compiler_msvc) || defined(_compiler_cuik)
     #include <intrin.h>
     #define _compiler_brk __debugbreak
 #elif defined(_compiler_gcc) || defined(_compiler_clang)
@@ -33,10 +33,4 @@
     #error "_compiler_brk is not implemented for this compiler"
 #endif
 
-#if defined(_compiler_msvc)
-    #define _compiler_curfunc __FUNCTION__
-#elif defined(_compiler_gcc) || defined(_compiler_clang)
-    #define _compiler_curfunc __func__
-#else
-    #error "_compiler_curfunc not implemented for this compiler"
-#endif
+#define _compiler_curfunc __FUNCTION__

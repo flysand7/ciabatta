@@ -1,7 +1,7 @@
-
 #pragma once
 
 #include <stdint.h>
+#include <stdarg.h>
 
 typedef struct FILE FILE;
 typedef int64_t fpos_t;
