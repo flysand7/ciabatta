@@ -6,8 +6,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-// TODO: rewrite memmove to not allocate anything
-
 typedef unsigned char byte;
 
 void *memcpy(void *restrict s1, const void *restrict s2, size_t n) {
@@ -21,10 +19,19 @@ void *memcpy(void *restrict s1, const void *restrict s2, size_t n) {
 }
 
 void *memmove(void *s1, const void *s2, size_t n) {
-    void *buffer = malloc(n);
-    memcpy(buffer, s2, n);
-    memcpy(s1, buffer, n);
-    free(buffer);
+    byte* c1 = s1;
+    const byte* c2 = s2;
+
+    if (c1 != c2) {
+        if (c1 < c2) {
+            // reverse copy
+            for (size_t i = n; i--;) c1[i] = c2[i];
+        } else {
+            // normal copy
+            for (size_t i = 0; i < n; i++) c1[i] = c2[i];
+        }
+    }
+
     return s1;
 }
 
