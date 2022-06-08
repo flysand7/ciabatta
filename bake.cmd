@@ -51,4 +51,4 @@ del build\*.obj
 
 :skip_crt_compilation
 echo Compiling test..
-clang test\test.c ciabatta.lib -std=c11 -lkernel32 -luser32 -lshell32 -nostdlib %CIABATTA_OPTIONS%
+clang test\test4.c ciabatta.lib -std=c11 -lkernel32 -luser32 -lshell32 -nostdlib %CIABATTA_OPTIONS%
