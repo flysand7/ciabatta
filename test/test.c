@@ -23,6 +23,13 @@ void wack() {
 int main(int argc, char** argv) {
     atexit(wack);
 
+    char* path_env = getenv("PATH");
+    char *ctx, *path_token = strtok_r(path_env, ";", &ctx);
+    while(path_token) {
+        printf("%s\n", path_token);
+        path_token = strtok_r(NULL, ";", &ctx);
+    }
+
     test();
     char input[] = "A bird came down the walk";
     printf("Parsing the input string '%s'\n", input);

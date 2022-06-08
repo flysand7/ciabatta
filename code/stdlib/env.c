@@ -38,4 +38,3 @@ _Noreturn void _Exit(int status) {
     // doesn't run atexit routines
     _os_exit(status);
 }
-

@@ -68,7 +68,7 @@ int atexit(void (*func)(void));
 // int at_quick_exit(void (*func)(void));
 _Noreturn void exit(int status);
 _Noreturn void _Exit(int status);
-// char *getenv(const char *name);
+char *getenv(const char *name);
 // _Noreturn void quick_exit(int status);
 // int system(const char *string);
 // void *bsearch(const void *key, const void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));

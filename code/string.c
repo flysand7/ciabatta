@@ -179,26 +179,29 @@ char *strstr(const char *s1, const char *s2) {
 
 // TODO: there may be restrict-related UB
 char *strtok(char *restrict s1, const char *restrict s2) {
-    static char *restrict str;
-    if(s1 != NULL) str = s1;
-    if(str == NULL) return NULL;
+    static char *str;
+    return strtok_r(s1, s2, &str);
+}
 
-    size_t junk_len = strspn(str, s2);
-    char *tok_start = str+junk_len;
+char *strtok_r(char *restrict s1, const char *restrict s2, char **restrict ctx) {
+    if(s1 != NULL) *ctx = s1;
+    if(*ctx == NULL) return NULL;
+
+    size_t junk_len = strspn(*ctx, s2);
+    char *tok_start = *ctx + junk_len;
     if(*tok_start == 0) {
-        str = NULL;
+        *ctx = NULL;
         return NULL;
     }
 
-    size_t tok_len = strcspn(str, s2);
+    size_t tok_len = strcspn(*ctx, s2);
 
     char *tok_end = tok_start + tok_len;
     *tok_end = 0;
-    str = tok_end+1;
+    *ctx = tok_end+1;
 
     return tok_start;
 }
-
 
 char *strerror(int errnum) {
     switch(errnum) {

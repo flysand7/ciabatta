@@ -39,7 +39,7 @@ void *aligned_alloc(size_t alignment, size_t size) {
     if(alignment > 8) {
         min_req_size += alignment;
     }
-    void *block_start = HeapAlloc(_heap, HEAP_ZERO_MEMORY, min_req_size);
+    void *block_start = HeapAlloc(_heap, 0, min_req_size);
     intptr_t block_start_i = (intptr_t)block_start;
     intptr_t aligned_block_start_i = align_forward(block_start_i, alignment);
     void *aligned_block_start = (void *)aligned_block_start_i;
@@ -69,7 +69,14 @@ void *malloc(size_t size) {
 }
 
 void *realloc(void *ptr, size_t size) {
-    void *buffer = HeapReAlloc(_heap, 0, ptr, size);
-    return buffer;
-}
+    if (ptr == NULL) {
+        if (size == 0) return NULL;
 
+        return HeapAlloc(_heap, 0, size);
+    } else if (size == 0) {
+        HeapFree(_heap, 0, ptr);
+        return NULL;
+    } else {
+        return HeapReAlloc(_heap, 0, ptr, size);
+    }
+}
