@@ -74,9 +74,11 @@ void mainCRTStartup() {
     srand(0);
     setlocale(LC_ALL, "C");
     _os_init_eh();
+
     int exit_code = main(arg_count, args);
 
-    ExitProcess(exit_code);
+    // we call exit because we want atexit routines run
+    exit(exit_code);
 }
 
 // This symbol is required to be present if we're using floating-point

@@ -16,7 +16,13 @@ int test() {
     return a;
 }
 
+void wack() {
+    printf("BYE!!!\n");
+}
+
 int main(int argc, char** argv) {
+    atexit(wack);
+
     test();
     char input[] = "A bird came down the walk";
     printf("Parsing the input string '%s'\n", input);
@@ -25,7 +31,7 @@ int main(int argc, char** argv) {
         printf("%s\n", token);
         token = strtok(NULL, " ");
     }
- 
+
     printf("Contents of the input string now: '");
     for(size_t n = 0; n < sizeof input; ++n)
         input[n] ? printf("%c", input[n]) : printf("\\0");

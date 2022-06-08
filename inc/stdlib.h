@@ -3,13 +3,13 @@
 #include <stddef.h>
 
 #if !defined(__STDC_LIB_EXT1__)
-    #define __STDC_LIB_EXT1__
+#define __STDC_LIB_EXT1__
 #endif
 
 #ifdef __STDC_WANT_SECURE_LIB__
-    #if !defined(__STDC_WANT_LIB_EXT1__)
-        #define __STDC_WANT_LIB_EXT1__ 1
-    #endif
+#if !defined(__STDC_WANT_LIB_EXT1__)
+#define __STDC_WANT_LIB_EXT1__ 1
+#endif
 #endif
 
 #define EXIT_SUCCESS 0
@@ -36,6 +36,11 @@
 #define RAND_MAX 65536
 // #define MB_CUR_MAX 5
 
+// Microsoft extension, COUNTOF(x) counts array elements
+#ifndef COUNTOF
+#define COUNTOF(...) (sizeof(__VA_ARGS__) / sizeof((__VA_ARGS__)[0]))
+#endif
+
 double atof(const char *nptr);
 int atoi(const char *nptr);
 long int atol(const char *nptr);
@@ -59,7 +64,7 @@ void *malloc(size_t size);
 void *realloc(void *ptr, size_t size);
 
 _Noreturn void abort(void);
-// int atexit(void (*func)(void));
+int atexit(void (*func)(void));
 // int at_quick_exit(void (*func)(void));
 _Noreturn void exit(int status);
 _Noreturn void _Exit(int status);
