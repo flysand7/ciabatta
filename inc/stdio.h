@@ -6,6 +6,10 @@
 typedef struct FILE FILE;
 typedef int64_t fpos_t;
 
+#if !defined(NULL)
+    #define NULL ((void *)0)
+#endif
+
 #if !defined(__STDC_LIB_EXT1__)
     #define __STDC_LIB_EXT1__
     typedef int errno_t;
@@ -29,9 +33,9 @@ typedef int64_t fpos_t;
 #define FOPEN_MAX 20
 
 #ifdef _os_win
-#define FILENAME_MAX 260
+    #define FILENAME_MAX 260
 #else
-#define FILENAME_MAX 4096
+    #define FILENAME_MAX 4096
 #endif
 
 #define L_tmpnam FILENAME_MAX
@@ -40,7 +44,11 @@ typedef int64_t fpos_t;
 #define SEEK_END 2
 #define SEEK_SET 0
 
-#define TMP_MAX  INT_MAX
+#ifdef _os_win
+    #define TMP_MAX  SHORT_MAX
+#else
+    #define TMP_MAX INT_MAX
+#endif
 
 extern FILE *stdout, *stderr, *stdin;
 

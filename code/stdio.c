@@ -7,6 +7,8 @@
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <string.h>
 
+#include <_os.h>
+
 typedef void(*OutputFunc)(void* ctx, size_t n, const char str[]);
 
 ///////////////////////////////////////////////
@@ -18,29 +20,6 @@ typedef void(*OutputFunc)(void* ctx, size_t n, const char str[]);
 #define FMT_STRLEN_S(s, maxsize) strnlen_s(s, maxsize)
 #include "printf.h"
 
-///////////////////////////////////////////////
-// Platform dependent
-///////////////////////////////////////////////
-#if defined(_os_win)
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
-// It's just mapped directly to HANDLE
-struct FILE {
-    int unused;
-};
-
-static void file_write(void* ctx, size_t n, const char str[]) {
-    DWORD written = 0;
-    WriteFile((HANDLE) ctx, str, n, &written, NULL);
-}
-#else
-#error "TODO: Implement this"
-#endif
-
-///////////////////////////////////////////////
-// Platform indenpendent
-///////////////////////////////////////////////
 typedef struct {
     size_t used, capacity;
     char* string;
@@ -61,12 +40,12 @@ static void string_write(void *ctx, size_t n, const char *restrict str) {
 }
 
 int fprintf(FILE *file, const char *restrict fmt, ...) {
-	CALL_PRINTF(fmt_print_char, file, file_write, fmt);
+	CALL_PRINTF(fmt_print_char, file, _os_file_write, fmt);
 	return result;
 }
 
 int printf(const char *restrict fmt, ...) {
-    CALL_PRINTF(fmt_print_char, stdout, file_write, fmt);
+    CALL_PRINTF(fmt_print_char, stdout, _os_file_write, fmt);
 	return result;
 }
 
@@ -83,11 +62,11 @@ int sprintf(char *restrict s, const char *restrict fmt, ...) {
 }
 
 int vfprintf(FILE *file, const char *restrict fmt, va_list args) {
-	return fmt_print_char(file, file_write, fmt, args);
+	return fmt_print_char(file, _os_file_write, fmt, args);
 }
 
 int vprintf(const char *restrict fmt, va_list args) {
-	return fmt_print_char(stdout, file_write, fmt, args);
+	return fmt_print_char(stdout, _os_file_write, fmt, args);
 }
 
 int vsnprintf(char *restrict s, size_t n, const char *restrict fmt, va_list args) {

@@ -1,10 +1,12 @@
 
+#include <_os.h>
+
 #include <locale.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "win32.h"
+#include "win.h"
 
 extern int main(int argc, char** argv);
 
@@ -71,6 +73,7 @@ void mainCRTStartup() {
 
     srand(0);
     setlocale(LC_ALL, "C");
+    _os_init_eh();
     int exit_code = main(arg_count, args);
 
     ExitProcess(exit_code);

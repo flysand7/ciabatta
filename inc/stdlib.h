@@ -12,6 +12,9 @@
     #endif
 #endif
 
+#define EXIT_SUCCESS 0
+#define EXIT_FAILURE 1
+
 // typedef struct div_t {
 //     int quot;
 //     int rem;
@@ -55,11 +58,11 @@ void free(void *ptr);
 void *malloc(size_t size);
 void *realloc(void *ptr, size_t size);
 
-// _Noreturn void abort(void);
+_Noreturn void abort(void);
 // int atexit(void (*func)(void));
 // int at_quick_exit(void (*func)(void));
-// _Noreturn void exit(int status);
-// _Noreturn void _Exit(int status);
+_Noreturn void exit(int status);
+_Noreturn void _Exit(int status);
 // char *getenv(const char *name);
 // _Noreturn void quick_exit(int status);
 // int system(const char *string);

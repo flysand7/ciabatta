@@ -13,3 +13,9 @@
    || defined(_os_linux))
     #error "Unsupported OS"
 #endif
+
+// OS-dependent IO Functions
+void _os_file_write(void* ctx, size_t n, const char str[]);
+_Noreturn void _os_exit(int code);
+void _os_init_eh();
+typedef struct FILE FILE;

@@ -3,7 +3,7 @@
 #include <limits.h>
 #include <stdbool.h>
 
-#include "win32.h"
+#include "win.h"
 
 // TODO: lock the heap before allocation (?)
 

@@ -16,7 +16,7 @@ shift /1
 set CIABATTA_OPTIONS=-Iinc -Wall -g -gcodeview -nodefaultlibs -D_CRT_SECURE_NO_WARNINGS
 set PLATFORM=win
 
-if "%1"=="fast" (
+if "%1"=="test" (
     goto :skip_crt_compilation
 )
 :: For each C file in code/ we check whether it's OS-dependent.
