@@ -7,3 +7,5 @@
 struct _os_heap {
     HANDLE handle;
 };
+
+void _os_timing_init(void);

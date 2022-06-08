@@ -1,13 +1,17 @@
-
 #pragma once
+#include <stddef.h>
 
 #if !defined(NULL)
-    #define NULL ((void *)0)
+#define NULL ((void *)0)
 #endif
 
 // The number of clock ticks per second
 #define CLOCKS_PER_SEC  ((clock_t)1000)
+
 #define TIME_UTC 1
+
+typedef size_t clock_t;
+typedef size_t time_t;
 
 struct timespec {
 	time_t tv_sec;  // Seconds - >= 0
@@ -30,7 +34,7 @@ clock_t clock(void);
 double difftime(time_t time1, time_t time0);
 time_t mktime(struct tm *timeptr);
 time_t time(time_t *timer);
-int timespec_get(timespec *ts, int base);
+int timespec_get(struct timespec *ts, int base);
 char *asctime(const struct tm *timeptr);
 char *ctime(const time_t *timer);
 struct tm *gmtime(const time_t *timer);
@@ -38,8 +42,8 @@ struct tm *localtime(const time_t *timer);
 size_t strftime(char * restrict s, size_t maxsize, const char * restrict format, const struct tm * restrict timeptr);
 
 #ifdef __STDC_WANT_LIB_EXT1__
-	errno_t asctime_s(char *s, rsize_t maxsize, const struct tm *timeptr);
-	errno_t ctime_s(char *s, rsize_t maxsize, const time_t *timer);
-	struct tm *gmtime_s(const time_t * restrict timer, struct tm * restrict result);
-	struct tm *localtime_s(const time_t * restrict timer, struct tm * restrict result);
+errno_t asctime_s(char *s, rsize_t maxsize, const struct tm *timeptr);
+errno_t ctime_s(char *s, rsize_t maxsize, const time_t *timer);
+struct tm *gmtime_s(const time_t * restrict timer, struct tm * restrict result);
+struct tm *localtime_s(const time_t * restrict timer, struct tm * restrict result);
 #endif

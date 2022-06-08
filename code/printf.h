@@ -71,6 +71,14 @@ inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE 
             } else {
                 int_length = SHORT;
             }
+        } else if (*fmt == 'z') {
+            fmt++;
+
+            int_length = _Generic((size_t)0,
+                                  unsigned short:     SHORT,
+                                  unsigned int:       INT,
+                                  unsigned long:      LONG,
+                                  unsigned long long: LLONG);
         }
 
         FMT_CHAR_TYPE ch = *fmt++;

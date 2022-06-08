@@ -1,6 +1,7 @@
 // https://en.cppreference.com/w/c/algorithm/bsearch
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 struct data {
     int nr;
@@ -17,9 +18,6 @@ int data_cmp(void const *lhs, void const *rhs)
     if (l->nr < r->nr) return -1;
     else if (l->nr > r->nr) return 1;
     else return 0;
-
-    // return (l->nr > r->nr) - (l->nr < r->nr); // possible shortcut
-    // return l->nr - r->nr; // erroneous shortcut (fails if INT_MIN is present)
 }
 
 int main(void)
@@ -31,4 +29,17 @@ int main(void)
     } else {
         printf("No %d not found\n", key.nr);
     }
+
+    while (clock() <= 3*CLOCKS_PER_SEC) {
+        printf("%llu seconds\n", clock() / CLOCKS_PER_SEC);
+    }
+
+    struct timespec start;
+    timespec_get(&start, TIME_UTC);
+
+    struct timespec ts;
+    do {
+        timespec_get(&ts, TIME_UTC);
+        printf("%zu:%ld\n", ts.tv_sec, ts.tv_nsec);
+    } while (ts.tv_sec < start.tv_sec+5);
 }

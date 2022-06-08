@@ -35,6 +35,8 @@ static bool convert_wide_chars_to_ansi(char* out, const wchar_t* str, size_t len
 }
 
 void mainCRTStartup() {
+    _os_timing_init();
+
     HANDLE heap = GetProcessHeap();
     if (heap == NULL) {
         ExitProcess(-42069);
