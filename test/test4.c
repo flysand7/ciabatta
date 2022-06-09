@@ -22,6 +22,8 @@ int data_cmp(void const *lhs, void const *rhs)
 
 int main(void)
 {
+    system("clang -v");
+
     struct data key = { .nr = 3 };
     struct data const *res = bsearch(&key, dat, sizeof dat / sizeof dat[0], sizeof dat[0], data_cmp);
     if (res) {

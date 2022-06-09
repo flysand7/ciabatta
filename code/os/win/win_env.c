@@ -3,7 +3,7 @@
 
 #include "win.h"
 
-char* getenv(const char *name) {
+char *getenv(const char *name) {
     // The string pointed to shall not be modified by the program, but may be
     // overwritten by a subsequent call to the getenv function
     static size_t env_string_cap;

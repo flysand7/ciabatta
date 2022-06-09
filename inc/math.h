@@ -5,7 +5,7 @@ typedef float float_t;
 typedef double double_t;
 
 #ifndef _HUGE_ENUF
-    #define _HUGE_ENUF  1e+300  // _HUGE_ENUF*_HUGE_ENUF must overflow
+#define _HUGE_ENUF  1e+300  // _HUGE_ENUF*_HUGE_ENUF must overflow
 #endif
 
 #define INFINITY   ((float)(_HUGE_ENUF * _HUGE_ENUF))
@@ -27,10 +27,9 @@ typedef double double_t;
 #define FP_NORMAL    2
 #define FP_SUBNORMAL 3
 #define FP_ZERO      4
-#define fpclassify(x) ( \
-    _is_float(x)  ? _fpclassify_f(x) :
-    _is_double(x) ? _fpclassify_d(x) :
-    FP_NAN)
+
+#define fpclassify(x) 0
+#define isfinite(x) 0
 
 double acos(double x);
 float acosf(float x);
