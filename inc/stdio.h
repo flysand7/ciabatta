@@ -6,6 +6,10 @@
 typedef struct FILE FILE;
 typedef int64_t fpos_t;
 
+typedef struct div_t div_t;
+typedef struct ldiv_t ldiv_t;
+typedef struct lldiv_t lldiv_t;
+
 #if !defined(NULL)
     #define NULL ((void *)0)
 #endif

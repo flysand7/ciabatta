@@ -17,21 +17,41 @@ typedef double double_t;
 // FP_ILOGB0
 // FP_ILOGBNAN
 
-#define MATH_ERRNO     0
-#define MATH_ERREXCEPT 1
+#define MATH_ERRNO     1
+#define MATH_ERREXCEPT 2
 
 #define math_errhandling MATH_ERRNO
 
+// Classification
 #define FP_INFINITE  0
 #define FP_NAN       1
 #define FP_NORMAL    2
 #define FP_SUBNORMAL 3
 #define FP_ZERO      4
+int     _fpclassify(double f);
+int     _fpclassifyf(float f);
+#define fpclassify(x) (sizeof(x)==4?_fpclassifyf(x):_fpclassify(x))
+#define isfinite(x)   (fpclassify(x) != FP_INFINITE && fpclassify(x) != FP_NAN)
+#define isinf(x)      (fpclassify(x) == FP_INFINITE)
+#define isnan(x)      (fpclassify(x) == FP_NAN)
+#define isnormal(x)   (fpclassify(x) == FP_NORMAL)
 
-#define fpclassify(x) (_is_float(x)  ? _fpclassifyf(x) : _fpclassify(x))
+// Sign bit shit
+int     _signbit(double f);
+int     _signbitf(float f);
+#define signbit(x)    (sizeof(x)==4?_signbitf(x):signbit(x))
+float   copysignf(float x, float y);
 
-double acos(double x);
-float acosf(float x);
+// Ordering
+#define isgreater(x)      (sizeof(x)==4?_isgrtf(x):_isgrt(x))
+#define isgreaterequal(x) (sizeof(x)==4?_isgeqf(x):_isgeq(x))
+#define isless(x)         (sizeof(x)==4?_islesf(x):_isles(x))
+#define islessequal(x)    (sizeof(x)==4?_isleqf(x):_isleq(x))
+#define islessgreater(x)  (sizeof(x)==4?_islegf(x):_isleg(x))
+#define isunordered(x)    (sizeof(x)==4?_isunof(x):_isuno(x))
+
+double  acos(double x);
+float   acosf(float x);
 
 double asin(double x);
 float asinf(float x);

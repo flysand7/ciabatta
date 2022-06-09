@@ -15,20 +15,20 @@
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
 
-// typedef struct div_t {
-//     int quot;
-//     int rem;
-// } div_t;
+typedef struct div_t {
+    int quot;
+    int rem;
+} div_t;
 
-// typedef struct ldiv_t {
-//     long quot;
-//     long rem;
-// } ldiv_t;
+typedef struct ldiv_t {
+    long quot;
+    long rem;
+} ldiv_t;
 
-// typedef struct lldiv_t {
-//     long long quot;
-//     long long rem;
-// } lldiv_t;
+typedef struct lldiv_t {
+    long long quot;
+    long long rem;
+} lldiv_t;
 
 // #define EXIT_FAILURE 1
 // #define EXIT_SUCCESS 0
