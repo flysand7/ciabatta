@@ -27,10 +27,7 @@ typedef double double_t;
 #define FP_NORMAL    2
 #define FP_SUBNORMAL 3
 #define FP_ZERO      4
-#define fpclassify(x) ( \
-    _is_float(x)  ? _fpclassify_f(x) :
-    _is_double(x) ? _fpclassify_d(x) :
-    FP_NAN)
+#define fpclassify(x) (_is_float(x)  ? _fpclassifyf(x) : _fpclassify(x))
 
 double acos(double x);
 float acosf(float x);
