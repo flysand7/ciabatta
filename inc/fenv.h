@@ -30,16 +30,32 @@ typedef unsigned fenv_t;
 extern fenv_t _fe_dfl_env;
 #define FE_DFL_ENV (&_fe_dfl_env)
 
+// Exceptions
+
 int feclearexcept(int excepts);
 int fegetexceptflag(fexcept_t *flagp, int excepts);
 int feraiseexcept(int excepts);
 int fesetexceptflag(const fexcept_t *flagp, int excepts);
 int fetestexcept(int excepts);
 
+// Rounding behaviour
+
 int fegetround(void);
 int fesetround(int round);
+
+// Environment
 
 int fegetenv(fenv_t *env);
 int fesetenv(fenv_t *env);
 int feholdexcept(fenv_t *envp);
 int feupdateenv(fenv_t const *envp);
+
+// Non-standard functions
+
+int _feenabletraps(int excepts);
+int _fedisabletraps(int excepts);
+
+#if defined(_CIABATTA_EXT)
+    #define feenabletraps _feenabletraps
+    #define _fedisabletraps _fedisabletraps
+#endif

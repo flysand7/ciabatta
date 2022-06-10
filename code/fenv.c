@@ -103,3 +103,23 @@ int feupdateenv(fenv_t const *envp) {
     feraiseexcept(excepts);
     return 0;
 }
+
+int _feenabletraps(int excepts) {
+    if((excepts & FE_ALL_EXCEPT) != excepts) {
+        return 1;
+    }
+    fexcept_t csr = _mm_getcsr();
+    csr &= ~fe_masks(excepts);
+    _mm_setcsr(csr);
+    return 0;
+}
+
+int _fedisabletraps(int excepts) {
+    if((excepts & FE_ALL_EXCEPT) != excepts) {
+        return 1;
+    }
+    fexcept_t csr = _mm_getcsr();
+    csr |= fe_masks(excepts);
+    _mm_setcsr(csr);
+    return 0;
+}
