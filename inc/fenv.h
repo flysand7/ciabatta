@@ -9,12 +9,18 @@ typedef unsigned fenv_t;
 #define FE_OVERFLOW  (1 << 3)
 #define FE_UNDERFLOW (1 << 4)
 #define FE_INEXACT   (1 << 5)
+// Implementation-defined flags
+#define FE_DENORM    (1 << 1)
+#define FE_DAZ       (1 << 6)
+
 #define FE_ALL_EXCEPT   \
     ( FE_INVALID        \
     | FE_DIVBYZERO      \
     | FE_OVERFLOW       \
     | FE_UNDERFLOW      \
-    | FE_INEXACT        )
+    | FE_INEXACT        \
+    | FE_DENORM         \
+    | FE_DAZ            )
 
 #define FE_TONEAREST  0x00
 #define FE_DOWNWARD   0x01

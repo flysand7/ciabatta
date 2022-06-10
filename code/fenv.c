@@ -4,6 +4,7 @@
 
 #define fe_masks(excepts) (((fexcept_t)(excepts)) << 7)
 #define fe_flags(excepts) ((fexcept_t)(excepts))
+#define fe_excepts(masks) ((int)(masks >> 7))
 
 fenv_t _fe_dfl_env = 0x1f80; // Based (on my machine)
 
@@ -16,7 +17,7 @@ int feclearexcept(int excepts)
         return 0;
     }
     fexcept_t csr = _mm_getcsr();
-    csr |= fe_masks(excepts);
+    csr &= ~fe_flags(excepts);
     _mm_setcsr(csr);
     return 0;
 }
