@@ -93,3 +93,11 @@ ftype suffix(sqrt)(ftype x) {
     bits = b_cons(0, exp, man);
     return suffix(f_frombits)(bits);
 }
+
+ftype suffix(hypot)(ftype x, ftype y)
+{
+    if(isinf(x) || isinf(y)) {
+        return INFINITY;
+    }
+    return suffix(sqrt)(x*x + y*y);
+}
