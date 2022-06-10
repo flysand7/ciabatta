@@ -16,6 +16,7 @@ enum Ordering {
 #define f_mbits 23
 #define suffix(n) n ## f
 #include "ieee754.h"
+#include "pow.h"
 #undef suffix
 #undef f_mbits
 #undef f_ebits
@@ -28,6 +29,7 @@ enum Ordering {
 #define f_mbits 52
 #define suffix(n) n
 #include "ieee754.h"
+#include "pow.h"
 #undef suffix
 #undef f_mbits
 #undef f_ebits
@@ -42,7 +44,8 @@ _Static_assert(sizeof(long double) == sizeof(double),
 #define f_ebits 11
 #define f_mbits 52
 #define suffix(n) n ## l
-//#include "ieee754.h"
+#include "ieee754.h"
+#include "pow.h"
 #undef suffix
 #undef f_mbits
 #undef f_ebits

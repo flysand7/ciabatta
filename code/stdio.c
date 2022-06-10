@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include <_os.h>
 

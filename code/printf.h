@@ -1,3 +1,7 @@
+
+//TODO: verify printf("%d", 0). From the code it looked like it would print
+// an empty string.
+
 // NOTE: this file doesn't exist in a vacuum, it's a template for generating
 // the formatted print, you should define FMT_CHAR_TYPE before including it
 inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE *fmt, va_list args) {
@@ -83,6 +87,9 @@ inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE 
         }
 
         FMT_CHAR_TYPE ch = *fmt++;
+        const char* characters = "0123456789abcdef";
+        if (ch == 'X') characters = "0123456789ABCDEF";
+
         switch (ch) {
             case 'c': {
                 const char chr = va_arg(args, int);
@@ -90,6 +97,45 @@ inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE 
                 full_length ++;
                 break;
             }
+            case 'f':
+            case 'L': {
+                double d = va_arg(args, double);
+
+                if(isinf(d)) {
+                    out(ctx, sizeof"inf"-1, "inf");
+                    break;
+                }
+                else if(isnan(d)) {
+                    out(ctx, sizeof"nan"-1, "nan");
+                    break;
+                }
+
+                if(d < 0) { // TODO: negative zero
+                    out(ctx, 1, "-");
+                    d = -d;
+                }
+
+                uint64_t w = (uint64_t)d;
+                d -= w;
+                FMT_CHAR_TYPE buffer[20];
+                size_t len = sizeof(buffer);
+                do {
+                    buffer[--len] = characters[w % 10];
+                    w /= 10;
+                } while(w != 0);
+                out(ctx, sizeof(buffer) - (len * sizeof(FMT_CHAR_TYPE)), buffer + len);
+
+                char dot = '.';
+                out(ctx, 1, &dot);
+
+                for(int i = 0; i != 6; ++i) {
+                    d *= 10;
+                    int dv = (int)d;
+                    d -= dv;
+                    char digit = characters[dv];
+                    out(ctx, 1, &digit);
+                }
+            } break;
             case 's': {
                 const FMT_CHAR_TYPE *str = va_arg(args, FMT_CHAR_TYPE*);
                 size_t len = FMT_STRLEN_S(str, precision ? precision : SIZE_MAX);
@@ -113,9 +159,6 @@ inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE 
                     case 'b':           base = 2;  break;
                     default:            base = 10; break;
                 }
-
-                const char* characters = "0123456789abcdef";
-                if (ch == 'X') characters = "0123456789ABCDEF";
 
                 uintmax_t i;
                 if (ch == 'd' || ch == 'i') {

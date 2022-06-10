@@ -9,21 +9,26 @@
 //                e.g. f for floats
 
 #define f_nbits (1+f_ebits+f_mbits)
-#define f_emax ((1ULL << (f_ebits-1)) - 1)
-#define f_emin (1 - f_emax)
+#define f_emax  ((1ULL << (f_ebits-1)) - 1)
+#define f_emin  (1 - f_emax)
+#define f_ebias f_emax
 
 // Extracting fields from the float
-#define f_eoffs (f_mbits)
-#define f_soffs (f_mbits+f_ebits)
-#define f_emask ((1ULL << f_ebits) - 1)
-#define f_mmask ((1ULL << f_mbits) - 1)
-#define f_smask 1ULL
+#define f_eoffs   (f_mbits)
+#define f_soffs   (f_mbits+f_ebits)
+#define f_emask   ((1ULL << f_ebits) - 1)
+#define f_mmask   ((1ULL << f_mbits) - 1)
+#define f_smask   1ULL
 #define f_eval(b) (((b) >> f_eoffs) & f_emask)
 #define f_sval(b) (((b) >> f_soffs) & f_smask)
 #define f_mval(b) (((b) >> 0) & f_mmask)
 #define f_abs(b)  ((b) & ~(f_smask << f_soffs))
+#define f_exp(b)  (f_eval(b) - f_ebias)
 
-#define b_cons(s,e,m) ((s << f_soffs) | (e << f_eoffs) | (m))
+#define f_qexp(b) (f_eval(b) - f_ebias - f_mbits)
+#define f_qman(b) (((b) & f_mmask) | (f_mmask+1))
+
+#define b_cons(s,e,m) (((itype)s << f_soffs) | ((itype)e << f_eoffs) | (itype)(m))
 
 // Converting float to integer bits
 static inline itype suffix(f_bits)(ftype f) {
@@ -35,8 +40,8 @@ static inline itype suffix(f_bits)(ftype f) {
     return u.b;
 }
 
-static inline itype suffix(f_frombits)(itype b) {
-        union _u {
+static inline ftype suffix(f_frombits)(itype b) {
+    union _u {
         ftype f;
         itype b;
     } u;
@@ -49,7 +54,7 @@ int suffix(_fpclassify)(ftype f) {
     itype bits = suffix(f_bits)(f);
     itype exp = f_eval(bits);
     itype man = f_mval(bits);
-    if(exp == f_emax) {
+    if(exp == f_emask) {
         if(man == 0) return FP_INFINITE;
         else return FP_NAN;
     }
