@@ -1,4 +1,6 @@
 
+#include <math.h>
+
 //TODO: verify printf("%d", 0). From the code it looked like it would print
 // an empty string.
 
@@ -101,6 +103,11 @@ inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE 
             case 'L': {
                 double d = va_arg(args, double);
 
+                if(signbit(d)) { // TODO: negative zero
+                    out(ctx, 1, "-");
+                    d = -d;
+                }
+
                 if(isinf(d)) {
                     out(ctx, sizeof"inf"-1, "inf");
                     break;
@@ -108,11 +115,6 @@ inline static int FMT_FUNC_NAME (void *ctx, OutputFunc out, const FMT_CHAR_TYPE 
                 else if(isnan(d)) {
                     out(ctx, sizeof"nan"-1, "nan");
                     break;
-                }
-
-                if(d < 0) { // TODO: negative zero
-                    out(ctx, 1, "-");
-                    d = -d;
                 }
 
                 uint64_t w = (uint64_t)d;
