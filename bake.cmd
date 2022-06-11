@@ -13,7 +13,7 @@ if "%~1" neq "_start_" (
 )
 shift /1
 
-set CIABATTA_OPTIONS=-Iinc -Wall -g -gcodeview -nodefaultlibs -D_CRT_SECURE_NO_WARNINGS
+set CIABATTA_OPTIONS=-Iinc -Wall -g -gcodeview -nodefaultlibs -D_CRT_SECURE_NO_WARNINGS -mfma
 set PLATFORM=win
 
 if "%1"=="test" (

@@ -5,13 +5,7 @@
 #include <float.h>
 #include <limits.h>
 
-#include <_compiler.h>
-#if defined(_compiler_clang) || defined(_compiler_gnu)
-    #define just_do_it(t) __attribute__((unused)) volatile t
-#endif
-
-#define asuint64(x) ((union {double f; uint64_t i;}){x}).i
-#define asdouble(x) ((union {double f; uint64_t i;}){x}).f
+#include "_util.h"
 
 double nearbyint(double x) {
     #pragma STDC FENV_ACCESS ON

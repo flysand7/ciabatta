@@ -4,12 +4,6 @@
 #include <stdint.h>
 #include <float.h>
 
-#include <_compiler.h>
-#if defined(_compiler_clang) || defined(_compiler_gnu)
-    #define just_do_it(t) __attribute__((unused)) volatile t
-#endif
-
-
 int _fpclassify(double x) {
     union {double f; uint64_t i;} u = {x};
     int e = u.i>>52 & 0x7ff;
