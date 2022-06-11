@@ -1,6 +1,11 @@
 #pragma once
-#include "_compiler.h"
-#include "_macros.h"
+
+#if !defined(__func__)
+    #define __func__ __FUNCTION__
+#endif
+
+#define _assert_str_(x) #x
+#define _assert_str(x) _assert_str_(x)
 
 extern void _assert_error(
     char *cond,
@@ -18,9 +23,9 @@ extern void _assert_error(
             if(!(condition)) {                                                \
                 _assert_error(                                                \
                     #condition,                                               \
-                    _compiler_curfunc,                                        \
+                    __func__,                                                 \
                     __FILE__,                                                 \
-                    _str(__LINE__));                                          \
+                    _assert_str(__LINE__));                                   \
             }                                                                 \
         } while(0)
 #endif

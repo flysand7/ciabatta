@@ -32,5 +32,3 @@
 #else
     #error "_compiler_brk is not implemented for this compiler"
 #endif
-
-#define _compiler_curfunc __FUNCTION__
