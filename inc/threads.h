@@ -15,7 +15,7 @@ typedef struct cnd_t {
 
 typedef struct thrd_t {
 #if defined(_WIN32)
-    HANDLE handle;
+    void* handle;
 #else
 #error "C11 thread has not been implemented on this platform"
 #endif
