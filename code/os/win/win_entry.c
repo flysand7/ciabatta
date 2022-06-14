@@ -14,6 +14,14 @@ extern int main(int argc, char** argv);
 DECLSPEC_IMPORT LPWSTR GetCommandLineW();
 DECLSPEC_IMPORT LPWSTR* CommandLineToArgvW(LPCWSTR lpCmdLine, int* pNumArgs);
 
+int _wcsicmp(wchar_t const* s1, wchar_t const* s2) {
+    int diff;
+    do {
+        diff = *s1 - *s2;
+    } while(diff != 0 && *s1 != 0 && *s2 != 0);
+    return diff;
+}
+
 static size_t count_wide_chars(const wchar_t* str) {
     size_t len = 0;
     while (str[len] != 0) len++;

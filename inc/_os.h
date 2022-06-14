@@ -1,8 +1,12 @@
 
 #pragma once
+#include <stddef.h>
 
 #if defined(_WIN32)
     #define _os_win
+    
+    // Weird hack because this function is used by a weird function windows.h defines
+    int _wcsicmp(wchar_t const* s1, wchar_t const* s2);
 #endif
 
 #if defined(__linux__) && !defined(__ANDROID__)
