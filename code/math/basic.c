@@ -7,6 +7,7 @@
 #endif
 
 #include <immintrin.h>
+#include <xmmintrin.h>
 
 double fabs(double x) {
     union {double f; uint64_t i;} u = {x};
@@ -97,8 +98,8 @@ float fmaf(float x, float y, float z) {
     __m128 xd = _mm_set_ss(x);
     __m128 yd = _mm_set_ss(y);
     __m128 zd = _mm_set_ss(z);
-    __m128 rd = _mm_fmadd_sd(xd, yd, zd);
-    float res = _mm_cvtsd_f64(rd);
+    __m128 rd = _mm_fmadd_ss(xd, yd, zd);
+    float res = _mm_cvtss_f32(rd);
     return res;
 }
 
@@ -106,7 +107,22 @@ long double fmal(long double x, long double y, long double z) {
     return fma(x, y, z);
 }
 
-float remainderf(float x, float y) {
-    int q;
-    return remquof(x, y, &q);
+double sqrt(double x) {
+    __m128d xd = _mm_set_sd(x);
+    __m128d yd = _mm_set_sd(0);
+    __m128d rd = _mm_sqrt_sd(xd, yd);
+    double res = _mm_cvtsd_f64(rd);
+    return res;
 }
+
+float sqrtf(float x) {
+    __m128 xd = _mm_set_ss(x);
+    __m128 rd = _mm_sqrt_ss(xd);
+    float res = _mm_cvtss_f32(rd);
+    return res;
+}
+
+long double sqrtl(long double x) {
+    return sqrt(x);
+}
+
