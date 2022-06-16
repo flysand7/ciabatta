@@ -2,8 +2,8 @@
 #pragma once
 
 typedef int wint_t;
-wctrans_t;
-wctype_t;
+typedef int (*wctrans_t)(wint_t wc);
+typedef int (*wctype_t)(wint_t wc);
 
 #ifndef WEOF
 	#define WEOF 0
