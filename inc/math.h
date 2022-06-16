@@ -20,7 +20,7 @@ typedef double double_t;
 #define MATH_ERRNO     1
 #define MATH_ERREXCEPT 2
 
-#define math_errhandling MATH_ERRNO
+#define math_errhandling MATH_ERRNO | MATH_ERREXCEPT
 
 // Classification
 #define FP_INFINITE  0

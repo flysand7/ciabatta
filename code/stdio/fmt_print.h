@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <string.h>
+#include <math.h>
 
 // This stuff is kinda related to what's going on in this file, so I left it
 // in a rather ugly manner here.

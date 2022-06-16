@@ -51,5 +51,5 @@ del build\*.obj
 
 :skip_crt_compilation
 echo Compiling test..
-clang -fno-builtin test\test_wctype.c ciabatta.lib -std=c11 -lkernel32 -luser32 -lshell32 -nostdlib %CIABATTA_OPTIONS%
+clang -fno-builtin test\test_math.c ciabatta.lib -std=c11 -lkernel32 -luser32 -lshell32 -nostdlib %CIABATTA_OPTIONS%
 ::cl test\test_math.c /Iinc -D_CRT_SECURE_NO_WARNINGS /Z7 /link ciabatta.lib kernel32.lib user32.lib shell32.lib -nostdlib -nodefaultlibs

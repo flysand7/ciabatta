@@ -4,6 +4,7 @@
 #include <float.h>
 #include <fenv.h>
 #include <inttypes.h>
+#include <errno.h>
 
 const char *show_classification(double x) {
     switch(fpclassify(x)) {
@@ -102,6 +103,19 @@ int main() {
     feclearexcept(FE_ALL_EXCEPT);
     printf("lround(LONG_MAX+1.5) = %ld\n", lround(LONG_MAX+1.5));
     if(fetestexcept(FE_INVALID)) printf("    FE_INVALID was raised\n");
+
+    printf("\n\n=== exp === \n");
+    printf("exp(1) = %f\n", exp(1));
+    printf("FV of $100, continuously compounded at 3%% for 1 year = %f\n",
+            100*exp(0.03));
+    // special values
+    printf("exp(-0) = %f\n", exp(-0.0));
+    printf("exp(-Inf) = %f\n", exp(-INFINITY));
+    //error handling
+    errno = 0; feclearexcept(FE_ALL_EXCEPT);
+    printf("exp(710) = %f\n", exp(710));
+    if(errno == ERANGE) printf("    errno == ERANGE\n");
+    if(fetestexcept(FE_OVERFLOW)) printf("    FE_OVERFLOW raised\n");
 
     return 0;
 }
