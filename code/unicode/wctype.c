@@ -5,12 +5,7 @@
 #include "unicode.h"
 
 static inline int char_cat(wint_t wc) {
-    #define X(code, cat, l, u) case code: return cat;
-    switch(wc) {
-        UNI_TAB
-    }
-    #undef X
-    return -1;
+    return uni_codepoints[wc].cat;
 }
 
 int iswctype(wint_t wc, wctype_t desc) {
@@ -109,19 +104,9 @@ int iswxdigit(wint_t wc) {
 }
 
 wint_t towlower(wint_t wc) {
-    #define X(code, cat, l, u) case code: return l;
-    switch(wc) {
-        UNI_TAB
-    }
-    #undef X
-    return wc;
+    return uni_codepoints[wc].lower;
 }
 
 wint_t towupper(wint_t wc) {
-    #define X(code, cat, l, u) case code: return u;
-    switch(wc) {
-        UNI_TAB
-    }
-    #undef X
-    return wc;
+    return uni_codepoints[wc].upper;
 }

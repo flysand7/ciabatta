@@ -38,8 +38,15 @@ with open('unicode.h', 'w') as header:
     header.write('#define Zl 26\n');
     header.write('#define Zp 27\n');
     header.write('#define Zs 28\n');
-    header.write('\n');
-    header.write('#define UNI_TAB \\\n');
+    header.write(
+'''
+struct _uni_elm {
+    wint_t code;
+    wint_t cat;
+    wint_t lower;
+    wint_t upper;
+} uni_codepoints[] = {
+''');
 
     with open('unicode_data.txt') as file:
         for line in file:
@@ -52,11 +59,11 @@ with open('unicode.h', 'w') as header:
                 lower = code
             if upper == '' or upper == '\n':
                 upper = code
-            header.write('    X(' + \
+            header.write('    {' + \
                 '0x' + code  + ', ' + \
                 cat          + ', ' + \
                 '0x' + lower + ', ' + \
-                '0x' + upper + ')\\\n');
+                '0x' + upper + '},\n');
 
-    header.write('\n');
+    header.write('};\n\n');
     header.close();
