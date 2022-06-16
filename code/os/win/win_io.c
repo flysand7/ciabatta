@@ -86,6 +86,11 @@ void _os_file_write(void* ctx, size_t n, const char str[]) {
     WriteFile((HANDLE) ctx, str, n, &written, NULL);
 }
 
+void  _os_file_write_char(void* ctx, char ch) {
+    DWORD written = 0;
+    WriteFile((HANDLE) ctx, &ch, 1, &written, NULL);
+}
+
 int system(const char* string) {
     int wchars_required = MultiByteToWideChar(65001 /* UTF8 */, 0, string, -1, NULL, 0);
     wchar_t* cmd_line = malloc(sizeof(L"cmd.exe ") + (wchars_required * sizeof(wchar_t)));

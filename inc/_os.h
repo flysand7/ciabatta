@@ -36,6 +36,7 @@ char *_os_tmpname(char *buffer);
 FILE *_os_fopen(char const *restrict name, _OS_ModeFlags flags);
 int   _os_fclose(FILE *file);
 void  _os_file_write(void* ctx, size_t n, const char str[]);
+void  _os_file_write_char(void* ctx, char ch);
 
 void _os_init_eh();
 
