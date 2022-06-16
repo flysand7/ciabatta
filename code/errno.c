@@ -1,4 +1,4 @@
 
 #include <errno.h>
 
-int errno;
+_Thread_local int errno;
