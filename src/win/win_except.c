@@ -6,7 +6,8 @@
 
 #include <signal.h>
 #include <stddef.h>
-#include <_macros.h>
+
+#define _countof(arr) (sizeof (arr) / sizeof ((arr)[0]))
 
 typedef struct SignalMapping {
     DWORD code;

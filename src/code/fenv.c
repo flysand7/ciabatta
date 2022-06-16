@@ -6,10 +6,9 @@
 #define fe_flags(excepts) ((fexcept_t)(excepts))
 #define fe_excepts(masks) ((int)(masks >> 7))
 
-fenv_t _fe_dfl_env = 0x1f80; // Based (on my machine)
+fenv_t _fe_dfl_env = 0x1f80;
 
-int feclearexcept(int excepts)
-{
+int feclearexcept(int excepts) {
     if((excepts & FE_ALL_EXCEPT) != excepts) {
         return 1;
     }

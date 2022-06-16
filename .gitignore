@@ -1,4 +1,4 @@
-build
+bin
 *.exe
 *.lib
 *.obj

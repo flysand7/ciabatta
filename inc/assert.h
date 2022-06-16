@@ -4,14 +4,11 @@
     #define __func__ __FUNCTION__
 #endif
 
-#define _assert_str_(x) #x
-#define _assert_str(x) _assert_str_(x)
-
-extern void _assert_error(
-    char *cond,
+void _Noreturn _assert(
+    char const *cond,
     char const *func,
     char const *file,
-    char const *line
+    int line
 );
 
 #if defined(NDEBUG)
@@ -21,11 +18,7 @@ extern void _assert_error(
     #define assert(condition)                                                 \
         do {                                                                  \
             if(!(condition)) {                                                \
-                _assert_error(                                                \
-                    #condition,                                               \
-                    __func__,                                                 \
-                    __FILE__,                                                 \
-                    _assert_str(__LINE__));                                   \
+                _assert(#condition, __func__, __FILE__, __LINE__);            \
             }                                                                 \
         } while(0)
 #endif

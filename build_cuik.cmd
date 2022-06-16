@@ -1,12 +1,18 @@
 @echo off
 setlocal enabledelayedexpansion
 
+if not exist src\code\unicode\unicode_data.h (
+    py src\code\unicode\unicode_compile.py
+)
+
 set PLATFORM=win
 set CIABATTA_OPTIONS=--crt none -I %% -I inc
 
 del ciabatta.lib
-cuik %CIABATTA_OPTIONS% code\*.c code\os\%PLATFORM%\*.c -c -o ciabatta.obj
+cuik %CIABATTA_OPTIONS% src\code\*.c src\%PLATFORM%\*.c -c -o ciabatta.obj
 lib /out:ciabatta.lib ciabatta.obj
 
-cuik test\test.c --lib ciabatta.lib,kernel32.lib,user32.lib,shell32.lib %CIABATTA_OPTIONS%
+if "%TEST%"=="" set TEST=assert
+
+cuik test\test_%TEST%.c --lib ciabatta.lib,kernel32.lib,user32.lib,shell32.lib %CIABATTA_OPTIONS%
 del ciabatta.obj

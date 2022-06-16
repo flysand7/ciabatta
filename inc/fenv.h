@@ -4,12 +4,12 @@
 typedef unsigned fexcept_t;
 typedef unsigned fenv_t;
 
+// These constants correspond to bits in MXCSR register
 #define FE_INVALID   (1 << 0)
 #define FE_DIVBYZERO (1 << 2)
 #define FE_OVERFLOW  (1 << 3)
 #define FE_UNDERFLOW (1 << 4)
 #define FE_INEXACT   (1 << 5)
-// Implementation-defined flags
 #define FE_DENORM    (1 << 1)
 #define FE_DAZ       (1 << 6)
 
@@ -22,6 +22,7 @@ typedef unsigned fenv_t;
     | FE_DENORM         \
     | FE_DAZ            )
 
+// These constants correspond to the rounding field in MXCSR register
 #define FE_TONEAREST  0x00
 #define FE_DOWNWARD   0x01
 #define FE_UPWARD     0x02
@@ -56,6 +57,6 @@ int _feenabletraps(int excepts);
 int _fedisabletraps(int excepts);
 
 #if defined(_CIABATTA_EXT)
-    #define feenabletraps _feenabletraps
-    #define _fedisabletraps _fedisabletraps
+    #define feenabletraps  _feenabletraps
+    #define fedisabletraps _fedisabletraps
 #endif

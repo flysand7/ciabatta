@@ -6,7 +6,7 @@
 #endif
 
 #if defined(__GNUC__) && !defined(__clang__)
-    #define _compiler_gnu
+    #define _compiler_gcc
 #endif
 
 #if defined(__clang__)
@@ -18,17 +18,9 @@
 #endif
 
 #if !(defined(_compiler_msvc) \
-   || defined(_compiler_gnu) \
+   || defined(_compiler_gcc) \
    || defined(_compiler_cuik) \
    || defined(_compiler_clang))
     #error "Unsupported Compiler"
 #endif
 
-#if defined(_compiler_msvc) || defined(_compiler_cuik)
-    #include <intrin.h>
-    #define _compiler_brk __debugbreak
-#elif defined(_compiler_gcc) || defined(_compiler_clang)
-    #define _compiler_brk __builtin_trap
-#else
-    #error "_compiler_brk is not implemented for this compiler"
-#endif

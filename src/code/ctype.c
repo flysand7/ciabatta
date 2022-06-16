@@ -1,9 +1,5 @@
 
-// TODO: table-driven?
-// TODO: other locales
-
 #include <ctype.h>
-#include <locale.h>
 
 #define in_range(low, v, high) ((low <= v) && (v <= high))
 

@@ -19,37 +19,30 @@ set PLATFORM=win
 if "%1"=="test" (
     goto :skip_crt_compilation
 )
-:: For each C file in code/ we check whether it's OS-dependent.
-:: If so, we check whether the platform is the chosen one. If not, we ignore
-:: that file (set ok=0). Otherwise we compile it.
-:: Man, batch files are sure scary, when you try to do something serious
-:: it took me a lot of time to figure out how to write this if it breaks
-:: im gonna be seriously disappointed :kekw:
-del ciabatta.lib 2> nul
-for /R code %%F in (*.c) do (
-    set ok=1
-    set os_dependent=0
-    set is_cur_os=0
-    echo %%F | findstr /c:"%~pd0code\os" > nul
-    if !errorlevel! neq 1 (
-        set os_dependent=1
-    )
-    echo %%F | findstr /c:"%~pd0code\os\%PLATFORM%" > nul
-    if !errorlevel! neq 1 (
-        set is_cur_os=1
-    )
-    if "!os_dependent!"=="1" if "!is_cur_os!"=="0" (
-        set ok=0
-    )
-    if "!ok!"=="1" (
-        echo %%F
-        clang -c -o build\%%~nF.obj %%F %CIABATTA_OPTIONS%
-    )
+
+if not exist src\code\unicode\unicode_data.h (
+    py src\code\unicode\unicode_compile.py
 )
-llvm-ar rc ciabatta.lib build\*.obj
-del build\*.obj
+
+if exist bin rd/s/q bin
+mkdir bin
+mkdir bin\%PLATFORM%
+
+del ciabatta.lib 2> nul
+for /R src\%PLATFORM% %%F in (*.c) do (
+    echo %%F
+    clang -c -o bin\%PLATFORM%\%%~nF.obj %%F %CIABATTA_OPTIONS%
+)
+for /R src\code %%F in (*.c) do (
+    echo %%F
+    clang -c -o bin\%%~nF.obj %%F %CIABATTA_OPTIONS%
+)
+llvm-ar rc ciabatta.lib bin\*.obj bin\%PLATFORM%\*.obj
 
 :skip_crt_compilation
-echo Compiling test..
-clang -fno-builtin test\test_math.c ciabatta.lib -std=c11 -lkernel32 -luser32 -lshell32 -nostdlib %CIABATTA_OPTIONS%
+
+if "%TEST%"=="" set TEST=assert
+
+echo Compiling test_%TEST%.c
+clang -fno-builtin test\test_%TEST%.c ciabatta.lib -std=c11 -lkernel32 -luser32 -lshell32 -nostdlib %CIABATTA_OPTIONS%
 ::cl test\test_math.c /Iinc -D_CRT_SECURE_NO_WARNINGS /Z7 /link ciabatta.lib kernel32.lib user32.lib shell32.lib -nostdlib -nodefaultlibs

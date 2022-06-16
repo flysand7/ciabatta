@@ -1,5 +1,9 @@
 local lake = require 'lakebuild'
 
+-- NOTE(bumbread): change this to reflect the fact that
+-- now platform-independent stuff is in src/code and
+-- platform-dependent stuff is in src/$PALTFORM
+
 local function buildcmd(target)
 	local deps = ""
 	if target.userdata.add_deps then

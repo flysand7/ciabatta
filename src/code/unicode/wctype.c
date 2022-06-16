@@ -2,7 +2,7 @@
 #include <wctype.h>
 #include <string.h>
 
-#include "unicode.h"
+#include "unicode_data.h"
 
 static inline int char_cat(wint_t wc) {
     return uni_codepoints[wc].cat;
@@ -86,13 +86,26 @@ int iswpunct(wint_t wc) {
         case Pi:
         case Po:
         case Ps:
+        case Sk:
+        case Sc:
+        case Sm:
+        case So:
             return 1;
     }
     return 0;
 }
 
 int iswspace(wint_t wc) {
-    return char_cat(wc) == Zs;
+    switch(wc) {
+        case ' ':
+        case '\t':
+        case '\v':
+        case '\r':
+        case '\n':
+        case '\f':
+            return 1;
+    }
+    return 0;
 }
 
 int iswupper(wint_t wc) {

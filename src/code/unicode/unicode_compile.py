@@ -6,7 +6,7 @@ abspath = os.path.abspath(sys.argv[0])
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
-with open('unicode.h', 'w') as header:
+with open('unicode_data.h', 'w') as header:
     header.write('\n');
     header.write('#pragma once\n\n');
     header.write('#define Cc  0\n');
