@@ -58,7 +58,11 @@
         ArgConv arg_conv;
     };
 
-    inline static uint64_t get_int_arg(Format *fmt, va_list args, bool *signp) {
+    inline static uint64_t get_int_arg(
+        Format *fmt,
+        va_list *args,
+        bool *signp
+    ) {
         bool sign = 0;
         uint64_t num = 0;
 
@@ -66,7 +70,7 @@
         // If we've got HH or H we need to parse as int, and do the necessary conv
         // to unsigned if needed.
         if(fmt->arg_len < LEN_I) {
-            int ch = va_arg(args, int);
+            int ch = va_arg(*args, int);
             if(ch < 0) {
                 if(fmt->flag_unsigned) {
                     num = ch + (fmt->arg_len == LEN_HH? UCHAR_MAX : USHRT_MAX);
@@ -82,12 +86,12 @@
         // plus handle the sign
         else if(fmt->flag_unsigned) {
             switch(fmt->arg_len) {
-                case LEN_I:  num = va_arg(args, unsigned int); break;
-                case LEN_L:  num = va_arg(args, unsigned long); break;
-                case LEN_LL: num = va_arg(args, unsigned long long); break;
-                case LEN_J:  num = va_arg(args, uintmax_t); break;
-                case LEN_Z:  num = va_arg(args, size_t); break;
-                case LEN_T:  num = va_arg(args, size_t); break;
+                case LEN_I:  num = va_arg(*args, unsigned int); break;
+                case LEN_L:  num = va_arg(*args, unsigned long); break;
+                case LEN_LL: num = va_arg(*args, unsigned long long); break;
+                case LEN_J:  num = va_arg(*args, uintmax_t); break;
+                case LEN_Z:  num = va_arg(*args, size_t); break;
+                case LEN_T:  num = va_arg(*args, size_t); break;
                 default:;
             }
         }
@@ -95,12 +99,12 @@
             // TODO: signed size_t
             int64_t i = 0;
             switch(fmt->arg_len) {
-                case LEN_I:  i = va_arg(args, int); break;
-                case LEN_L:  i = va_arg(args, long); break;
-                case LEN_LL: i = va_arg(args, long long); break;
-                case LEN_J:  i = va_arg(args, uintmax_t); break;
-                case LEN_Z:  i = va_arg(args, int64_t); break;
-                case LEN_T:  i = va_arg(args, ptrdiff_t); break;
+                case LEN_I:  i = va_arg(*args, int); break;
+                case LEN_L:  i = va_arg(*args, long); break;
+                case LEN_LL: i = va_arg(*args, long long); break;
+                case LEN_J:  i = va_arg(*args, uintmax_t); break;
+                case LEN_Z:  i = va_arg(*args, int64_t); break;
+                case LEN_T:  i = va_arg(*args, ptrdiff_t); break;
                 default:;
             }
             if(i < 0) {
@@ -143,7 +147,7 @@ inline static int suffix(fmt_atoi)(fchar const *str, int *value) {
 inline static int suffix(fmt_parse)(
     Format *format,
     fchar const *str,
-    va_list args
+    va_list *args
 ) {
     *format = (Format){0};
     // Parse flags
@@ -161,7 +165,7 @@ inline static int suffix(fmt_parse)(
     int width = 0;
     if(str[i] == '*') {
         ++i;
-        width = va_arg(args, int);
+        width = va_arg(*args, int);
         if(width < 0) {
             width = -width;
             format->flag_zero = true;
@@ -178,7 +182,7 @@ inline static int suffix(fmt_parse)(
         ++i;
         if(str[i] == '*') {
             ++i;
-            prec = va_arg(args, int);
+            prec = va_arg(*args, int);
             if(prec < 0) {
                 prec = 0;
             }
@@ -333,7 +337,7 @@ inline static int suffix(fmt_fprint_int)(
     void *ctx,
     suffix(out_func_t) *out,
     Format *fmt,
-    va_list args
+    va_list *args
 ) {
     int w = 0;
     
@@ -448,10 +452,10 @@ inline static int suffix(fmt_fprint_ptr)(
     void *ctx,
     suffix(out_func_t) *out,
     Format *fmt,
-    va_list args
+    va_list *args
 ) {
     int w = 0;
-    uintptr_t num = va_arg(args, uintptr_t);
+    uintptr_t num = va_arg(*args, uintptr_t);
 
     int s_len = 2 + 16; // length of significant chars
     int d_len = s_len;                   // length of all displayed chars
@@ -530,7 +534,7 @@ inline static int suffix(fmt_fprint_char)(
     void *ctx,
     suffix(out_func_t) *out,
     Format *fmt,
-    va_list args
+    va_list *args
 ) {
     int w = 0;
     bool sign;
@@ -570,10 +574,10 @@ inline static int suffix(fmt_just_fucking_print_float_someone_improve_this_later
     void *ctx,
     suffix(out_func_t) *out,
     Format *fmt,
-    va_list args
+    va_list *args
 ) {
     int w = 0;
-    double f = va_arg(args, double);
+    double f = va_arg(*args, double);
     uint64_t i = (uint64_t)f;
 
     char digits_arr[33] = {0};
@@ -616,10 +620,10 @@ inline static int suffix(fmt_fprint_str)(
     void *ctx,
     suffix(out_func_t) *out,
     Format *fmt,
-    va_list args
+    va_list *args
 ) {
     int w = 0;
-    char *str = va_arg(args, char *);
+    char *str = va_arg(*args, char *);
     uint64_t len = strlen(str);
 
     // Calculate padding
@@ -666,31 +670,31 @@ inline static int suffix(fmt_print)(
         if(fmt[i] == '%') {
             ++i;
             Format format;
-            int fmt_len = suffix(fmt_parse)(&format, fmt+i, args);
+            int fmt_len = suffix(fmt_parse)(&format, fmt+i, &args);
             if(fmt_len < 0) return -1;
             i += fmt_len;
             int written;
             switch(format.arg_conv) {
                 case CONV_INT: {
-                    written = suffix(fmt_fprint_int)(ctx, out, &format, args);
+                    written = suffix(fmt_fprint_int)(ctx, out, &format, &args);
                 } break;
                 case CONV_FLT: {
-                    written = suffix(fmt_just_fucking_print_float_someone_improve_this_later)(ctx, out, &format, args);
+                    written = suffix(fmt_just_fucking_print_float_someone_improve_this_later)(ctx, out, &format, &args);
                 } break;
                 case CONV_EXP: {
-                    written = suffix(fmt_just_fucking_print_float_someone_improve_this_later)(ctx, out, &format, args);
+                    written = suffix(fmt_just_fucking_print_float_someone_improve_this_later)(ctx, out, &format, &args);
                 } break;
                 case CONV_SCI: {
-                    written = suffix(fmt_just_fucking_print_float_someone_improve_this_later)(ctx, out, &format, args);
+                    written = suffix(fmt_just_fucking_print_float_someone_improve_this_later)(ctx, out, &format, &args);
                 } break;
                 case CONV_CHAR: {
-                    written = suffix(fmt_fprint_char)(ctx, out, &format, args);
+                    written = suffix(fmt_fprint_char)(ctx, out, &format, &args);
                 } break;
                 case CONV_STR: {
-                    written = suffix(fmt_fprint_str)(ctx, out, &format, args);
+                    written = suffix(fmt_fprint_str)(ctx, out, &format, &args);
                 } break;
                 case CONV_PTR: {
-                    written = suffix(fmt_fprint_ptr)(ctx, out, &format, args);
+                    written = suffix(fmt_fprint_ptr)(ctx, out, &format, &args);
                 } break;
                 case CONV_N: {
                     int *n = va_arg(args, int *);

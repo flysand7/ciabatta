@@ -3,9 +3,14 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include<Windows.h>
+#include<DbgHelp.h>
 
 #include <signal.h>
 #include <stddef.h>
+#include <inttypes.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #define _countof(arr) (sizeof (arr) / sizeof ((arr)[0]))
 
@@ -47,6 +52,29 @@ static LONG _win32_handler(EXCEPTION_POINTERS *ExceptionInfo) {
         raise(signal);
     }
     return EXCEPTION_CONTINUE_SEARCH;
+}
+
+void _os_print_stack_trace() {
+    HANDLE process = GetCurrentProcess();
+    SymInitialize(process, NULL, TRUE);
+
+    void *stack[128];
+    USHORT frames = CaptureStackBackTrace(2, 128, stack, NULL);
+
+    SYMBOL_INFO* symbol = calloc(sizeof(SYMBOL_INFO)+256, 1);
+    symbol->MaxNameLen   = 255;
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+    for(size_t i = 0; i < frames; i++) {
+        SymFromAddr(process, (DWORD64)stack[i], 0, symbol);
+        if(strcmp(symbol->Name, "BaseThreadInitThunk") == 0) break;
+        if(strcmp(symbol->Name, "mainCRTStartup") == 0)      break;
+        printf("  %u: 0x%"PRIx64" (%s)\n",
+            (int)(frames-i-1),
+            symbol->Address,
+            symbol->Name
+        );
+    }
+    free(symbol);
 }
 
 void _os_init_eh() {

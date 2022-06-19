@@ -27,6 +27,9 @@ typedef struct _OS_ModeFlags {
 } _OS_ModeFlags;
 
 typedef struct FILE FILE;
+
+void  _os_print_stack_trace();
+
 int   _os_del_file(char const *filename);
 int   _os_mov_file(char const *old, char const *new);
 char *_os_tmpname(char *buffer);
