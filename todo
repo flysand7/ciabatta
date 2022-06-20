@@ -1,0 +1,48 @@
+
+locale.h:
+    Make other locales actually work
+
+math.h:
+    exp
+    exp2
+    expml
+    log
+    log10
+    log2
+    log1p
+    pow
+    cbrt
+    hypot
+    atan2
+    erf
+    erfc
+    tgamma
+    lgamma
+    frexp
+    ldexp
+    M_PI
+    M_E
+    M_LOG2
+    M_LOG10
+    other stuff?
+
+stdio.h:
+    Basically everything
+
+stdlib.h:
+    qsort
+    Better PRNG
+    Probably other stuff
+
+threads.h:
+    Make _Thread_local work on windows
+    TODO: add todo items
+
+tgmath.h:
+    Basically everything
+
+uchar.h:
+    Basically everything
+
+wchar.h:
+    Basically everything
