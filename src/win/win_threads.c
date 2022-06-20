@@ -5,8 +5,8 @@
 // Based on these posts:
 //   https://preshing.com/20120305/implementing-a-recursive-mutex/
 //   https://preshing.com/20120226/roll-your-own-lightweight-mutex/
-#include "win.h"
-#include "threads.h"
+#include <win.h>
+#include <threads.h>
 
 void mtx_destroy(mtx_t *mtx) {
     CloseHandle(mtx->semaphore);

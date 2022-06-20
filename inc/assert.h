@@ -1,3 +1,4 @@
+
 #pragma once
 
 #if !defined(__func__)

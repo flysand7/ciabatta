@@ -31,7 +31,7 @@ mkdir bin\%PLATFORM%
 del ciabatta.lib 2> nul
 for /R src\%PLATFORM% %%F in (*.c) do (
     echo %%F
-    clang -c -o bin\%PLATFORM%\%%~nF.obj %%F %CIABATTA_OPTIONS%
+    clang -Isrc/win -c -o bin\%PLATFORM%\%%~nF.obj %%F %CIABATTA_OPTIONS%
 )
 for /R src\code %%F in (*.c) do (
     echo %%F

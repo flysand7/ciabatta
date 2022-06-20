@@ -1,10 +1,7 @@
 
-#include <_os.h>
+#include <win.h>
 
-#define WIN32_LEAN_AND_MEAN
-#include<Windows.h>
-#include<DbgHelp.h>
-
+#include <signal.h>
 #include <signal.h>
 #include <stddef.h>
 #include <inttypes.h>
@@ -54,32 +51,45 @@ static LONG _win32_handler(EXCEPTION_POINTERS *ExceptionInfo) {
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-void _os_print_stack_trace() {
-    HANDLE process = GetCurrentProcess();
-    SymInitialize(process, NULL, TRUE);
 
-    void *stack[128];
-    USHORT frames = CaptureStackBackTrace(2, 128, stack, NULL);
-
-    SYMBOL_INFO* symbol = calloc(sizeof(SYMBOL_INFO)+256, 1);
-    symbol->MaxNameLen   = 255;
-    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-    for(size_t i = 0; i < frames; i++) {
-        SymFromAddr(process, (DWORD64)stack[i], 0, symbol);
-        if(strcmp(symbol->Name, "BaseThreadInitThunk") == 0) break;
-        if(strcmp(symbol->Name, "mainCRTStartup") == 0)      break;
-        printf("  %u: 0x%"PRIx64" (%s)\n",
-            (int)(frames-i-1),
-            symbol->Address,
-            symbol->Name
-        );
-    }
-    free(symbol);
-}
-
-void _os_init_eh() {
+void _setup_eh() {
     void *res = AddVectoredExceptionHandler(1, &_win32_handler);
     if(res == NULL) {
         ExitProcess(-69420);
     }
+}
+
+void _signal_default_handler(int sig){}
+void _signal_ignore_handler(int sig){}
+
+static void (*(handlers[]))(int) = {
+    [SIGINT]   = _signal_ignore_handler,
+    [SIGILL]   = _signal_ignore_handler,
+    [SIGFPE]   = _signal_ignore_handler,
+    [SIGSEGV]  = _signal_ignore_handler,
+    [SIGTERM]  = _signal_ignore_handler,
+    [SIGABRT]  = _signal_ignore_handler,
+    [SIGBREAK] = _signal_ignore_handler,
+    [SIGALIGN] = _signal_ignore_handler,
+    [SIGSTEP]  = _signal_ignore_handler,
+};
+
+void (*signal(int sig, void (*func)(int)))(int) {
+    if(_SIG_MIN <= sig && sig <= _SIG_MAX) {
+        handlers[sig] = func;
+        return func;
+    }
+    return SIG_ERR;
+}
+
+int raise(int sig)
+{
+    if(_SIG_MIN <= sig && sig <= _SIG_MAX) {
+        handlers[sig](sig);
+        if(sig == SIGFPE || sig == SIGILL || sig == SIGSEGV) {
+            ExitProcess(-69420);
+        }
+        return 1;
+    }
+    return 0;
 }

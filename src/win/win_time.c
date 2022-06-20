@@ -1,10 +1,19 @@
+
 #include <time.h>
 #include <stdint.h>
-#include "win.h"
+#include <win.h>
 
 // Store the time since we started running the process
 static uint64_t timer_freq;
 static uint64_t timer_start;
+
+void _setup_timer(void) {
+    LARGE_INTEGER freq, start;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&start);
+    timer_start = start.QuadPart;
+    timer_freq  = freq.QuadPart;
+}
 
 int timespec_get(struct timespec *ts, int base) {
     if (base != TIME_UTC) return 0;
@@ -41,15 +50,4 @@ clock_t clock(void) {
     scaled_millis += ((time_from_start % timer_freq) * CLOCKS_PER_SEC) / timer_freq;
 
     return scaled_millis;
-}
-
-void _os_timing_init(void) {
-    LARGE_INTEGER freq, start;
-    if (QueryPerformanceFrequency(&freq) && QueryPerformanceCounter(&start)) {
-        timer_start = start.QuadPart;
-        timer_freq  = freq.QuadPart;
-    } else {
-        // failure...
-        timer_start = timer_freq = UINT64_MAX;
-    }
 }

@@ -1,13 +1,9 @@
 
-#include <stdlib.h>
-#include <limits.h>
+#include <win.h>
 #include <stdbool.h>
+#include <limits.h>
 
-#include "win.h"
-
-// TODO: lock the heap before allocation (?)
-
-HANDLE _heap;
+static HANDLE heap_handle;
 
 static bool is_power_of_two(size_t s) {
     return (s & (s-1)) == 0;
@@ -17,8 +13,11 @@ static intptr_t align_forward(intptr_t p, size_t a) {
     return (p+a-1)&~(a-1);
 }
 
-void _heap_setup(_os_heap *heap) {
-    _heap = heap->handle;
+void _setup_heap() {
+    heap_handle = GetProcessHeap();
+    if (heap_handle == NULL) {
+        ExitProcess(-42069);
+    }
 }
 
 void *aligned_alloc(size_t alignment, size_t size) {
@@ -39,7 +38,7 @@ void *aligned_alloc(size_t alignment, size_t size) {
     if(alignment > 8) {
         min_req_size += alignment;
     }
-    void *block_start = HeapAlloc(_heap, 0, min_req_size);
+    void *block_start = HeapAlloc(heap_handle, 0, min_req_size);
     intptr_t block_start_i = (intptr_t)block_start;
     intptr_t aligned_block_start_i = align_forward(block_start_i, alignment);
     void *aligned_block_start = (void *)aligned_block_start_i;
@@ -53,7 +52,7 @@ void *calloc(size_t nmemb, size_t size) {
     if(nmemb > SIZE_MAX/size) {
         return NULL;
     }
-    void *block_start = HeapAlloc(_heap, HEAP_ZERO_MEMORY, size*nmemb);
+    void *block_start = HeapAlloc(heap_handle, HEAP_ZERO_MEMORY, size*nmemb);
     return block_start;
 }
 
@@ -61,7 +60,7 @@ void free(void *ptr) {
     if(ptr == NULL) {
         return;
     }
-    HeapFree(_heap, 0, ptr);
+    HeapFree(heap_handle, 0, ptr);
 }
 
 void *malloc(size_t size) {
@@ -72,11 +71,12 @@ void *realloc(void *ptr, size_t size) {
     if (ptr == NULL) {
         if (size == 0) return NULL;
 
-        return HeapAlloc(_heap, 0, size);
+        return HeapAlloc(heap_handle, 0, size);
     } else if (size == 0) {
-        HeapFree(_heap, 0, ptr);
+        HeapFree(heap_handle, 0, ptr);
         return NULL;
     } else {
-        return HeapReAlloc(_heap, 0, ptr, size);
+        return HeapReAlloc(heap_handle, 0, ptr, size);
     }
 }
+
