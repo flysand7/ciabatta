@@ -1,0 +1,41 @@
+
+ABOUT
+
+Ciabatta - An implementation of CRT for x86-64 windows and linux platforms.
+What are the advantages over using your default CRT? I dunno but you can if you
+want. I haven't ran any benchmarks or verified compliance yet, so use at your
+own risk. Some functionality is way more sexier than your normal-ass CRT tho,
+so you might consider switching.
+
+
+USAGE
+
+In order to build the library you need to have clang installed. Download the
+source code, then run bake.cmd. Copy `ciabatta.lib` to a good place in your
+project.
+
+Don't forget to include ciabatta's include directory:
+    /I inc (MSVC CL)
+    -I inc (Clang)
+
+For MSVC LINK add the following arguments:
+    /nodefaultlibs
+    ciabatta.lib
+    kernel32.lib
+    user32.lib
+    shell32.lib
+
+Link flags for average copy-paste enjoyers:
+    /nodefaultlibs ciabatta.lib kernel32.lib user32.lib shell32.lib
+
+(TODO: usage for clang)
+
+
+CONTRIBUTING
+
+Pull requests are always welcome.
+
+
+LICENCE
+
+TBD
