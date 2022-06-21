@@ -4,8 +4,8 @@ the file with Unicode data at:
 
     https://unicode.org/Public/UNIDATA/UnicodeData.txt
 
-This file is placed into this directory by the name unicode_data.txt. To update
-the unicode standard a new file is put under that name, then unicode_compile.py
-is ran with python interpreter. It will generate a new unicode.h header file.
+This file is placed into this directory by the name data.txt. To update the
+unicode standard a new file is put under that name, then unicode_compile.py is
+ran with python interpreter. It will generate a new unicode.h header file.
 
-DO NOT MODIFY unicode.h DIRECTLY BRUH.
+DO NOT MODIFY data.h DIRECTLY BRUH.

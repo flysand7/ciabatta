@@ -2,7 +2,7 @@
 #include <wctype.h>
 #include <string.h>
 
-#include "unicode_data.h"
+#include "unicode/data.h"
 
 static inline int char_cat(wint_t wc) {
     return uni_codepoints[wc].cat;

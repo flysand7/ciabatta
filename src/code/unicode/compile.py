@@ -6,7 +6,7 @@ abspath = os.path.abspath(sys.argv[0])
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
-with open('unicode_data.h', 'w') as header:
+with open('data.h', 'w') as header:
     header.write('\n');
     header.write('#pragma once\n\n');
     header.write('#define Cc  0\n');
@@ -48,7 +48,7 @@ struct _uni_elm {
 } uni_codepoints[] = {
 ''');
 
-    with open('unicode_data.txt') as file:
+    with open('data.txt') as file:
         for line in file:
             row = line.split(';')
             code  = row[0].strip()
