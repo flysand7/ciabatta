@@ -1,4 +1,8 @@
 
+general:
+*   Start writing documentation concerning various implementation defined
+    behaviours of the library.
+
 locale.h:
     Make other locales actually work
 
@@ -36,6 +40,7 @@ stdlib.h:
 
 threads.h:
     Make _Thread_local work on windows
+    Verify the mtx_recursive goes ok. Also change win_stdio.c accordingly.
     TODO: add todo items
 
 tgmath.h:

@@ -1,14 +1,10 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 typedef struct FILE FILE;
-typedef int64_t fpos_t;
-
-typedef struct div_t div_t;
-typedef struct ldiv_t ldiv_t;
-typedef struct lldiv_t lldiv_t;
+typedef size_t fpos_t;
 
 #if !defined(NULL)
     #define NULL ((void *)0)
@@ -26,15 +22,12 @@ typedef struct lldiv_t lldiv_t;
     #endif
 #endif
 
-#define _IOFBF 0x0000
-#define _IOLBF 0x0040
-#define _IONBF 0x0004
-
-#define BUFSIZ 512
-
-#define EOF    (-1)
-
-#define FOPEN_MAX 20
+#define _IONBF    0
+#define _IOFBF    1
+#define _IOLBF    2
+#define BUFSIZ    512
+#define EOF       (-1)
+#define FOPEN_MAX 1024
 
 #ifdef _os_win
     #define FILENAME_MAX 260

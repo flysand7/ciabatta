@@ -1,15 +1,18 @@
 
 #pragma once
 
-// On linux this will be UTF-32, on windows it's UTF-16 (or maybe UCS-2?)
 typedef struct mbstate_t mbstate_t;
 typedef wchar_t wint_t;
+
+struct mbstate_t {
+    char filler[4];
+};
 
 #define WCHAR_MIN 0x0000
 #define WCHAR_MAX 0xffff
 
 #ifndef WEOF
-#define WEOF 0
+    #define WEOF 0
 #endif
 
 int fwprintf(FILE * restrict stream, const wchar_t * restrict format, ...);
