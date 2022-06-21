@@ -8,6 +8,8 @@
 #include <win.h>
 #include <threads.h>
 
+DWORD _tls_index = 0;
+
 void mtx_destroy(mtx_t *mtx) {
     CloseHandle(mtx->semaphore);
 }
