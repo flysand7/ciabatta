@@ -36,6 +36,7 @@ stdio.h:
 stdlib.h:
     qsort
     Better PRNG
+    MB_CUR_MAX should be locale-dependent
     Probably other stuff
 
 threads.h:

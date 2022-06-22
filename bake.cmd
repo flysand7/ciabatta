@@ -20,8 +20,8 @@ if "%1"=="test" (
     goto :skip_crt_compilation
 )
 
-if not exist src\code\unicode\unicode_data.h (
-    py src\code\unicode\unicode_compile.py
+if not exist src\code\unicode\data.h (
+    py src\code\unicode\compile.py
 )
 
 if exist bin rd/s/q bin
@@ -32,6 +32,10 @@ del ciabatta.lib 2> nul
 for /R src\%PLATFORM% %%F in (*.c) do (
     echo %%F
     clang -Isrc/win -c -o bin\%PLATFORM%\%%~nF.obj %%F %CIABATTA_OPTIONS%
+)
+for /R src\%PLATFORM% %%F in (*.asm) do (
+    echo %%F
+    nasm %%F -f win64 -o bin\%PLATFORM%\%%~nF.obj
 )
 for /R src\code %%F in (*.c) do (
     echo %%F
@@ -44,5 +48,5 @@ llvm-ar rc ciabatta.lib bin\*.obj bin\%PLATFORM%\*.obj
 if "%TEST%"=="" set TEST=assert
 
 echo Compiling test_%TEST%.c
-clang -fno-builtin test\test_%TEST%.c ciabatta.lib -std=c11 -lDbghelp -lkernel32 -luser32 -lshell32 -nostdlib %CIABATTA_OPTIONS%
+clang test\test_%TEST%.c ciabatta.lib -std=c11 -lDbghelp -lkernel32 -luser32 -lshell32 -nostdlib %CIABATTA_OPTIONS%
 ::cl test\test_math.c /Iinc -D_CRT_SECURE_NO_WARNINGS /Z7 /link ciabatta.lib kernel32.lib user32.lib shell32.lib -nostdlib -nodefaultlibs

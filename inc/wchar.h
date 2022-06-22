@@ -1,11 +1,14 @@
 
 #pragma once
 
+#include <stdint.h>
+
 typedef struct mbstate_t mbstate_t;
 typedef wchar_t wint_t;
 
 struct mbstate_t {
-    char filler[4];
+    char16_t next;
+    char bytes[4];
 };
 
 #define WCHAR_MIN 0x0000
