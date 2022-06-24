@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <threads.h>
 #include <uchar.h>
+#include <errno.h>
 
 enum str_type {
     STR_R,
@@ -69,6 +70,7 @@ static inline FILE *new_file(
         file_list_last->next = file;
         file->prev = file_list_last;
         file->next = NULL;
+        file_list_last = file;
     }
     else {
         file_list_last = file;
@@ -94,6 +96,7 @@ static inline void dispose_file(FILE *file) {
     if(next == NULL) file_list_last = prev;
     free(file);
     mtx_unlock(&lock);
+    mtx_destroy(&lock);
 }
 
 void _setup_io() {
@@ -147,13 +150,25 @@ int setvbuf(
 }
 
 int fflush(FILE *stream) {
-    if(mode == _IOFBF) {
+    if(stream->mode == _IOFBF) {
 
     }
-    else if(mode == _IONBF) {
+    else if(stream->mode == _IONBF) {
 
     }
     return 0;
+}
+
+int fputc(int c, FILE *stream) {
+    mtx_lock(&stream->lock);
+    DWORD written;
+    BOOL ok = WriteFile(stream->handle, &c, 1, &written, NULL);
+    mtx_unlock(&stream->lock);
+    if(!ok) {
+        errno = EIO;
+        return EOF;
+    }
+    return c;
 }
 
 void setbuf(FILE *restrict stream, char *restrict buf) {

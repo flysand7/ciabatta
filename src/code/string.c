@@ -216,6 +216,7 @@ char *strerror(int errnum) {
         case EDOM:   return "Value is out of domain of the function";
         case EILSEQ: return "Illegal byte sequence";
         case ERANGE: return "Value is out of range";
+        case EIO:    return "I/O error";
     }
     return "Unkown error";
 }

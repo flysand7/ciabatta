@@ -75,7 +75,7 @@ size_t c16rtomb(
     char16_t            c16,
     mbstate_t *restrict ps
 ) {
-    if(*s == NULL) {
+    if(s == NULL) {
         *ps = (mbstate_t) {0};
         return 0;
     }
@@ -178,7 +178,7 @@ size_t c32rtomb(
     char32_t            c32,
     mbstate_t *restrict ps
 ) {
-    if(*s == NULL) {
+    if(s == NULL) {
         *ps = (mbstate_t) {0};
         return 0;
     }
