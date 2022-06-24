@@ -100,7 +100,7 @@ void _setup_io() {
     HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
     HANDLE hstderr = GetStdHandle(STD_ERROR_HANDLE);
     HANDLE hstdin  = GetStdHandle(STD_INPUT_HANDLE);
-    
+
     char *out_buf = calloc(BUFSIZ, sizeof(char));
     char *err_buf = out_buf;
     if(hstdout != hstderr) {
@@ -110,6 +110,13 @@ void _setup_io() {
     stdout = new_file(hstdout, NULL, STR_W, 0, 0, _IOLBF, BUFSIZ, out_buf);
     stderr = new_file(hstderr, NULL, STR_W, 0, 0, _IOLBF, BUFSIZ, err_buf);
     stdin  = new_file(hstdin,  NULL, STR_R, 0, 0, _IONBF, 0, NULL);
+}
+
+void _close_io() {
+    while(file_list_last != NULL) {
+        fflush(file_list_last);
+        dispose_file(file_list_last);
+    }
 }
 
 int setvbuf(
@@ -136,6 +143,16 @@ int setvbuf(
     stream->buftype = mode;
     stream->buffer  = buf;
     stream->bufsize = size;
+    return 0;
+}
+
+int fflush(FILE *stream) {
+    if(mode == _IOFBF) {
+
+    }
+    else if(mode == _IONBF) {
+
+    }
     return 0;
 }
 

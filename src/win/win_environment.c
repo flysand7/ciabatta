@@ -87,9 +87,21 @@ void mainCRTStartup() {
     int exit_code = main(argc, args);
 
     // we call exit because we want atexit routines run
+    // and all the file handles to be freed
     exit(exit_code);
 }
 
+_Noreturn void exit(int status) {
+    for (int i = atexit_func_count; i--;) {
+        atexit_funcs[i]();
+    }
+    _close_io();
+    ExitProcess(status);
+}
+
+_Noreturn void _Exit(int status) {
+    ExitProcess(status);
+}
 
 _Noreturn void abort(void) {
     raise(SIGABRT);
@@ -102,17 +114,6 @@ int atexit(void (*func)(void)) {
     }
     atexit_funcs[atexit_func_count++] = func;
     return 1;
-}
-
-_Noreturn void exit(int status) {
-    for (int i = atexit_func_count; i--;) {
-        atexit_funcs[i]();
-    }
-    ExitProcess(status);
-}
-
-_Noreturn void _Exit(int status) {
-    ExitProcess(status);
 }
 
 char *getenv(const char *name) {
