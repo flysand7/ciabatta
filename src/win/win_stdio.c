@@ -1,4 +1,6 @@
 
+#define __STDC_WANT_LIB_EXT2__ 1
+
 #include <stdio.h>
 #include <win.h>
 #include <stddef.h>
@@ -7,6 +9,7 @@
 #include <threads.h>
 #include <uchar.h>
 #include <errno.h>
+#include <string.h>
 
 enum str_type {
     STR_R,
@@ -33,6 +36,7 @@ struct FILE {
     str_mode  mode;
     int       buftype;
     size_t    bufsize;
+    int       bufidx;
     char     *buffer;
     mbstate_t mbstate;
     mtx_t     lock;
@@ -59,13 +63,20 @@ static inline FILE *new_file(
 ) {
     FILE *file = malloc(sizeof(FILE));
     if(file == NULL) return NULL;
+    mtx_init(&file->lock, mtx_recursive);
     file->handle = handle;
-    file->name   = name; // TODO: strdup this
+    file->name   = strdup(name);
     file->type   = type;
     file->flags  = flags;
     file->mode   = mode;
+    // Buffer for cache
+    file->buftype = buftype;
+    file->bufsize = bufsize;
+    file->buffer = buffer;
+    file->bufidx = 0;
+    // Multibyte state
     file->mbstate = (mbstate_t){0};
-    mtx_init(&file->lock, mtx_recursive);
+    // Append to list of all streams
     if(file_list_last != NULL) {
         file_list_last->next = file;
         file->prev = file_list_last;
@@ -86,9 +97,8 @@ static inline void dispose_file(FILE *file) {
     // Only close the file if it's not a standard handle
     if(file->name) {
         CloseHandle(file->handle);
-        //TODO: free(file->name);
+        free(file->name);
     }
-    // TODO: flush streams
     FILE *prev = file->prev;
     FILE *next = file->next;
     if(prev != NULL) prev->next = next;
@@ -128,6 +138,7 @@ int setvbuf(
     int mode,
     size_t size
 ) {
+    mtx_lock(&stream->lock);
     if(mode == _IONBF) {
         stream->buftype = mode;
         stream->buffer  = NULL;
@@ -146,24 +157,52 @@ int setvbuf(
     stream->buftype = mode;
     stream->buffer  = buf;
     stream->bufsize = size;
+    mtx_unlock(&stream->lock);
     return 0;
+}
+
+void setbuf(FILE *restrict stream, char *restrict buf) {
+    int mode = _IOFBF;
+    if(buf == NULL) {
+        mode = _IONBF;
+    }
+    setvbuf(stream, buf, mode, BUFSIZ);
 }
 
 int fflush(FILE *stream) {
-    if(stream->mode == _IOFBF) {
-
+    mtx_lock(&stream->lock);
+    if(stream->buftype != _IONBF) {
+        DWORD written;
+        BOOL ok = WriteFile(
+            stream->handle,
+            stream->buffer,
+            stream->bufidx,
+            &written,
+            NULL
+        );
+        if(!ok) {
+            errno = EIO;
+            return EOF;
+        }
+        stream->bufidx = 0;
     }
-    else if(stream->mode == _IONBF) {
-
-    }
+    mtx_unlock(&stream->lock);
     return 0;
 }
 
-int fputc(int c, FILE *stream) {
-    mtx_lock(&stream->lock);
+static int try_fputc(FILE *stream, char c) {
+    if(stream->buftype != _IONBF) {
+        stream->buffer[stream->bufidx++] = c;
+        if(stream->bufidx > stream->bufsize) {
+            return fflush(stream);
+        }
+        if(stream->buftype == _IOLBF && c == '\n') {
+            return fflush(stream);
+        }
+        return c;
+    }
     DWORD written;
     BOOL ok = WriteFile(stream->handle, &c, 1, &written, NULL);
-    mtx_unlock(&stream->lock);
     if(!ok) {
         errno = EIO;
         return EOF;
@@ -171,9 +210,28 @@ int fputc(int c, FILE *stream) {
     return c;
 }
 
-void setbuf(FILE *restrict stream, char *restrict buf) {
-    if(buf != NULL)
-        setvbuf(stream, buf, _IOFBF, BUFSIZ);
-    else
-        setvbuf(stream, buf, _IONBF, BUFSIZ);
+static int try_fputs(FILE *stream, char *str, size_t len) {
+    for(size_t i = 0; i != len; ++i) {
+        int cw = try_fputc(stream, str[i]);
+        if(cw == EOF) return EOF;
+    }
+    return 1;
+}
+
+int fputc(int c, FILE *stream) {
+    mtx_lock(&stream->lock);
+    int res = try_fputc(stream, c);
+    mtx_unlock(&stream->lock);
+    return res;
+}
+
+int fputs(const char *restrict s, FILE *stream) {
+    mtx_lock(&stream->lock);
+    while(*s) {
+        int res = try_fputc(stream, *s);
+        if(res == EOF) return EOF;
+        ++s;
+    }
+    mtx_unlock(&stream->lock);
+    return 1;
 }

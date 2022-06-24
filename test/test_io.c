@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 int main() {
-    fputc('Z', stdout);
+    for(int i = 0; i != 512; ++i)
+        fputc('Z', stdout);
     return 0;
 }

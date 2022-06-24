@@ -239,6 +239,7 @@ size_t strnlen_s(const char *s, size_t maxsize) {
 }
 
 char *strdup(const char *str1) {
+    if(str1 == NULL) return NULL;
     size_t len = strlen(str1);
     char *copy = calloc(len+1, 1);
     strcpy(copy, str1);
