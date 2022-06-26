@@ -1,41 +1,43 @@
 
 ABOUT
+  Ciabatta  -  An implementation of CRT for x86-64 windows and linux platforms.
+The  goal  is  to  provide  a  platform-independent  CRT  with  the  purpose of
+explicitly  defining  some  of platform-defined behaviours in order to simplify
+the development and providing additional functionality to aid the developers in
+writing cross-platform applications.
 
-Ciabatta - An implementation of CRT for x86-64 windows and linux platforms.
-What are the advantages over using your default CRT? I dunno but you can if you
-want. I haven't ran any benchmarks or verified compliance yet, so use at your
-own risk. Some functionality is way more sexier than your normal-ass CRT tho,
-so you might consider switching.
+Note that Undefined Behaviour is impossible to define on a CRT level, since the
+semantics  of the language can only be changed at the compiler level. Sometimes
+the  compilers will replace CRT function calls with builtin functions, which is
+meant  as  an optimization, e.g. replacing some forms of prinf() with puts() or
+replacing  strlen with an x86 rep movsb instruction. Even if ciabatta does have
+a  specific  behaviour  under  given  UB  conditions,  that  behaviour  is  not
+guaranteed.
 
+The goals:
+  - Providing  API  for sockets, unicode processing (not just encodings), maybe
+    the  support  for  common  image  and  data  file  formats and other useful
+    non-standard functionality.
+  - Making  it  easy  to  port  the library to a new platform, e.g. a custom OS
+    kernel or a different processor architecture.
+  - Defining  implementation-defined  behaviours  of  some of the functions and
+    explicitly documenting them.
+  - Make it reasonably fast compared to MSVCRT and GLIBC.
+
+PLATFORM SUPPORT
+  OS/Kernel:
+  - Windows (64-bit)
+  - TODO: Linux
+  Processor Architecture
+  - x86-64
 
 USAGE
-
-In order to build the library you need to have clang installed. Download the
-source code, then run bake.cmd. Copy `ciabatta.lib` to a good place in your
-project.
-
-Don't forget to include ciabatta's include directory:
-    /I inc (MSVC CL)
-    -I inc (Clang)
-
-For MSVC LINK add the following arguments:
-    /nodefaultlibs
-    ciabatta.lib
-    kernel32.lib
-    user32.lib
-    shell32.lib
-
-Link flags for average copy-paste enjoyers:
-    /nodefaultlibs ciabatta.lib kernel32.lib user32.lib shell32.lib
-
-(TODO: usage for clang)
-
+  (TODO)
 
 CONTRIBUTING
-
-Pull requests are always welcome.
+  Pull requests are always welcome.
 
 
 LICENCE
 
-TBD
+TBD, but probably i'll make it MIT or WTFPL :kekw:

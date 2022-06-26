@@ -40,14 +40,9 @@ stdlib.h:
     Probably other stuff
 
 threads.h:
-    Make _Thread_local work on windows
-    Verify the mtx_recursive goes ok. Also change win_stdio.c accordingly.
     TODO: add todo items
 
 tgmath.h:
-    Basically everything
-
-uchar.h:
     Basically everything
 
 wchar.h:
