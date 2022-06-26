@@ -7,6 +7,7 @@
 #include <shellapi.h>
 #include <DbgHelp.h>
 
+void _print_stack_trace();
 void _setup_timer(void);
 void _setup_eh();
 void _setup_heap();

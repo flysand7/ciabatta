@@ -1,8 +1,9 @@
 
 #include <win.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-void _os_print_stack_trace() {
+void _print_stack_trace() {
     HANDLE process = GetCurrentProcess();
     SymInitialize(process, NULL, TRUE);
 
@@ -14,13 +15,14 @@ void _os_print_stack_trace() {
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
     for(size_t i = 0; i < frames; i++) {
         SymFromAddr(process, (DWORD64)stack[i], 0, symbol);
-        if(strcmp(symbol->Name, "BaseThreadInitThunk") == 0) break;
-        if(strcmp(symbol->Name, "mainCRTStartup") == 0)      break;
-        // printf("  %u: 0x%"PRIx64" (%s)\n",
-        //     (int)(frames-i-1),
-        //     symbol->Address,
-        //     symbol->Name
-        // );
+        // if(strcmp(symbol->Name, "BaseThreadInitThunk") == 0) break;
+        // if(strcmp(symbol->Name, "mainCRTStartup") == 0)      break;
+        printf(//"  %u: 0x%"PRIx64" (%s)\n",
+            "  %d: %s\n",
+            (int)(frames-i-1),
+            //symbol->Address,
+            symbol->Name
+        );
     }
     free(symbol);
 }

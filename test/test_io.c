@@ -1,8 +1,8 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int main() {
-    for(int i = 0; i != 512; ++i)
-        fputc('Z', stdout);
+    printf("Hello, %i World!\n", __LINE__);
     return 0;
 }

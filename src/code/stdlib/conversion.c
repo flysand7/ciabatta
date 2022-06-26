@@ -5,9 +5,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <math.h>
-
-// TODO: strto*: locale-based parsing
-// TODO: correctly rounded base 16 floats parsing
+#include <string.h>
 
 // Call me weak if you want but I'm actually too lazy to type
 // them out every time, also they take up a lot of horiz space.
@@ -338,4 +336,23 @@ float strtof(const char *restrict nptr, char **restrict endptr) {
 
 long double strtold(const char *restrict nptr, char **restrict endptr) {
     return (long double)strtod_generic(nptr, endptr);
+}
+
+char *itoa(int value, char *str, int base) {
+    int sign = 0;
+    if(value < 0) {
+        sign = 1;
+        value = -value;
+    }
+    char buf[20] = {0};
+    char *bufp = buf + sizeof buf - 1;
+    do {
+        *--bufp = value%base+'0';
+        value /= base;
+    } while(value != 0);
+    if(sign) {
+        *--bufp = '-';
+    }
+    strcpy(str, bufp);
+    return str;
 }

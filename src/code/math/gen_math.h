@@ -221,7 +221,7 @@ ftype suffix(asin)(ftype x) {
 // }
 
 ftype suffix(exp2)(ftype x) {
-    return suffix(exp)(x * ln2);
+    return suffix(exp)(x * LN2);
 }
 
 ftype suffix(expm1)(ftype x) {

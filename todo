@@ -37,6 +37,7 @@ stdlib.h:
     qsort
     Better PRNG
     MB_CUR_MAX should be locale-dependent
+    strtod base 16 should be correctly rounded
     Probably other stuff
 
 threads.h:

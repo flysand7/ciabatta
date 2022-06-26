@@ -52,6 +52,9 @@ long int strtol(const char *restrict nptr, char **restrict endptr, int base);
 long long int strtoll(const char *restrict nptr, char **restrict endptr, int base);
 unsigned long int strtoul(const char *restrict nptr, char **restrict endptr, int base);
 unsigned long long int strtoull(const char *restrict nptr, char **restrict endptr, int base);
+
+char *itoa(int value, char *str, int base);
+
 int rand(void);
 void srand(unsigned int seed);
 
@@ -62,6 +65,7 @@ void *calloc(size_t nmemb, size_t size);
 void free(void *ptr);
 void *malloc(size_t size);
 void *realloc(void *ptr, size_t size);
+
 
 _Noreturn void abort(void);
 int atexit(void (*func)(void));
