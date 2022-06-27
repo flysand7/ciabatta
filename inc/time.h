@@ -1,45 +1,51 @@
 #pragma once
-#include <stddef.h>
+
+#include <stdint.h>
 
 #if !defined(NULL)
 #define NULL ((void *)0)
 #endif
 
-// The number of clock ticks per second
-#define CLOCKS_PER_SEC  ((clock_t)1000)
-
 #define TIME_UTC 1
 
-typedef size_t clock_t;
-typedef size_t time_t;
+#define CLOCKS_PER_SEC  ((clock_t)1000000)
+
+typedef uint64_t clock_t;
+typedef uint64_t time_t;
 
 struct timespec {
-	time_t tv_sec;  // Seconds - >= 0
-	long   tv_nsec; // Nanoseconds - [0, 999999999]
+	time_t tv_sec;
+	long   tv_nsec;
 };
 
 struct tm {
-    int tm_sec;   // seconds after the minute - [0, 60] including leap second
-    int tm_min;   // minutes after the hour - [0, 59]
-    int tm_hour;  // hours since midnight - [0, 23]
-    int tm_mday;  // day of the month - [1, 31]
-    int tm_mon;   // months since January - [0, 11]
-    int tm_year;  // years since 1900
-    int tm_wday;  // days since Sunday - [0, 6]
-    int tm_yday;  // days since January 1 - [0, 365]
-    int tm_isdst; // daylight savings time flag
+    int tm_sec;
+    int tm_min;
+    int tm_hour;
+    int tm_mon;
+    int tm_mday; // Days passed within 1st of current month
+    int tm_year; // Years since year 1900
+    int tm_wday; // Days passed since sunday
+    int tm_yday; // Days passed since Jan 1
+    int tm_isdst;
 };
 
-clock_t clock(void);
-double difftime(time_t time1, time_t time0);
-time_t mktime(struct tm *timeptr);
-time_t time(time_t *timer);
-int timespec_get(struct timespec *ts, int base);
-char *asctime(const struct tm *timeptr);
-char *ctime(const time_t *timer);
-struct tm *gmtime(const time_t *timer);
-struct tm *localtime(const time_t *timer);
-size_t strftime(char * restrict s, size_t maxsize, const char * restrict format, const struct tm * restrict timeptr);
+clock_t    clock       (void);
+time_t     time        (time_t *timer);
+time_t     mktime      (struct tm *timeptr);
+double     difftime    (time_t time1, time_t time0);
+int        timespec_get(struct timespec *ts, int base);
+char      *asctime     (const struct tm *timeptr);
+char      *ctime       (const time_t *timer);
+struct tm *gmtime      (const time_t *timer);
+struct tm *localtime   (const time_t *timer);
+
+size_t strftime(
+    char *restrict s,
+    size_t maxsize,
+    const char *restrict format,
+    const struct tm *restrict timeptr
+);
 
 #ifdef __STDC_WANT_LIB_EXT1__
 errno_t asctime_s(char *s, rsize_t maxsize, const struct tm *timeptr);
