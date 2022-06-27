@@ -30,8 +30,8 @@ typedef struct lldiv_t {
     long long rem;
 } lldiv_t;
 
-// #define EXIT_FAILURE 1
-// #define EXIT_SUCCESS 0
+#define EXIT_FAILURE 1
+#define EXIT_SUCCESS 0
 
 #define RAND_MAX 65536
 #define MB_CUR_MAX 4
@@ -41,48 +41,54 @@ typedef struct lldiv_t {
 #define COUNTOF(...) (sizeof(__VA_ARGS__) / sizeof((__VA_ARGS__)[0]))
 #endif
 
-double atof(const char *nptr);
-int atoi(const char *nptr);
-long int atol(const char *nptr);
-long long int atoll(const char *nptr);
-double strtod(const char * restrict nptr, char ** restrict endptr);
-float strtof(const char * restrict nptr, char ** restrict endptr);
-long double strtold(const char * restrict nptr, char ** restrict endptr);
-long int strtol(const char *restrict nptr, char **restrict endptr, int base);
-long long int strtoll(const char *restrict nptr, char **restrict endptr, int base);
-unsigned long int strtoul(const char *restrict nptr, char **restrict endptr, int base);
-unsigned long long int strtoull(const char *restrict nptr, char **restrict endptr, int base);
+// Some number stuff
+int       abs  (int i);
+long      labs (long i);
+long long llabs(long long i);
+div_t     div  (int numer,       int denom);
+ldiv_t    ldiv (long numer,      long denom);
+lldiv_t   lldiv(long long numer, long long denom);
+
+// String conversion routines
+double             atof    (const char *nptr);
+int                atoi    (const char *nptr);
+long               atol    (const char *nptr);
+long long          atoll   (const char *nptr);
+double             strtod  (const char *restrict nptr, char **restrict endptr);
+float              strtof  (const char *restrict nptr, char **restrict endptr);
+long double        strtold (const char *restrict nptr, char **restrict endptr);
+long               strtol  (const char *restrict nptr, char **restrict endptr, int base);
+long long          strtoll (const char *restrict nptr, char **restrict endptr, int base);
+unsigned long      strtoul (const char *restrict nptr, char **restrict endptr, int base);
+unsigned long long strtoull(const char *restrict nptr, char **restrict endptr, int base);
 
 char *itoa(int value, char *str, int base);
 
-int rand(void);
+// PRNG
+int  rand (void);
 void srand(unsigned int seed);
 
-typedef struct _os_heap _os_heap;
-void _heap_setup(_os_heap *heap);
-void *aligned_alloc(size_t alignment, size_t size);
-void *calloc(size_t nmemb, size_t size);
-void free(void *ptr);
-void *malloc(size_t size);
-void *realloc(void *ptr, size_t size);
+// Memory management functions
+void *malloc       (size_t size);
+void *calloc       (size_t nmemb, size_t size);
+void *aligned_alloc(size_t align, size_t size);
+void *realloc      (void *ptr,    size_t size);
+void  free         (void *ptr);
 
+// Communication with environment
+_Noreturn void  abort        (void);
+_Noreturn void  quick_exit   (int status);
+_Noreturn void  _Exit        (int status);
+_Noreturn void  exit         (int status);
+int             atexit       (void (*func)(void));
+int             at_quick_exit(void (*func)(void));
+char           *getenv       (const char *name);
+int             system       (const char *string);
 
-_Noreturn void abort(void);
-int atexit(void (*func)(void));
-// int at_quick_exit(void (*func)(void));
-_Noreturn void exit(int status);
-_Noreturn void _Exit(int status);
-char *getenv(const char *name);
-// _Noreturn void quick_exit(int status);
-int system(const char *string);
 const void *bsearch(const void *key, const void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 // void qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-// int abs(int j);
-// long int labs(long int j);
-// long long int llabs(long long int j);
-// div_t div(int numer, int denom);
-// ldiv_t ldiv(long int numer, long int denom);
-// lldiv_t lldiv(long long int numer, long long int denom);
+
+// Multibyte strings
 // int mblen(const char *s, size_t n);
 // int mbtowc(wchar_t * restrict pwc, const char * restrict s, size_t n);
 // int wctomb(char *s, wchar_t wchar);

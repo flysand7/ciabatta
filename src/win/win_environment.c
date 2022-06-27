@@ -13,62 +13,14 @@ int _fltused=0;
 extern int main(int argc, char** argv);
 
 // Exit routines
-#define ATEXIT_FUNC_COUNT 64
-static void (*atexit_funcs[ATEXIT_FUNC_COUNT])(void);
+#define ATEXIT_FUNC_COUNT  64
+#define ATQEXIT_FUNC_COUNT 64
+static void (*atexit_funcs [ATEXIT_FUNC_COUNT])(void);
+static void (*atqexit_funcs[ATQEXIT_FUNC_COUNT])(void);
 static int atexit_func_count;
+static int atqexit_func_count;
 
-
-int _wcsicmp(wchar_t const* s1, wchar_t const* s2) {
-    int diff;
-    do {
-        diff = *s1 - *s2;
-    } while(diff != 0 && *s1 != 0 && *s2 != 0);
-    return diff;
-}
-
-static size_t count_wide_chars(const wchar_t* str) {
-    size_t len = 0;
-    while (str[len] != 0) len++;
-    return len;
-}
-
-static bool wchar_to_ansi(char* out, const wchar_t* str, size_t len) {
-    for (size_t i = 0; i < len; i++) {
-        wchar_t ch = *str++;
-        if (ch < 0 || ch > 0x7F) {
-            *out++ = 0;
-            return false;
-        }
-        *out++ = ch;
-    }
-
-    *out++ = 0;
-    return true;
-}
-
-static char **get_command_args(int *argc_ptr) {
-    int argc;
-    char** args;
-
-    LPCWSTR command_line = GetCommandLineW();
-    LPWSTR* args_wide = CommandLineToArgvW(command_line, &argc);
-    if (!args_wide || argc <= 0) {
-        ExitProcess(-69420);
-    }
-
-    args = calloc(argc, sizeof(char*));
-
-    // Convert wide chars into ANSI
-    for (int i = 0; i < argc; i++) {
-        size_t arg_len = count_wide_chars(args_wide[i]);
-        args[i] = malloc(arg_len+1);
-        wchar_to_ansi(args[i], args_wide[i], arg_len+1);
-    }
-
-    *argc_ptr = argc;
-    return args;
-}
-
+static char **get_command_args(int *argc_ptr);
 
 void mainCRTStartup() {
     // Set-up some platform stuff
@@ -91,9 +43,17 @@ void mainCRTStartup() {
     exit(exit_code);
 }
 
+
+_Noreturn void quick_exit(int status) {
+    while(atqexit_func_count--) {
+        atqexit_funcs[atqexit_func_count]();
+    }
+    ExitProcess(status);
+}
+
 _Noreturn void exit(int status) {
-    for (int i = atexit_func_count; i--;) {
-        atexit_funcs[i]();
+    while(atexit_func_count--) {
+        atexit_funcs[atqexit_func_count]();
     }
     _close_io();
     ExitProcess(status);
@@ -113,6 +73,14 @@ int atexit(void (*func)(void)) {
         return 0;
     }
     atexit_funcs[atexit_func_count++] = func;
+    return 1;
+}
+
+int at_quick_exit(void (*func)(void)) {
+    if(atqexit_func_count >= ATQEXIT_FUNC_COUNT) {
+        return 0;
+    }
+    atqexit_funcs[atqexit_func_count++] = func;
     return 1;
 }
 
@@ -184,3 +152,55 @@ int system(const char* string) {
     free(cmd_line);
     return -1;
 }
+
+int _wcsicmp(wchar_t const* s1, wchar_t const* s2) {
+    int diff;
+    do {
+        diff = *s1 - *s2;
+    } while(diff != 0 && *s1 != 0 && *s2 != 0);
+    return diff;
+}
+
+static size_t count_wide_chars(const wchar_t* str) {
+    size_t len = 0;
+    while (str[len] != 0) len++;
+    return len;
+}
+
+static bool wchar_to_ansi(char* out, const wchar_t* str, size_t len) {
+    for (size_t i = 0; i < len; i++) {
+        wchar_t ch = *str++;
+        if (ch < 0 || ch > 0x7F) {
+            *out++ = 0;
+            return false;
+        }
+        *out++ = ch;
+    }
+
+    *out++ = 0;
+    return true;
+}
+
+static char **get_command_args(int *argc_ptr) {
+    int argc;
+    char** args;
+
+    LPCWSTR command_line = GetCommandLineW();
+    LPWSTR* args_wide = CommandLineToArgvW(command_line, &argc);
+    if (!args_wide || argc <= 0) {
+        ExitProcess(-69420);
+    }
+
+    args = calloc(argc, sizeof(char*));
+
+    // Convert wide chars into ANSI
+    for (int i = 0; i < argc; i++) {
+        size_t arg_len = count_wide_chars(args_wide[i]);
+        args[i] = malloc(arg_len+1);
+        wchar_to_ansi(args[i], args_wide[i], arg_len+1);
+    }
+
+    *argc_ptr = argc;
+    return args;
+}
+
