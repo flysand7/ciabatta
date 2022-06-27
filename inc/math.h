@@ -1,7 +1,7 @@
 
 #pragma once
 
-typedef float float_t;
+typedef float  float_t;
 typedef double double_t;
 
 #ifndef _HUGE_ENUF
