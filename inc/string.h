@@ -1,9 +1,6 @@
 
 #pragma once
 
-// Technically all we should have here is typedef for size_t.
-// but I can't get that without macro shittery so
-// for now I'm just doing this, which is not quite correct
 #include <stddef.h>
 
 #if !defined(NULL)
@@ -26,54 +23,64 @@
     #define __STDC_ALLOC_LIB__
 #endif
 
-// int _wcsicmp(const wchar_t *string1, const wchar_t *string2);
+size_t  strlen(const char *s);
+char   *strerror(int errnum);
 
-void *memcpy(void *restrict s1, const void *restrict s2, size_t n);
-void *memmove(void *s1, const void *s2, size_t n);
-char *strcpy(char *restrict s1, const char *restrict s2);
-char *strncpy(char *restrict s1, const char *restrict s2, size_t n);
-char *strcat(char *restrict s1, const char *restrict s2);
-char *strncat(char *restrict s1, const char *restrict s2, size_t n);
-int memcmp(const void *s1, const void *s2, size_t n);
-int strcmp(const char *s1, const char *s2);
-int strcoll(const char *s1, const char *s2);
-int strncmp(const char *s1, const char *s2, size_t n);
-size_t strxfrm(char *restrict s1, const char *restrict s2, size_t n);
-void *memchr(const void *s, int c, size_t n);
-char *strchr(const char *s, int c);
-size_t strcspn(const char *s1, const char *s2);
-char *strpbrk(const char *s1, const char *s2);
-char *strrchr(const char *s, int c);
-size_t strspn(const char *s1, const char *s2);
-char *strstr(const char *s1, const char *s2);
-char *strtok(char *restrict s1, const char *restrict s2);
-void *memset(void *s, int c, size_t n);
-char *strerror(int errnum);
-size_t strlen(const char *s);
+// Copying
+void  *memset  (void *s,            int c,                   size_t n);
+void  *memmove (void *s1,           const void *s2,          size_t n);
+void  *memcpy  (void *restrict s1,  const void *restrict s2, size_t n);
+char  *strncpy (char *restrict s1,  const char *restrict s2, size_t n);
+char  *strcpy  (char *restrict s1,  const char *restrict s2);
+
+// Concat
+char  *strncat (char *restrict s1,  const char *restrict s2, size_t n);
+char  *strcat  (char *restrict s1,  const char *restrict s2);
+
+// Comparison
+int    memcmp  (const void *s1,     const void *s2, size_t n);
+int    strncmp (const char *s1,     const char *s2, size_t n);
+int    strcmp  (const char *s1,     const char *s2);
+
+// Collation/Localisation thingy
+int    strcoll (const char *s1,     const char *s2);
+size_t strxfrm (char *restrict s1,  const char *restrict s2, size_t n);
+
+// Tokenization and related stuff
+void   *memchr (const void *str,    int c, size_t n);
+char   *strchr (const char *str,    int c);
+size_t  strcspn(const char *str,    const char *s);
+char   *strpbrk(const char *str,    const char *s);
+char   *strrchr(const char *str,    int c);
+size_t  strspn (const char *str,    const char *s);
+char   *strstr (const char *str,    const char *s);
+char   *strtok (char *restrict str, const char *restrict s);
 
 // Linux extension: reentrant strtok
-char *strtok_r(char *restrict s1, const char *restrict s2, char **restrict ctx);
+char   *strtok_r(char *restrict s1, const char *restrict s2, char **restrict ctx);
 
 // Extension 1
 #if __STDC_WANT_LIB_EXT1__ == 1
 
-errno_t memcpy_s(void *restrict s1, rsize_t s1max, const void *restrict s2, rsize_t n);
-errno_t memmove_s(void *s1, rsize_t s1max, const void *s2, rsize_t n);
-errno_t strcpy_s(char *restrict s1, rsize_t s1max, const char *restrict s2);
-errno_t strncpy_s(char *restrict s1, rsize_t s1max,const char *restrict s2, rsize_t n);
-errno_t strcat_s(char *restrict s1, rsize_t s1max, const char *restrict s2);
-errno_t strncat_s(char *restrict s1, rsize_t s1max, const char *restrict s2, rsize_t n);
-char *strtok_s(char *restrict s1, rsize_t *restrict s1max, const char *restrict s2, char **restrict ptr);
-errno_t memset_s(void *s, rsize_t smax, int c, rsize_t n);
-errno_t strerror_s(char *s, rsize_t maxsize, errno_t errnum);
-size_t strerrorlen_s(errno_t errnum);
 size_t strnlen_s(const char *str, size_t strsz);
+    // Safe memory copies
+    errno_t memset_s (void *s,           rsize_t smax,  int c,                   rsize_t n);
+    errno_t memmove_s(void *s1,          rsize_t s1max, const void *s2,          rsize_t n);
+    errno_t memcpy_s (void *restrict s1, rsize_t s1max, const void *restrict s2, rsize_t n);
+    errno_t strncpy_s(char *restrict s1, rsize_t s1max, const char *restrict s2, rsize_t n);
+    errno_t strcpy_s (char *restrict s1, rsize_t s1max, const char *restrict s2);
 
+    // Safe concat et strtok
+    errno_t  strcat_s (char *restrict s1, rsize_t s1max, const char *restrict s2);
+    errno_t  strncat_s(char *restrict s1, rsize_t s1max, const char *restrict s2, rsize_t n);
+    char    *strtok_s(char *restrict s1, rsize_t *restrict s1max, const char *restrict s2, char **restrict ptr);
+
+    // Safe error strings
+    errno_t  strerror_s(char *s, rsize_t maxsize, errno_t errnum);
+    size_t   strerrorlen_s(errno_t errnum);
 #endif
 
 // Extension 2
 #if __STDC_WANT_LIB_EXT2__ == 1
-
-char *strdup(const char *str1);
-
+    char *strdup(const char *str1);
 #endif
