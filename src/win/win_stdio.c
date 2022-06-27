@@ -210,14 +210,6 @@ static int try_fputc(FILE *stream, char c) {
     return c;
 }
 
-static int try_fputs(FILE *stream, char *str, size_t len) {
-    for(size_t i = 0; i != len; ++i) {
-        int cw = try_fputc(stream, str[i]);
-        if(cw == EOF) return EOF;
-    }
-    return 1;
-}
-
 int fputc(int c, FILE *stream) {
     mtx_lock(&stream->lock);
     int res = try_fputc(stream, c);
