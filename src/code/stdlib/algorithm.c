@@ -36,7 +36,13 @@ lldiv_t lldiv(long long x, long long y) {
     return res;
 }
 
-const void *bsearch(const void *key, const void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *)) {
+const void *bsearch(
+    const void *key,
+    const void *base,
+    size_t nmemb,
+    size_t size,
+    int (*compar)(const void *, const void *)
+) {
     size_t left = 0;
     size_t right = nmemb;
 
@@ -51,4 +57,27 @@ const void *bsearch(const void *key, const void *base, size_t nmemb, size_t size
     }
 
     return NULL;
+}
+
+void qsort(
+    void *base,
+    size_t nmemb,
+    size_t size,
+    int (*diff)(const void *, const void *)
+) {
+    // Ima be doing bublbe sort for now
+    char *bytes = base;
+    for(size_t i = 0; i != nmemb-1; ++i) {
+        for(size_t j = 0; j < nmemb-i-1; ++j) {
+            char *this = bytes+j*size;
+            char *that = this+size;
+            if(diff(this, that) > 0) {
+                for(size_t b=0;b!=size;++b) {
+                    char temp = this[b];
+                    this[b] = that[b];
+                    that[b] = temp;
+                }
+            }
+        }
+    }
 }

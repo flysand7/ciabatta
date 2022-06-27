@@ -85,8 +85,20 @@ int             at_quick_exit(void (*func)(void));
 char           *getenv       (const char *name);
 int             system       (const char *string);
 
-const void *bsearch(const void *key, const void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-// void qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+const void *bsearch(
+    const void *key,
+    const void *base,
+    size_t nmemb,
+    size_t size,
+    int (*compar)(const void *, const void *)
+);
+
+void qsort(
+    void *base,
+    size_t nmemb,
+    size_t size,
+    int (*compar)(const void *, const void *)
+);
 
 // Multibyte strings
 // int mblen(const char *s, size_t n);
