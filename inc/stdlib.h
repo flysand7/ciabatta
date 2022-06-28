@@ -101,11 +101,11 @@ void qsort(
 );
 
 // Multibyte strings
-// int mblen(const char *s, size_t n);
-// int mbtowc(wchar_t * restrict pwc, const char * restrict s, size_t n);
-// int wctomb(char *s, wchar_t wchar);
-// size_t mbstowcs(wchar_t * restrict pwcs, const char * restrict s, size_t n);
-// size_t wcstombs(char * restrict s, const wchar_t * restrict pwcs, size_t n);
+int    mblen   (const char *s, size_t n);
+int    mbtowc  (wchar_t *restrict pwc,  const char *restrict s, size_t n);
+size_t mbstowcs(wchar_t *restrict pwcs, const char *restrict s, size_t n);
+int    wctomb  (char *s, wchar_t wchar);
+size_t wcstombs(char *restrict s, const wchar_t *restrict pwcs, size_t n);
 
 // #ifdef __STDC_WANT_LIB_EXT1__
 // 	typedef void (*constraint_handler_t)(const char * restrict msg, void * restrict ptr, errno_t error);
