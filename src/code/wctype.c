@@ -2,11 +2,7 @@
 #include <wctype.h>
 #include <string.h>
 
-#include "unicode/data.h"
-
-static inline int char_cat(wint_t wc) {
-    return uni_codepoints[wc].cat;
-}
+#include <unicode.h>
 
 int iswctype(wint_t wc, wctype_t desc) {
     return desc(wc);
@@ -51,7 +47,7 @@ int iswblank(wint_t wc) {
 }
 
 int iswcntrl(wint_t wc) {
-    return char_cat(wc) == Cc;
+    return uni_classify(wc) == UCHAR_Cc;
 }
 
 int iswdigit(wint_t wc) {
@@ -63,33 +59,33 @@ int iswgraph(wint_t wc) {
 }
 
 int iswlower(wint_t wc) {
-    return char_cat(wc) == Ll;
+    return uni_classify(wc) == UCHAR_Ll;
 }
 
 int iswprint(wint_t wc) {
-    switch(char_cat(wc)) {
-        case Cc:
-        case Cf:
-        case Co:
-        case Cs:
+    switch(uni_classify(wc)) {
+        case UCHAR_Cc:
+        case UCHAR_Cf:
+        case UCHAR_Co:
+        case UCHAR_Cs:
             return 0;
     }
     return 1;
 }
 
 int iswpunct(wint_t wc) {
-    switch(char_cat(wc)) {
-        case Pc:
-        case Pd:
-        case Pe:
-        case Pf:
-        case Pi:
-        case Po:
-        case Ps:
-        case Sk:
-        case Sc:
-        case Sm:
-        case So:
+    switch(uni_classify(wc)) {
+        case UCHAR_Pc:
+        case UCHAR_Pd:
+        case UCHAR_Pe:
+        case UCHAR_Pf:
+        case UCHAR_Pi:
+        case UCHAR_Po:
+        case UCHAR_Ps:
+        case UCHAR_Sk:
+        case UCHAR_Sc:
+        case UCHAR_Sm:
+        case UCHAR_So:
             return 1;
     }
     return 0;
@@ -109,7 +105,7 @@ int iswspace(wint_t wc) {
 }
 
 int iswupper(wint_t wc) {
-    return char_cat(wc) == Lu;
+    return uni_classify(wc) == UCHAR_Lu;
 }
 
 int iswxdigit(wint_t wc) {
@@ -117,9 +113,9 @@ int iswxdigit(wint_t wc) {
 }
 
 wint_t towlower(wint_t wc) {
-    return uni_codepoints[wc].lower;
+    return uni_to_lower(wc);
 }
 
 wint_t towupper(wint_t wc) {
-    return uni_codepoints[wc].upper;
+    return uni_to_upper(wc);
 }

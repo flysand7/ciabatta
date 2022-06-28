@@ -4,10 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct mbstate_t mbstate_t;
 typedef uint_least16_t char16_t;
 typedef uint_least32_t char32_t;
 
+typedef struct mbstate_t mbstate_t;
 struct mbstate_t {
     char16_t leftover;
 };

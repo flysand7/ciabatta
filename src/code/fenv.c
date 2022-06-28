@@ -1,6 +1,11 @@
 
 #include <fenv.h>
-#include <intrin.h>
+
+#if defined(_WIN32)
+    #include <intrin.h>
+#else
+    #include <x86intrin.h>
+#endif
 
 #define fe_masks(excepts) (((fexcept_t)(excepts)) << 7)
 #define fe_flags(excepts) ((fexcept_t)(excepts))
