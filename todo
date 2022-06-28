@@ -31,14 +31,12 @@ math.h:
     other stuff?
 
 stdio.h:
-    Basically everything
+    Formatted print, scan
 
 stdlib.h:
-    qsort
+    Strtod base 16 must be correctly rounded
+    Multibyte string functions
     Better PRNG
-    MB_CUR_MAX should be locale-dependent
-    strtod base 16 should be correctly rounded
-    Probably other stuff
 
 threads.h:
     TODO: add todo items
