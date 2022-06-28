@@ -9,9 +9,9 @@
 #define asdouble(x) ((union {double f; uint64_t i;}){x}).f
 
 #if defined(__GNUC__) || defined(__clang__)
-    #define just_do_it(t) __attribute__((unused)) volatile t
+    #define just_do_it(v) do{__attribute__((unused)) volatile double t = v;}while(0)
 #else
-    #define just_do_it(t) volatile t
+    #define just_do_it(v) do{volatile double t = v;}while(0)
 #endif
 
 double nearbyint(double x) {
@@ -53,9 +53,9 @@ double nextafter(double x, double y) {
     }
     e = ux.i >> 52 & 0x7ff;
     /* raise overflow if ux.f is infinite and x is finite */
-    if (e == 0x7ff) just_do_it(float) _x = x+x;
+    if (e == 0x7ff) just_do_it(x+x);
     /* raise underflow if ux.f is subnormal or zero */
-    if (e == 0) just_do_it(float) _x = x*x + ux.f*ux.f;
+    if (e == 0) just_do_it(x*x + ux.f*ux.f);
     return ux.f;
 }
 
@@ -78,9 +78,9 @@ float nextafterf(float x, float y) {
     }
     e = ux.i & 0x7f800000;
     /* raise overflow if ux.f is infinite and x is finite */
-    if (e == 0x7f800000) just_do_it(float) _x = x+x;
+    if (e == 0x7f800000) just_do_it(x+x);
     /* raise underflow if ux.f is subnormal or zero */
-    if (e == 0) just_do_it(float) _x = x*x + ux.f*ux.f;
+    if (e == 0) just_do_it(x*x + ux.f*ux.f);
     return ux.f;
 }
 
@@ -109,9 +109,9 @@ float nexttowardf(float x, long double y) {
     }
     e = ux.i & 0x7f800000;
     /* raise overflow if ux.f is infinite and x is finite */
-    if (e == 0x7f800000) just_do_it(float) _x = x+x;
+    if (e == 0x7f800000) just_do_it(x+x);
     /* raise underflow if ux.f is subnormal or zero */
-    if (e == 0) just_do_it(float) _x = x*x + ux.f*ux.f;
+    if (e == 0) just_do_it(x*x + ux.f*ux.f);
     return ux.f;
 }
 
@@ -210,7 +210,7 @@ double round(double x) {
     if (u.i >> 63) x = -x;
     if (e < 0x3ff-1) {
         /* raise inexact if x!=0 */
-        just_do_it(float) _x = x + toint;
+        just_do_it(x + toint);
         return 0*u.f;
     }
     y = x + toint - toint - x;
@@ -229,7 +229,7 @@ float roundf(float x) {
     if (e >= 0x7f+23) return x;
     if (u.i >> 31) x = -x;
     if (e < 0x7f-1) {
-        just_do_it(float) _x = x + toint;
+        just_do_it(x + toint);
         return 0*u.f;
     }
     y = x + toint - toint - x;
@@ -283,7 +283,7 @@ double ceil(double x) {
         y = x + toint - toint - x;
     /* special case because of non-nearest rounding modes */
     if (e <= 0x3ff-1) {
-        just_do_it(double) _x = y;
+        just_do_it(y);
         return u.i >> 63 ? -0.0 : 1;
     }
     if (y < 0)
@@ -302,12 +302,12 @@ float ceilf(float x) {
         m = 0x007fffff >> e;
         if ((u.i & m) == 0)
             return x;
-        just_do_it(float) _x = (x + 0x1p120f);
+        just_do_it(x + 0x1p120f);
         if (u.i >> 31 == 0)
             u.i += m;
         u.i &= ~m;
     } else {
-        just_do_it(float) _x = (x + 0x1p120f);
+        just_do_it(x + 0x1p120f);
         if (u.i >> 31)
             u.f = -0.0;
         else if (u.i << 1)
@@ -334,7 +334,7 @@ double floor(double x) {
         y = x + toint - toint - x;
     /* special case because of non-nearest rounding modes */
     if (e <= 0x3ff-1) {
-        just_do_it(double) _x = (y);
+        just_do_it(y);
         return u.i >> 63 ? -1 : 0;
     }
     if (y > 0)
@@ -353,12 +353,12 @@ float floorf(float x) {
         m = 0x007fffff >> e;
         if ((u.i & m) == 0)
             return x;
-        just_do_it(float) _x = (x + 0x1p120f);
+        just_do_it(x + 0x1p120f);
         if (u.i >> 31)
             u.i += m;
         u.i &= ~m;
     } else {
-        just_do_it(float) _x = (x + 0x1p120f);
+        just_do_it(x + 0x1p120f);
         if (u.i >> 31 == 0)
             u.i = 0;
         else if (u.i << 1)
@@ -383,7 +383,7 @@ double trunc(double x) {
     m = -1ULL >> e;
     if ((u.i & m) == 0)
         return x;
-    just_do_it(double) _x = (x + 0x1p120f);
+    just_do_it(x + 0x1p120f);
     u.i &= ~m;
     return u.f;
 }
@@ -400,7 +400,7 @@ float truncf(float x) {
     m = -1U >> e;
     if ((u.i & m) == 0)
         return x;
-    just_do_it(float) _x = (x + 0x1p120f);
+    just_do_it(x + 0x1p120f);
     u.i &= ~m;
     return u.f;
 }

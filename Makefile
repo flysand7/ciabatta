@@ -18,36 +18,45 @@ endif
 
 # If we're compiling under windows we'll link to these libraries
 ifeq ($(PLATFORM),win)
-	LIBS := -lDbghelp -lkernel32 -luser32 -lshell32 
+	LIBS := -lDbghelp -lkernel32 -luser32 -lshell32
+	MKDIR_P_FLAG := 
+	NUL_FILE := NUL
+else
+	LIBS := -lrt -lpthread -ldl
+	MKDIR_P_FLAG := '-p'
+	NUL_FILE := /dev/null
 endif
 
 # Compiler flags
 ifeq ($(CC), clang)
-	CFLAGS=$(GNUFLAGS) -Werror -Wall -msse2 $(IFLAGS)
+	CFLAGS=$(GNUFLAGS) -Wall -msse2 -mfma $(IFLAGS)
 else
 	echo BAD CC
 	exit 1
 endif
 
 # Figure out what we want to compile at the end
-SRC_FILES := $(wildcard $(SRC_DIR)/code/*.c) $(wildcard $(SRC_DIR)/$(PLATFORM)/*.c)
+SRC_FILES := \
+	$(wildcard $(SRC_DIR)/code/*.c)  \
+    $(wildcard $(SRC_DIR)/code/**/*.c)  \
+    $(wildcard $(SRC_DIR)/$(PLATFORM)/*.c) \
+    $(wildcard $(SRC_DIR)/$(PLATFORM)/**/*.c)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.obj,$(SRC_FILES))
 
 $(OBJ_DIR)/%.obj: $(SRC_DIR)/%.c
+	@-mkdir $(MKDIR_P_FLAG) "$(dir $@)" 2> $(NUL_FILE)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 ciabatta.lib: $(OBJ_FILES)
 	llvm-ar rc $@ $^
 
 test: ciabatta.lib
-	clang test/test_$(test).c ciabatta.lib -std=c11 $(LIBS) -nostdlib -Iinc
+	clang -g test/test_$(test).c ciabatta.lib -std=c11 $(LIBS) -nostdlib -Iinc
 
 clean:
 	rd/s/q bin || true
 	rm -Rf bin || true
-	mkdir bin
-	mkdir bin/code
-	mkdir bin/win
-	mkdir bin/linux
+	rm -f ciabatta.lib || true
+	del ciabatta.lib || true
 
 .PHONY: ciabatta.lib test

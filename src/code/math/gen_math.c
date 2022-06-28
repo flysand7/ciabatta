@@ -3,6 +3,7 @@
 #include <fenv.h>
 #include <errno.h>
 #include <stdint.h>
+#include <stddef.h>
 
 static double LN2       = 0.693147180559945309417232121458176;
 static double HALF_PI   = 1.570796326794896619231321691639751;

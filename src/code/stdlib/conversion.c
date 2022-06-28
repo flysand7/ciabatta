@@ -139,7 +139,7 @@ static intull strtoi_generic(const char *restrict nptr,
     errno = ERANGE;
     value = int_max;
     goto finish;
-    finish:
+    finish:;
     // If no conversion is performed we return the value of 0 and *endptr
     // is set to the nptr.
     bool conv_performed = (digits_read > 0);

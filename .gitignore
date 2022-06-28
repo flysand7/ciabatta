@@ -1,4 +1,5 @@
 bin
+a.out
 *.exe
 *.lib
 *.obj
