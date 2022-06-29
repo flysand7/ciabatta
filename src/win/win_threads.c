@@ -52,8 +52,11 @@ int thrd_equal(thrd_t thr0, thrd_t thr1) {
 }
 
 int thrd_join(thrd_t thr, int *res) {
-    if (WaitForSingleObject(thr.handle, INFINITE) == WAIT_FAILED) {
+    DWORD wait = WaitForSingleObject(thr.handle, INFINITE);
+    if (wait == WAIT_FAILED) {
         return thrd_error;
+    } else if (wait == WAIT_TIMEOUT) {
+        return thrd_timedout;
     }
 
     if (res != NULL) {
