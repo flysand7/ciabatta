@@ -29,23 +29,16 @@ mkdir bin
 mkdir bin\%PLATFORM%
 
 del ciabatta.lib 2> nul
-for /R src\%PLATFORM% %%F in (*.c) do (
-    echo %%F
-    clang -Isrc/win -c -o bin\%PLATFORM%\%%~nF.obj %%F %CIABATTA_OPTIONS%
-)
+call bake_cc.cmd
 for /R src\%PLATFORM% %%F in (*.asm) do (
     echo %%F
     nasm %%F -f win64 -o bin\%PLATFORM%\%%~nF.obj
-)
-for /R src\code %%F in (*.c) do (
-    echo %%F
-    clang -c -o bin\%%~nF.obj %%F %CIABATTA_OPTIONS%
 )
 llvm-ar rc ciabatta.lib bin\*.obj bin\%PLATFORM%\*.obj
 
 :skip_crt_compilation
 
-if "%TEST%"=="" set TEST=assert
+if "%TEST%"=="" set TEST=threads
 
 echo Compiling test_%TEST%.c
 clang test\test_%TEST%.c ciabatta.lib -std=c11 -lDbghelp -lkernel32 -luser32 -lshell32 -nostdlib %CIABATTA_OPTIONS%
