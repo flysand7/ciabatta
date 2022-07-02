@@ -1,8 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
 
-if not exist src\code\unicode\unicode_data.h (
-    py src\code\unicode\unicode_compile.py
+if not exist src\code\unicode\data.h (
+    py src\code\unicode\compile.py
 )
 
 set PLATFORM=win
