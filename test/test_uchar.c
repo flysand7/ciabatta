@@ -1,28 +1,19 @@
 
-#include <uchar.h>
+#include <unicode.h>
+#include <stdio.h>
 
-mbstate_t state;
 int main() {
-    char in[] = u8"zß水🍌"; // or "z\u00df\u6c34\U0001F34C"
-    size_t in_sz = sizeof in / sizeof *in;
-
-    char16_t out[in_sz];
-    char *p_in = in, *end = in + in_sz;
-    char16_t *p_out = out;
-    size_t rc;
-    while((rc = mbrtoc16(p_out, p_in, end - p_in, &state)))
+    char *mbstr = u8"улыбок тебе дед макар";
     {
-        if(rc == (size_t)-1)      // invalid input
-            break;
-        else if(rc == (size_t)-2) // truncated input
-            break;
-        else if(rc == (size_t)-3) // UTF-16 high surrogate
-            p_out += 1;
-        else {
-            p_in += rc;
-            p_out += 1;
-        };
+        char *str = mbstr;
+        uchar_t ch;
+        int len;
+        while((len = utf8_dec(str, &ch)) > 0 && ch != 0) {
+            printf("char: %d\n", ch);
+            str += len;
+        }
+        if(len <= 0) {
+            printf("This string is not utf8\n");
+        }
     }
-
-    size_t out_sz = p_out - out + 1;
 }
