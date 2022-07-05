@@ -299,4 +299,3 @@ long double tgammal    (long double);
 double      trunc      (double);
 float       truncf     (float);
 long double truncl     (long double);
-
