@@ -10,7 +10,7 @@ typedef uint_least32_t char32_t;
 typedef int32_t uchar_t;
 
 enum {
-    UCHAR_Invalid,
+    UCHAR_BAD,
     UCHAR_Cc,
     UCHAR_Cf,
     UCHAR_Co,
@@ -42,44 +42,82 @@ enum {
     UCHAR_Zs,
 };
 
-typedef struct uchar_props uchar_props;
-struct uchar_props {
-    int     bidi_class;
-    int     bidi_mirrored;
-    int     bidi_paired_bracket;
-    int     bidi_paired_bracket_type;
-    int     block;
-    int     canon_comb_class;
-    uchar_t ch_lower;
-    uchar_t ch_upper;
-    int     ndecomp;
-    uchar_t const decomp[4];
-    uchar_t default_igncp;
-    int     deprecated;
-    int     east_asian_width;
-    int     gcat;
-    int     hangul_syl_type;
-    int     join_type;
-    int     join_group;
-    int     line_brk;
-    char    const *name;
-    uchar_t nc_cp;
-    int     num_val;
-    int     ws;
-    int     dash;
-    int     letter_props;
-    int     math_props;
-    int     script;
+enum {
+    UCHAR_BIDI_AL,
+    UCHAR_BIDI_AN,
+    UCHAR_BIDI_B,
+    UCHAR_BIDI_BN,
+    UCHAR_BIDI_CS,
+    UCHAR_BIDI_EN,
+    UCHAR_BIDI_ES,
+    UCHAR_BIDI_ET,
+    UCHAR_BIDI_FSI,
+    UCHAR_BIDI_L,
+    UCHAR_BIDI_LRE,
+    UCHAR_BIDI_LRI,
+    UCHAR_BIDI_LRO,
+    UCHAR_BIDI_NSM,
+    UCHAR_BIDI_ON,
+    UCHAR_BIDI_PDF,
+    UCHAR_BIDI_PDI,
+    UCHAR_BIDI_R,
+    UCHAR_BIDI_RLE,
+    UCHAR_BIDI_RLI,
+    UCHAR_BIDI_RLO,
+    UCHAR_BIDI_S,
+    UCHAR_BIDI_WS,
 };
 
+enum {
+    UCHAR_DECOMP_CANON,
+    UCHAR_DECOMP_FONT,
+    UCHAR_DECOMP_NOBREAK,
+    UCHAR_DECOMP_INITIAL,
+    UCHAR_DECOMP_MEDIAL,
+    UCHAR_DECOMP_FINAL,
+    UCHAR_DECOMP_ISOLATED,
+    UCHAR_DECOMP_CIRCLE,
+    UCHAR_DECOMP_SUPER,
+    UCHAR_DECOMP_SUB,
+    UCHAR_DECOMP_VERTICAL,
+    UCHAR_DECOMP_WIDE,
+    UCHAR_DECOMP_NARROW,
+    UCHAR_DECOMP_SMALL,
+    UCHAR_DECOMP_SQUARE,
+    UCHAR_DECOMP_FRACTION,
+    UCHAR_DECOMP_COMPAT,
+};
 
-int uni_classify(uchar_t ch);
-int uni_valid(uchar_t ch);
-uchar_t uni_to_lower(uchar_t u);
-uchar_t uni_to_upper(uchar_t u);
+typedef struct uchar_props uchar_props;
+struct uchar_props {
+    uchar_t       code;
+    char const   *name;
+    int           cat_gen;
+    int           cat_bidi;
+    int           comb_class;
+    int           dec_type;
+    int           dec_map_n;
+    uchar_t const dec_map[18]; // U+FDFA takes 18, everything else takes up <8
+    int           dec_value;
+    int           dig_value;
+    double        num_value;
+    int           bidi_mirrored;
+    char const   *old_name;
+    char const   *comment;
+    uchar_t       lower;
+    uchar_t       upper;
+    uchar_t       title;
+};
 
-int     uni_is_hsur(char16_t ch);
-int     uni_is_lsur(char16_t ch);
+uchar_props *uni_props   (uchar_t cp);
+int          uni_valid   (uchar_t cp);
+int          uni_classify(uchar_t cp);
+uchar_t      uni_tolower(uchar_t cp);
+uchar_t      uni_toupper(uchar_t cp);
+uchar_t      uni_totitle(uchar_t cp);
+
+int     uni_is_hsur(char16_t cp);
+int     uni_is_lsur(char16_t cp);
 uchar_t uni_surtoc (char16_t hsur, char16_t lsur);
 
 int utf16_chlen(char16_t const *str);

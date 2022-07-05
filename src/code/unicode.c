@@ -3,16 +3,30 @@
 
 #include "unicode/data.h"
 
-int uni_classify(uchar_t cp) {
-    return uni_codepoints[cp].cat;
+uchar_props *uni_props(uchar_t cp) {
+    if(!uni_valid(cp))              return NULL;
+    if(unicode_data[cp].code != cp) return NULL;
+    return &unicode_data[cp];
 }
 
-uchar_t uni_to_lower(uchar_t cp) {
-    return uni_codepoints[cp].lower;
+int uni_cat_gen(uchar_t cp) {
+    uchar_props *props = uni_props(cp);
+    if(props != NULL)
+        return unicode_data[cp].cat_gen;
+    else
+        return UCHAR_BAD;
 }
 
-uchar_t uni_to_upper(uchar_t cp) {
-    return uni_codepoints[cp].upper;
+uchar_t uni_tolower(uchar_t cp) {
+    return unicode_data[cp].lower;
+}
+
+uchar_t uni_toupper(uchar_t cp) {
+    return unicode_data[cp].upper;
+}
+
+uchar_t uni_totitle(uchar_t cp) {
+    return unicode_data[cp].title;
 }
 
 int uni_valid(uchar_t ch) {
