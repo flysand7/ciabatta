@@ -9,6 +9,13 @@ typedef uint_least32_t char32_t;
 
 typedef int32_t uchar_t;
 
+#define UNI_EBADCP (-1)
+#define UNI_EULSUR (-2)
+#define UNI_EIBYTE (-3)
+#define UNI_ETBYTE (-4)
+#define UNI_ESTRLN (-5)
+
+
 enum {
     UCHAR_BAD,
     UCHAR_Cc,
@@ -112,23 +119,23 @@ struct uchar_props {
 uchar_props *uni_props   (uchar_t cp);
 int          uni_valid   (uchar_t cp);
 int          uni_classify(uchar_t cp);
-uchar_t      uni_tolower(uchar_t cp);
-uchar_t      uni_toupper(uchar_t cp);
-uchar_t      uni_totitle(uchar_t cp);
+uchar_t      uni_tolower (uchar_t cp);
+uchar_t      uni_toupper (uchar_t cp);
+uchar_t      uni_totitle (uchar_t cp);
 
 int     uni_is_hsur(char16_t cp);
 int     uni_is_lsur(char16_t cp);
 uchar_t uni_surtoc (char16_t hsur, char16_t lsur);
 
-int utf16_chlen(char16_t const *str);
-int utf8_chlen (char     const *str);
+size_t utf16_chlen(char16_t const *str);
+size_t utf8_chlen (char     const *str);
 
-int utf16_dec_s(char16_t const *restrict str, size_t len, uchar_t *restrict ch);
-int utf8_dec_s (char     const *restrict str, size_t len, uchar_t *restrict ch);
-int utf16_dec  (char16_t const *restrict str,             uchar_t *restrict ch);
-int utf8_dec   (char     const *restrict str,             uchar_t *restrict ch);
+size_t utf16_dec_s(char16_t const *restrict str, size_t len, uchar_t *restrict ch);
+size_t utf8_dec_s (char     const *restrict str, size_t len, uchar_t *restrict ch);
+size_t utf16_dec  (char16_t const *restrict str,             uchar_t *restrict ch);
+size_t utf8_dec   (char     const *restrict str,             uchar_t *restrict ch);
 
-int utf16_enc_s(char16_t *str, size_t len, uchar_t ch);
-int utf8_enc_s (char     *str, size_t len, uchar_t ch);
-int utf16_enc  (char16_t *str,             uchar_t ch);
-int utf8_enc   (char     *str,             uchar_t ch);
+size_t utf16_enc_s(char16_t *str, size_t len, uchar_t ch);
+size_t utf8_enc_s (char     *str, size_t len, uchar_t ch);
+size_t utf16_enc  (char16_t *str,             uchar_t ch);
+size_t utf8_enc   (char     *str,             uchar_t ch);
