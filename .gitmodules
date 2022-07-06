@@ -1,0 +1,3 @@
+[submodule "unicope"]
+	path = unicope
+	url = https://github.com/bumbread/unicope.git

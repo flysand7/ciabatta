@@ -2,7 +2,7 @@
 CC=clang
 SRC_DIR := src
 OBJ_DIR := bin
-IFLAGS := -Iinc -Isrc/win
+IFLAGS := -Iinc -Isrc/win -Iunicope/inc
 
 # Detect target operating system
 ifeq ($(OS),Windows_NT) 
@@ -47,8 +47,12 @@ $(OBJ_DIR)/%.obj: $(SRC_DIR)/%.c
 	@-mkdir $(MKDIR_P_FLAG) "$(dir $@)" 2> $(NUL_FILE)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-ciabatta.lib: $(OBJ_FILES)
+ciabatta.lib: $(OBJ_FILES) unicope/unicope.lib
 	llvm-ar rc $@ $^
+
+unicope/unicope.lib:
+	clang -I unicope/inc -c unicope/src/unicode.c -o unicope/unicope.lib
+
 
 test: ciabatta.lib
 	clang -g test/test_$(test).c ciabatta.lib -std=c11 $(LIBS) -nostdlib -Iinc

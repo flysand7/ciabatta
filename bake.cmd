@@ -13,15 +13,11 @@ if "%~1" neq "_start_" (
 )
 shift /1
 
-set CIABATTA_OPTIONS=-Iinc -Wall -g -gcodeview -nodefaultlibs -D_CRT_SECURE_NO_WARNINGS -mfma
+set CIABATTA_OPTIONS=-Iinc -I unicope\inc -Wall -g -gcodeview -nodefaultlibs -D_CRT_SECURE_NO_WARNINGS -mfma
 set PLATFORM=win
 
 if "%1"=="test" (
     goto :skip_crt_compilation
-)
-
-if not exist src\code\unicode\data.h (
-    py src\code\unicode\compile.py
 )
 
 if exist bin rd/s/q bin

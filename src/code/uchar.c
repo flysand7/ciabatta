@@ -2,6 +2,8 @@
 #include <uchar.h>
 #include <errno.h>
 
+#include <unicode.h>
+
 size_t mbrtoc16(
     char16_t   *restrict pc16,
     char const *restrict s,
@@ -12,59 +14,34 @@ size_t mbrtoc16(
         *ps = (mbstate_t) {0};
         return 0;
     }
-    size_t nbytes;
-    char16_t parsed_char;
-    char16_t next_char;
-    // First check leftovers
-    if(ps->leftover == 0) {
-        // Decode the first byte of UTF-8 sequence
-        unsigned byte0 = *s;
-        if     (0x00 <= byte0 && byte0 < 0x80) nbytes = 1;
-        else if(0xc0 <= byte0 && byte0 < 0xe0) nbytes = 2;
-        else if(0xe0 <= byte0 && byte0 < 0xf0) nbytes = 3;
-        else if(0xf0 <= byte0 && byte0 < 0xf8) nbytes = 4;
-        else goto encoding_error;
-        unsigned nbytesreq = nbytes;
-        if(n < nbytesreq) {
-            return (size_t)(-2);
-        }
-        char32_t cp = byte0;
-        switch(nbytesreq) {
-            case 2: cp &= 0x1f; break;
-            case 3: cp &= 0x0f; break;
-            case 4: cp &= 0x07; break;
-        }
-        while(--nbytesreq)
-            cp |= (cp << 6) | ((*++s) & 0x3f);
-        if(0xdc00 <= cp && cp <= 0xe000)
-            goto encoding_error;
-        // Overloing seqs
-        if(cp < 0x80    && nbytes > 1) goto encoding_error;
-        if(cp < 0x800   && nbytes > 2) goto encoding_error;
-        if(cp < 0x10000 && nbytes > 3) goto encoding_error;
-        if(cp > 0x10ffff) goto encoding_error;
-        // Now convert this char shit to UTF-16
-        if(cp < 0x10000) {
-            parsed_char = cp;
-            next_char   = 0; // no next
-        }
-        else {
-            cp -= 0x10000;
-            parsed_char = 0xd800 | (cp >> 10);
-            next_char   = 0xdc00 | (cp & 0x3ff);
-        }
-    }
-    else {
+    // First check leftovers, using 0xd800 as marker because it doesn't
+    // encode a valid character.
+    if(ps->leftover != 0xd800) {
         if(pc16 != NULL) *pc16 = ps->leftover;
-        ps->leftover = 0;
+        ps->leftover = 0xd800;
         return (size_t)(-3);
     }
-    if(pc16 != NULL) *pc16 = parsed_char;
-    ps->leftover = next_char;
-    if(parsed_char == 0)
-        return 0;
-    else
-        return nbytes;
+    else {
+        uchar_t ch;
+        char16_t str[3];
+        int chlen = utf8_dec(s, &ch);
+        if(chlen <= 0) goto encoding_error;
+        int wrlen = utf16_enc(str, ch);
+        char16_t curc;
+        char16_t next;
+        if(wrlen <= 0) goto encoding_error;
+        else if(wrlen == 2) {
+            curc = str[0];
+            next = 0xd800;
+        }
+        else {
+            curc = str[0];
+            next = str[1];
+        }
+        ps->leftover = next;
+        if(pc16 != NULL) *pc16 = curc;
+        return (size_t)-2;
+    }
 encoding_error:
     errno = EILSEQ;
     return (size_t)(-1);
