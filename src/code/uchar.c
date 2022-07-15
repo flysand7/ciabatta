@@ -82,10 +82,11 @@ size_t c16rtomb(
     }
     else goto invalid_char;
     // Write the codepoint that we decided to write to multibyte string
-    int written_len = utf8_chenc(s, 4, codepoint_to_write);
+    int written_len = utf8_chenc((char8_t *)s, 4, codepoint_to_write);
     if(written_len < 0) {
         goto invalid_char;
     }
+    s[written_len] = 0;
     return (size_t)written_len;
 invalid_char:
     errno = EILSEQ;
