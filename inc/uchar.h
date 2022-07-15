@@ -9,7 +9,10 @@ typedef uint_least32_t char32_t;
 
 typedef struct mbstate_t mbstate_t;
 struct mbstate_t {
-    char16_t leftover;
+    union {
+        char16_t leftover;
+        char16_t high_surrogate;
+    }
 };
 
 size_t mbrtoc16(

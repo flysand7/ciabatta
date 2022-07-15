@@ -2,7 +2,7 @@
 #include <wctype.h>
 #include <string.h>
 
-#include <unicode.h>
+#include <unicope.h>
 
 int iswctype(wint_t wc, wctype_t desc) {
     return desc(wc);
@@ -113,9 +113,9 @@ int iswxdigit(wint_t wc) {
 }
 
 wint_t towlower(wint_t wc) {
-    return uni_to_lower(wc);
+    return uni_tolower(wc);
 }
 
 wint_t towupper(wint_t wc) {
-    return uni_to_upper(wc);
+    return uni_toupper(wc);
 }

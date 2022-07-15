@@ -34,6 +34,8 @@ typedef struct lldiv_t {
 #define EXIT_SUCCESS 0
 
 #define RAND_MAX 65536
+
+#define MB_LEN_MAX 4
 #define MB_CUR_MAX 4
 
 // Microsoft extension, COUNTOF(x) counts array elements
