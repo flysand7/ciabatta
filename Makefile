@@ -51,7 +51,7 @@ ciabatta.lib: $(OBJ_FILES) unicope/unicope.lib
 	llvm-ar rc $@ $^
 
 unicope/unicope.lib:
-	clang -I unicope/inc -c unicope/src/unicode.c -o unicope/unicope.lib
+	unicope\bake
 
 
 test: ciabatta.lib
