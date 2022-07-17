@@ -3,46 +3,43 @@ general:
 *   Start writing documentation concerning various implementation defined
     behaviours of the library.
 
-locale.h:
-    Make other locales actually work
-
 math.h:
-    exp
-    exp2
-    expml
-    log
-    log10
-    log2
-    log1p
-    pow
-    cbrt
-    hypot
-    atan2
-    erf
-    erfc
-    tgamma
-    lgamma
-    frexp
-    ldexp
-    M_PI
-    M_E
-    M_LOG2
-    M_LOG10
-    other stuff?
+*   exp
+*   exp2
+*   expml
+*   log
+*   log10
+*   log2
+*   log1p
+*   pow
+*   cbrt
+*   hypot
+*   atan2
+*   erf
+*   erfc
+*   tgamma
+*   lgamma
+*   frexp
+*   ldexp
+*   M_* constants
+*   M_E
+*   M_LOG2
+*   M_LOG10
+*   other stuff?
 
 stdio.h:
-    Formatted print, scan
+*   The only reason to keep a linked list of all streams is to make sure they
+    are flushed after main() returns. I wonder if only remembering the files
+    with a buffer would increase performance.
+*   Formatted print, scan
 
 stdlib.h:
-    Strtod base 16 must be correctly rounded
-    Multibyte string functions
-    Better PRNG
+*   Strtod base 16 must be correctly rounded
+*   Multibyte string functions
+*   Better PRNG
 
 threads.h:
-    TODO: add todo items
-
-tgmath.h:
-    Basically everything
+*   TODO: add todo items
 
 wchar.h:
-    Basically everything
+*   Basically everything
