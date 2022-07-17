@@ -123,7 +123,7 @@ size_t c32rtomb(
         *ps = (mbstate_t) {0};
         return 0;
     }
-    int mblen = utf8_enc(s, 4, c32);
+    int mblen = utf8_chenc((char8_t *)s, 4, c32);
     if(mblen <= 0) {
         errno = EILSEQ;
         return (size_t)(-1);
