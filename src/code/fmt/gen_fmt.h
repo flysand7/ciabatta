@@ -6,6 +6,8 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
+#include <uchar.h>
+#include <wctype.h>
 
 #include <ryu/ryu.h>
 
@@ -250,7 +252,7 @@ static int pfx(vprintfcb)(
         case 'f':
         case 'F':
         case 'g':
-        case 'G':
+        case 'G': {
             if(*fmt == 'E' || *fmt == 'F' || *fmt == 'G') flags |= FLAG_UPPER;
             char conv = tolower(*fmt);
             ++fmt;
@@ -283,7 +285,105 @@ static int pfx(vprintfcb)(
                 }
             }
             if(w < 0) return -1;
-            break;
+        }break;
+        case 'c': {
+            ++fmt;
+            int ch;
+            if(flags & FLAG_LONG) {
+                ch = va_arg(va, wint_t);
+            }
+            else {
+                ch = va_arg(va, int);
+            }
+            int pad = width-1;
+            // Print width left-pad
+            if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) {
+                out(' ');
+            }
+            out(ch);
+            // Print right-pad
+            if(flags & FLAG_LEFT) while(pad-- > 0) {
+                out(' ');
+            }
+        } break;
+        case 's': {
+            ++fmt;
+            char *str = NULL;
+            wchar_t *wstr = NULL;
+            int len = 0;
+            if(flags & FLAG_LONG) {
+                wstr = va_arg(va, wchar_t *);
+                wchar_t *s = wstr;
+                while(*s++!=0) ++len;
+                int pad = width - len;
+                // Print width left-pad
+                if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) {
+                    out(' ');
+                }
+                // Print string
+                mbstate_t ps = {0};
+                for(int i = 0; i < len; ++i) {
+                    if(sizeof(ctype) == 2) {
+                        out(wstr[i]);
+                    }
+                    else {
+                        char utf8[5];
+                        char *s = utf8;
+                        size_t r = c16rtomb(s, wstr[i], &ps);
+                        if(r == (size_t)(-1)) return -1;
+                        if(r != 0) {
+                            while(*s != 0) {
+                                out(*s++);
+                            }
+                        }
+                    }
+                }
+                // Print right-pad
+                if(flags & FLAG_LEFT) while(pad-- > 0) {
+                    out(' ');
+                }
+            }
+            else {
+                str = va_arg(va, char *);
+                char *s = str;
+                if(flags & FLAG_PREC) {
+                    while(*s++!=0 && len<prec) ++len;
+                }
+                else {
+                    while(*s++!=0) ++len;
+                }
+                int pad = width - len;
+                // Print width left-pad
+                if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) {
+                    out(' ');
+                }
+                // Print string
+                mbstate_t ps = {0};
+                for(int i = 0; i < len; ++i) {
+                    out(str[i]);
+                }
+                // Print right-pad
+                if(flags & FLAG_LEFT) while(pad-- > 0) {
+                    out(' ');
+                }
+            }
+        } break;
+        case 'p': {
+            ++fmt;
+            void *ptr = va_arg(va, void *);
+            unsigned long long iptr = (unsigned long long)(uintptr_t)ptr;
+            w = pfx(_ntoa)(w, ctx, cb, 0, iptr, 16, 16, 0, FLAG_HASH);
+            if(w < 0) return -1;
+        } break;
+        case 'n': {
+            ++fmt;
+            int *p = va_arg(va, int *);
+            *p = w;
+        } break;
+        case '%': {
+            ++fmt;
+            out('%');
+        } break;
         }
     }
     return w;
@@ -345,13 +445,16 @@ static inline int pfx(_ntoa)(
     if(ndigits > prec) prec = ndigits;
     int num_len = pref_len + prec;
     int pad_len = width - num_len;
-    // Print left-pad due to width (TODO: zero pad should come after prefix?)
     if(!(flags & FLAG_LEFT)) {
         ctype pad_ch = ' ';
         if(flags & FLAG_ZERO) pad_ch = '0';
         while(pad_len-- > 0) {
             out(pad_ch);
         }
+    }
+    // Print width left-pad if it's made out of space
+    if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad_len-- > 0) {
+        out(' ');
     }
     // Print prefix
     if(flags & FLAG_HASH) {
@@ -362,6 +465,10 @@ static inline int pfx(_ntoa)(
     else if(neg)                { out('-'); }
     else if(flags & FLAG_PLUS)  { out('+'); }
     else if(flags & FLAG_SPACE) { out(' '); }
+    // Print width left-pad if it's made out of zero
+    if(!(flags & FLAG_LEFT) && (flags & FLAG_ZERO)) while(pad_len-- > 0) {
+        out('0');
+    }
     // Print zero-pad due to precision
     for(int i = ndigits; i < prec; ++i) {
         out('0');
@@ -371,10 +478,8 @@ static inline int pfx(_ntoa)(
         out(digits[ndigits]);
     }
     // Print right-pad
-    if(flags & FLAG_LEFT) {
-        while(pad_len-- > 0) {
-            out(' ');
-        }
+    if(flags & FLAG_LEFT) while(pad_len-- > 0) {
+        out(' ');
     }
     return w;
 }

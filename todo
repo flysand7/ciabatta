@@ -34,6 +34,7 @@ stdio.h:
 *   Formatted scan
 *   The float printing should include width specifiers
 *   %g should use decimal exponent
+*   %s precision should specify how much characters to *write*
 
 stdlib.h:
 *   Strtod base 16 must be correctly rounded
