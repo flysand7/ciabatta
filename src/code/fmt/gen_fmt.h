@@ -1,8 +1,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <limits.h>
+#include <math.h>
 
 typedef int (pfx(cbfn))(void *ctx, ctype ch);
 
@@ -21,15 +22,6 @@ typedef int (pfx(cbfn))(void *ctx, ctype ch);
 // Helper function declaration
 static inline int pfx(_isdigit)(ctype ch);
 static inline int pfx(_atoi)(ctype const **sp, int *err);
-static inline int pfx(_out_rbuf)(
-    int w,
-    void *ctx,
-    pfx(cbfn) cb,
-    size_t len,
-    ctype *buf,
-    int width,
-    int flags
-);
 static inline int pfx(_ntoa)(
     int w,
     void *ctx,
@@ -41,6 +33,26 @@ static inline int pfx(_ntoa)(
     int width,
     int flags
 );
+static inline int pfx(_dtoh)(
+    int w,
+    void *ctx,
+    pfx(cbfn) cb,
+    double value,
+    int prec,
+    int width,
+    int flags
+);
+static inline int pfx(_infnantoa)(
+    int w,
+    void *ctx,
+    pfx(cbfn) cb,
+    double value,
+    int prec,
+    int width,
+    int flags
+);
+
+#define out(ch) do { if((w++, !cb(ctx, (ch)))) return -1; } while(0)
 
 // Generic print
 static int pfx(vprintfcb)(
@@ -53,10 +65,7 @@ static int pfx(vprintfcb)(
     while(*fmt) {
         // Write a character if it's not a '%' sign
         while(*fmt && *fmt != '%') {
-            if(!cb(ctx, *fmt))
-                return -1;
-            ++w;
-            ++fmt;
+            out(*fmt++);
             continue;
         }
         if(*fmt == '%') {
@@ -159,7 +168,7 @@ static int pfx(vprintfcb)(
         case 'x':
         case 'X':
         case 'o':
-        case 'b':
+        case 'b': {
             // Figure out the signedness and base
             int base = 10;
             if(*fmt == 'x' || *fmt == 'X') base = 16;
@@ -205,8 +214,23 @@ static int pfx(vprintfcb)(
             // Output integer
             w = pfx(_ntoa)(w, ctx, cb, neg, value, base, prec, width, flags);
             if(w < 0) return -1;
+        } break;
+        case 'a':
+        case 'A': {
+            if(*fmt == 'A') flags |= FLAG_UPPER;
+            ++fmt;
+            double value = va_arg(va, double);
+            w = pfx(_dtoh)(w, ctx, cb, value, prec, width, flags);
+            if(w < 0) return -1;
+        } break;
+        case 'e':
+        case 'E':
+        case 'f':
+        case 'F':
+        case 'g':
+        case 'G':
+
             break;
-        case 'f': ;
         }
     }
     return w;
@@ -268,40 +292,228 @@ static inline int pfx(_ntoa)(
     if(ndigits > prec) prec = ndigits;
     int num_len = pref_len + prec;
     int pad_len = width - num_len;
-    // Print left-pad due to width
+    // Print left-pad due to width (TODO: zero pad should come after prefix?)
     if(!(flags & FLAG_LEFT)) {
         ctype pad_ch = ' ';
         if(flags & FLAG_ZERO) pad_ch = '0';
         while(pad_len-- > 0) {
-            if(!cb(ctx, pad_ch)) return -1;
-            ++w;
+            out(pad_ch);
         }
     }
     // Print prefix
     if(flags & FLAG_HASH) {
-        if((++w, !cb(ctx, '0'))) return -1;
-        if(base == 16)     { if((++w, !cb(ctx, 'x'))) return -1; }
-        else if(base == 2) { if((++w, !cb(ctx, 'b'))) return -1; }
+        out('0');
+        if(base == 16)     { out('x'); }
+        else if(base == 2) { out('b'); }
     }
-    else if(neg)                { if((++w, !cb(ctx, '-'))) return -1; }
-    else if(flags & FLAG_PLUS)  { if((++w, !cb(ctx, '+'))) return -1; }
-    else if(flags & FLAG_SPACE) { if((++w, !cb(ctx, ' '))) return -1; }
+    else if(neg)                { out('-'); }
+    else if(flags & FLAG_PLUS)  { out('+'); }
+    else if(flags & FLAG_SPACE) { out(' '); }
     // Print zero-pad due to precision
     for(int i = ndigits; i < prec; ++i) {
-        if(!cb(ctx, '0')) return -1;
-        ++w;
+        out('0');
     }
     // Output buffer in reverse
     if(ndigits) while(ndigits--) {
-        if(!cb(ctx, digits[ndigits])) return -1;
-        ++w;
+        out(digits[ndigits]);
     }
     // Print right-pad
     if(flags & FLAG_LEFT) {
         while(pad_len-- > 0) {
-            if(!cb(ctx, ' ')) return -1;
-            ++w;
+            out(' ');
         }
     }
     return w;
 }
+
+static inline int pfx(_infnantoa)(
+    int w,
+    void *ctx,
+    pfx(cbfn) cb,
+    double value,
+    int prec,
+    int width,
+    int flags
+) {
+    char const *name = NULL;
+    int nchars = 0;
+    if(isinf(value)) name = "inf", nchars = 3;
+    if(isnan(value)) name = "nan", nchars = 3;
+    // Figure out prefix
+    int pref_len = 0;
+    union {
+        uint64_t bits;
+        double value;
+    } _ = {value};
+    uint64_t bits = _.bits;
+    uint64_t neg = bits >> 63;
+    if(neg) pref_len = 1;
+    else if(flags & FLAG_PLUS) pref_len = 1;
+    else if(flags & FLAG_SPACE) pref_len = 1;
+    // Figure out pad
+    int str_len = pref_len + nchars;
+    int pad_len = width - str_len;
+    // Print left-pad
+    if(!(flags & FLAG_LEFT)) {
+        while(pad_len-- > 0) {
+            out(' ');
+        }
+    }
+    // Print the prefix
+    if(neg)                     out('-');
+    else if(flags & FLAG_PLUS)  out('+');
+    else if(flags & FLAG_SPACE) out(' ');
+    // Print the string
+    while(*name) {
+        out(*name++);
+    }
+    // Print right-pad
+    if(flags & FLAG_LEFT) {
+        while(pad_len-- > 0) {
+            out(' ');
+        }
+    }
+    return w;
+}
+
+static inline int pfx(_dtoh)(
+    int w,
+    void *ctx,
+    pfx(cbfn) cb,
+    double value,
+    int prec,
+    int width,
+    int flags
+) {
+    int class = fpclassify(value);
+    if(class == FP_INFINITE || class == FP_NAN) {
+        return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
+    }
+    // Disassemble the float into parts
+    union {
+        uint64_t bits;
+        double value;
+    } _ = {.value = value};
+    uint64_t bits = _.bits;
+    uint64_t neg = bits >> 63;
+    int64_t exp = (int64_t)((bits >> 52) & 0x7ff) - 1023;
+    int64_t mant = bits & ((UINT64_C(1)<<51)-1);
+    if(class == FP_SUBNORMAL || class == FP_ZERO) {
+        exp = 0;
+    }
+    // Figure out how many hex digits does mantissa take up (mant_digits_n)
+    // and the number of digits after decimal point (prec)
+    static ctype mant_buf[64] = {0};
+    int mant_digits_n;
+    int nonsig_digits_n = 0;
+    if(mant != 0) {
+        int64_t m = mant;
+        while((m & 0xf) == 0) {
+            ++nonsig_digits_n;
+            m >>= 4;
+        }
+    }
+    else {
+        nonsig_digits_n = 52/4;
+    }
+    mant_digits_n = 52/4 - nonsig_digits_n;
+    if((flags & FLAG_PREC) == 0) {
+        prec = mant_digits_n;
+    }
+    // Figure out how many symbols decimal point takes up (0 or 1)
+    int decimal_point_n = 1;
+    if(prec == 0) {
+        decimal_point_n = 0;
+        if(flags & FLAG_HASH) {
+            decimal_point_n = 1;
+        }
+    }
+    // Figure out how many digits exponent take up and it's sign
+    // also save exponent digits to a buffer starting from LSD
+    static ctype exp_buf[64] = {0};
+    int exp_digits_n = 0;
+    ctype exp_sign;
+    if(exp < 0) {
+        exp_sign = '-';
+        exp = -exp;
+    }
+    else {
+        exp_sign = '+';
+    }
+    {
+        int64_t e = exp;
+        do {
+            exp_buf[exp_digits_n++] = e % 10 + '0';
+            e /= 10;
+        } while(e != 0);
+    }
+    // Figure out sign symbol and number of chars it takes up (0 or 1)
+    int sign_n = 0;
+    ctype sign_ch;
+    if(value < 0) {
+        sign_n = 1;
+        sign_ch = '-';
+    }
+    else if(flags & FLAG_PLUS) {
+        sign_n = 1;
+        sign_ch = '+';
+    }
+    else if(flags & FLAG_SPACE) {
+        sign_n = 1;
+        sign_ch = ' ';
+    }
+    // Figure out the width of the number
+    int significand_width = 1 + decimal_point_n + prec;
+    int exp_part_width = 2 /*p+-*/ + exp_digits_n;
+    int n_width = sign_n + 2 /*0x*/ + significand_width + exp_part_width;
+    // Figure out width-padding required
+    int pad = 0;
+    if(width > n_width) pad = width - n_width;
+    // Print width left-pad if it's made out of space
+    if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) {
+        out(' ');
+    }
+    // Print sign if there
+    if(sign_n)
+        out(sign_ch);
+    // Print 0x, 0X
+    out('0');
+    out((flags & FLAG_UPPER)? 'X' : 'x');
+    // Print width left-pad if it's made out of zero
+    if(!(flags & FLAG_LEFT) && (flags & FLAG_ZERO)) while(pad-- > 0) {
+        out('0');
+    }
+    // Print whole part
+    out((class == FP_SUBNORMAL || class == FP_ZERO)? '0' : '1');
+    // Print decimal point
+    if(decimal_point_n) out('.');
+    // Print precision padding
+    for(int i = mant_digits_n; i < prec; ++i) {
+        out('0');
+    }
+    if(prec < mant_digits_n) mant_digits_n = prec;
+    for(int i = 0; i != mant_digits_n; ++i) {
+        int bit = 52 - 4 - i;
+        int digit = (int)((mant >> bit) & 0xf);
+        ctype ch;
+        if(digit < 10)
+             ch = digit+'0';
+        else if(flags & FLAG_UPPER)
+             ch = digit+'A'-10;
+        else ch = digit+'a'-10;
+        out(ch);
+    }
+    // Print the exponent part
+    out((flags & FLAG_UPPER)? 'P' : 'p');
+    out(exp_sign);
+    if(exp_digits_n) do
+        out(exp_buf[exp_digits_n]);
+    while(exp_digits_n--);
+    // Print right-pad
+    if(flags & FLAG_LEFT) while(pad-- > 0) {
+        out(' ');
+    }
+    return w;
+}
+
+#undef out

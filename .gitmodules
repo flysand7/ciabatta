@@ -1,3 +1,6 @@
 [submodule "unicope"]
 	path = unicope
 	url = https://github.com/bumbread/unicope.git
+[submodule "ryu"]
+	path = ryu
+	url = https://github.com/bumbread/ryu.git

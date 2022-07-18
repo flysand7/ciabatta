@@ -1,6 +1,20 @@
 
 import os
 import subprocess
+import runpy
+from pathlib import Path
+
+# Build dependencies rq
+if not Path("ryu/ryu.lib").exists():
+    os.chdir('ryu')
+    runpy.run_path(path_name='bake.py')
+    os.chdir('..')
+
+if not Path('unicope/unicope.lib').exists():
+    os.chdir('unicope')
+    subprocess.run(['bake.cmd'])
+    os.chdir('..')
+
 
 # General compile options
 
@@ -63,27 +77,29 @@ def nasm_compile(file_name):
 
 #-----------------------------------------------------------------------------#
 
-if not do_cuik:
-    # Compile the platform-independent part
-    compile_map = {}
-    compile_map['.c']   = clang_compile
-    compile_map['.asm'] = nasm_compile
-    compile(os.path.normpath('src/code'), compile_map)
+# Compile the platform-independent part
+obj_paths = ['ryu/ryu.lib', 'unicope/unicope.lib']
+compile_map = {}
+compile_map['.asm'] = nasm_compile
 
+if not do_cuik:
+    compile_map['.c']   = clang_compile
     # Add the platform folder to includes and compile platform-dependent part
     inc_folders.append(os.path.join('src', platform))
     compile(os.path.normpath(os.path.join('src', platform)), compile_map)
 
-    # Make an archive of all object files
-    obj_paths = []
-    for dir, _, f in os.walk('bin'):
-        if len(f) != 0:
-            obj_paths.append(os.path.join(dir, '*.obj'))
-    subprocess.run(['llvm-ar', 'rc', 'ciabatta.lib'] + obj_paths)
 else:
-    src = os.path.join('src', 'code', '*.c')
-    os_src = os.path.join('src', platform)
-    cmd = cuik_flags + '-c -o ciabatta.obj'.split(' ') + [src, os_src]
-    print(cmd)
-    subprocess.run(['cuik'] + cmd)
-    subprocess.run('lib', '/out:ciabatta.lib', 'ciabatta.obj')
+    src    = 'src/code/*.c'
+    os_src = 'src/' + platform
+    cuik_flags += '-c -o ciabatta.obj'.split(' ') + [src, os_src]
+    subprocess.run(['cuik'] + cuik_flags)
+    obj_paths.append('ciabatta.obj')
+
+compile(os.path.normpath('src/code'), compile_map)
+
+# Make an archive of all object files
+for dir, _, f in os.walk('bin'):
+    if len(f) != 0:
+        obj_paths.append(os.path.join(dir, '*.obj'))
+subprocess.run(['llvm-ar', 'rc', 'ciabatta.lib'] + obj_paths)
+print('*.obj => ciabatta.lib')
