@@ -426,7 +426,7 @@ static inline int pfx(_ntoa)(
     // Remove hash flag for 0 values
     if(value == 0) flags &= ~FLAG_HASH;
     // Write digits to buffer in reverse (starting from least significant)
-    while(value) {
+    do {
         int d = (int)(value%base);
         value /= base;
         if(d < 10)
@@ -435,7 +435,7 @@ static inline int pfx(_ntoa)(
              d += 'A' - 10;
         else d += 'a' - 10;
         digits[ndigits++] = d;
-    }
+    } while(value);
     // Figure out the length of the prefix (part of number before digit stirng)
     int pref_len = 0;
     if(flags & FLAG_HASH)       pref_len = base == 8? 1 : 2;
