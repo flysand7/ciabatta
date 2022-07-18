@@ -31,15 +31,21 @@ stdio.h:
 *   The only reason to keep a linked list of all streams is to make sure they
     are flushed after main() returns. I wonder if only remembering the files
     with a buffer would increase performance.
-*   Formatted print, scan
+*   Formatted scan
+*   The float printing should include width specifiers
+*   %g should use decimal exponent
 
 stdlib.h:
 *   Strtod base 16 must be correctly rounded
 *   Multibyte string functions
 *   Better PRNG
+*   Fix aligned_malloc
 
 threads.h:
 *   TODO: add todo items
 
 wchar.h:
 *   Basically everything
+
+entry:
+*   Pretty sure there is a bug in counting wide chars for parsing argv

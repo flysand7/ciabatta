@@ -14,21 +14,21 @@ static double LOG2E     = 1.442695040888963407359924681001892;
 
 #define ftype float
 #define suffix(name) name ## f
-#include "cordic/cordic_dataf.c"
+#include "cordic/cordic_dataf.h"
 #include "gen_math.h"
 #undef ftype
 #undef suffix
 
 #define ftype double
 #define suffix(name) name
-#include "cordic/cordic_data.c"
+#include "cordic/cordic_data.h"
 #include "gen_math.h"
 #undef ftype
 #undef suffix
 
 #define ftype long double
 #define suffix(name) name ## l
-#include "cordic/cordic_datal.c"
+#include "cordic/cordic_datal.h"
 #include "gen_math.h"
 #undef ftype
 #undef suffix

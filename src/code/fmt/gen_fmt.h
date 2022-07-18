@@ -3,7 +3,11 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <string.h>
 #include <math.h>
+#include <ctype.h>
+
+#include <ryu/ryu.h>
 
 typedef int (pfx(cbfn))(void *ctx, ctype ch);
 
@@ -34,6 +38,24 @@ static inline int pfx(_ntoa)(
     int flags
 );
 static inline int pfx(_dtoh)(
+    int w,
+    void *ctx,
+    pfx(cbfn) cb,
+    double value,
+    int prec,
+    int width,
+    int flags
+);
+static inline int pfx(_dtoa)(
+    int w,
+    void *ctx,
+    pfx(cbfn) cb,
+    double value,
+    int prec,
+    int width,
+    int flags
+);
+static inline int pfx(_etoa)(
     int w,
     void *ctx,
     pfx(cbfn) cb,
@@ -229,7 +251,38 @@ static int pfx(vprintfcb)(
         case 'F':
         case 'g':
         case 'G':
-
+            if(*fmt == 'E' || *fmt == 'F' || *fmt == 'G') flags |= FLAG_UPPER;
+            char conv = tolower(*fmt);
+            ++fmt;
+            double value = va_arg(va, double);
+            if(conv == 'f') {
+                w = pfx(_dtoa)(w, ctx, cb, value, prec, width, flags);
+            }
+            else if(conv == 'e') {
+                w = pfx(_etoa)(w, ctx, cb, value, prec, width, flags);
+            }
+            else {
+                int P = prec;
+                if(!(flags & FLAG_PREC)) P = 6;
+                if(prec == 0) P = 1;
+                union {
+                    uint64_t bits;
+                    double value;
+                } _ = {.value = value};
+                uint64_t bits = _.bits;
+                int E = (int)((bits >> 52) & 0x7ff) - 1023;
+                int class = fpclassify(value);
+                if(class == FP_SUBNORMAL || class == FP_ZERO) {
+                    E = 0;
+                }
+                if(P > E && E >= -4) {
+                    w = pfx(_dtoa)(w, ctx, cb, value, P-(E+1), width, flags);
+                }
+                else {
+                    w = pfx(_etoa)(w, ctx, cb, value, P-1, width, flags);
+                }
+            }
+            if(w < 0) return -1;
             break;
         }
     }
@@ -510,6 +563,80 @@ static inline int pfx(_dtoh)(
         out(exp_buf[exp_digits_n]);
     while(exp_digits_n--);
     // Print right-pad
+    if(flags & FLAG_LEFT) while(pad-- > 0) {
+        out(' ');
+    }
+    return w;
+}
+
+static inline int pfx(_dtoa)(
+    int w,
+    void *ctx,
+    pfx(cbfn) cb,
+    double value,
+    int prec,
+    int width,
+    int flags
+) {
+    int class = fpclassify(value);
+    if(class == FP_INFINITE || class == FP_NAN) {
+        return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
+    }
+    // This guy does memory allocation which makes it pretty cringe
+    if(!(flags & FLAG_PREC)) prec = 6;
+    char *buf = d2fixed(value, prec);
+    int len = (int)strlen(buf);
+    int pad = width - len;
+    // Left pad
+    if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) {
+        out(' ');
+    }
+    {
+        char *str = buf;
+        while(*str) {
+            out(*str);
+            ++str;
+        }
+    }
+    free(buf);
+    // Right pad
+    if(flags & FLAG_LEFT) while(pad-- > 0) {
+        out(' ');
+    }
+    return w;
+}
+
+static inline int pfx(_etoa)(
+    int w,
+    void *ctx,
+    pfx(cbfn) cb,
+    double value,
+    int prec,
+    int width,
+    int flags
+) {
+    int class = fpclassify(value);
+    if(class == FP_INFINITE || class == FP_NAN) {
+        return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
+    }
+    // This guy does memory allocation which makes it pretty cringe
+    if(!(flags & FLAG_PREC)) prec = 6;
+    char *buf = d2exp(value, prec);
+    int len = (int)strlen(buf);
+    int pad = width - len;
+    // Left pad
+    if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) {
+        out(' ');
+    }
+    {
+        char *str = buf;
+        while(*str) {
+            out(*str);
+            ++str;
+        }
+    }
+    free(buf);
+    // Right pad
     if(flags & FLAG_LEFT) while(pad-- > 0) {
         out(' ');
     }

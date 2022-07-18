@@ -1,8 +1,28 @@
 
 import os
+import sys
 import subprocess
 import runpy
 from pathlib import Path
+
+for arg in sys.argv[1:]:
+    if arg == 'test':
+        test = os.getenv('test');
+        if test == None:
+            test = 'assert'
+        test_file = 'test/test_' + test + '.c'
+        subprocess.run([
+            'clang',
+            test_file,
+            '-Iinc',
+            '-g',
+            '-luser32',
+            '-lkernel32',
+            '-lshell32',
+            '-lDbghelp',
+            '-lciabatta.lib',
+        ])
+        sys.exit(0)
 
 # Build dependencies rq
 if not Path("ryu/ryu.lib").exists():
@@ -23,7 +43,8 @@ do_cuik = False
 
 inc_folders = [
     'inc',
-    os.path.join('unicope', 'inc'),
+    'unicope/inc',
+    'ryu',
 ]
 
 definitions = [
@@ -101,5 +122,5 @@ compile(os.path.normpath('src/code'), compile_map)
 for dir, _, f in os.walk('bin'):
     if len(f) != 0:
         obj_paths.append(os.path.join(dir, '*.obj'))
-subprocess.run(['llvm-ar', 'rc', 'ciabatta.lib'] + obj_paths)
+subprocess.run(['lib', '/out:ciabatta.lib'] + obj_paths)
 print('*.obj => ciabatta.lib')

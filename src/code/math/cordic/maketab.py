@@ -9,9 +9,9 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 data=[
-    ('cordic_dataf.c', 'float', 'f',       32),
-    ('cordic_data.c',  'double', '',       64),
-    ('cordic_datal.c', 'long double', 'l', 64),
+    ('cordic_dataf.h', 'float', 'f',       32),
+    ('cordic_data.h',  'double', '',       64),
+    ('cordic_datal.h', 'long double', 'l', 64),
 ]
 
 for f in data:

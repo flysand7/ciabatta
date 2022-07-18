@@ -64,7 +64,8 @@ void free(void *ptr) {
 }
 
 void *malloc(size_t size) {
-    return aligned_alloc(8, size);
+    if(size == 0) return NULL;
+    return HeapAlloc(heap_handle, 0, size);
 }
 
 void *realloc(void *ptr, size_t size) {
