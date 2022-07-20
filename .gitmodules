@@ -1,3 +1,6 @@
 [submodule "unicope"]
 	path = unicope
 	url = https://github.com/bumbread/unicope.git
+[submodule "fdec64"]
+	path = fdec64
+	url = https://github.com/bumbread/fdec64.git

@@ -9,7 +9,7 @@
 #include <uchar.h>
 #include <wctype.h>
 
-#include <ryu/ryu.h>
+#include <fdec64.h>
 
 typedef int (pfx(cbfn))(void *ctx, ctype ch);
 
@@ -267,13 +267,25 @@ static int pfx(vprintfcb)(
                 int P = prec;
                 if(!(flags & FLAG_PREC)) P = 6;
                 if(prec == 0) P = 1;
-                union {
-                    uint64_t bits;
-                    double value;
-                } _ = {.value = value};
-                uint64_t bits = _.bits;
-                int E = (int)((bits >> 52) & 0x7ff) - 1023;
                 int class = fpclassify(value);
+                int64_t E;
+                {
+                    union {
+                        uint64_t bits;
+                        double value;
+                    } _ = {.value = value};
+                    uint64_t bits = _.bits;
+                    uint64_t neg = bits >> 63;
+                    int64_t e2 = (int64_t)((bits >> 52) & ((1<<11)-1));
+                    int64_t m2 = bits & ((UINT64_C(1)<<52)-1);
+                    if(class == FP_ZERO) {
+                        E = 0;
+                    }
+                    else {
+                        fdec64 f = dtofdec64(m2, e2);
+                        E = f.exponent;
+                    }
+                }
                 if(class == FP_SUBNORMAL || class == FP_ZERO) {
                     E = 0;
                 }
@@ -645,12 +657,8 @@ static inline int pfx(_dtoh)(
     out((class == FP_SUBNORMAL || class == FP_ZERO)? '0' : '1');
     // Print decimal point
     if(decimal_point_n) out('.');
-    // Print precision padding
-    for(int i = mant_digits_n; i < prec; ++i) {
-        out('0');
-    }
-    if(prec < mant_digits_n) mant_digits_n = prec;
-    for(int i = 0; i != mant_digits_n; ++i) {
+    int digs = mant_digits_n < prec? mant_digits_n : prec;
+    for(int i = 0; i != digs; ++i) {
         int bit = 52 - 4 - i;
         int digit = (int)((mant >> bit) & 0xf);
         ctype ch;
@@ -660,6 +668,10 @@ static inline int pfx(_dtoh)(
              ch = digit+'A'-10;
         else ch = digit+'a'-10;
         out(ch);
+    }
+    // Print precision padding
+    for(int i = mant_digits_n; i < prec; ++i) {
+        out('0');
     }
     // Print the exponent part
     out((flags & FLAG_UPPER)? 'P' : 'p');
@@ -687,24 +699,113 @@ static inline int pfx(_dtoa)(
     if(class == FP_INFINITE || class == FP_NAN) {
         return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
     }
-    // This guy does memory allocation which makes it pretty cringe
-    if(!(flags & FLAG_PREC)) prec = 6;
-    char *buf = d2fixed(value, prec);
-    int len = (int)strlen(buf);
-    int pad = width - len;
-    // Left pad
+    // Disassemble the float into parts
+    int64_t exp;
+    int64_t mant;
+    {
+        union {
+            uint64_t bits;
+            double value;
+        } _ = {.value = value};
+        uint64_t bits = _.bits;
+        uint64_t neg = bits >> 63;
+        int64_t e2 = (int64_t)((bits >> 52) & ((1<<11)-1));
+        int64_t m2 = bits & ((UINT64_C(1)<<52)-1);
+        if(class == FP_ZERO) {
+            mant = 0;
+            exp = 0;
+        }
+        else {
+            fdec64 f = dtofdec64(m2, e2);
+            mant = f.mantissa;
+            exp = f.exponent;
+        }
+    }
+    // Figure out how many digits does mantissa take up (mant_digits_n)
+    // and the number of digits after decimal point (prec)
+    // and the number of digits before decimal point (while_digits_n)
+    static ctype mant_buf[64] = {0};
+    int whole_digits_n;
+    int mant_digits_n = 0;
+    {
+        int64_t m = mant;
+        do {
+            mant_buf[mant_digits_n++] = m % 10 + '0';
+            m /= 10;
+        } while(m != 0);
+    }
+    if((flags & FLAG_PREC) == 0) {
+        prec = 6;
+    }
+    whole_digits_n = mant_digits_n + exp;
+    if(whole_digits_n <= 0) whole_digits_n = 1;
+    // Figure out how many symbols decimal point takes up (0 or 1)
+    int decimal_point_n = 1;
+    if(prec == 0) {
+        decimal_point_n = 0;
+        if(flags & FLAG_HASH) {
+            decimal_point_n = 1;
+        }
+    }
+    // Figure out sign symbol and number of chars it takes up (0 or 1)
+    int sign_n = 0;
+    ctype sign_ch;
+    if(value < 0) {
+        sign_n = 1;
+        sign_ch = '-';
+    }
+    else if(flags & FLAG_PLUS) {
+        sign_n = 1;
+        sign_ch = '+';
+    }
+    else if(flags & FLAG_SPACE) {
+        sign_n = 1;
+        sign_ch = ' ';
+    }
+    // Figure out the width of the number
+    int significand_width = whole_digits_n + decimal_point_n + prec;
+    int n_width = sign_n + significand_width;
+    // Figure out width-padding required
+    int pad = 0;
+    if(width > n_width) pad = width - n_width;
+    // Print width left-pad if it's made out of space
     if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) {
         out(' ');
     }
-    {
-        char *str = buf;
-        while(*str) {
-            out(*str);
-            ++str;
-        }
+    // Print sign if there
+    if(sign_n)
+        out(sign_ch);
+    // Print width left-pad if it's made out of zero
+    if(!(flags & FLAG_LEFT) && (flags & FLAG_ZERO)) while(pad-- > 0) {
+        out('0');
     }
-    free(buf);
-    // Right pad
+    // Print whole part
+    while(whole_digits_n--) {
+        if(-exp >= mant_digits_n) {
+            out('0');
+        }
+        else {
+            out(mant_buf[--mant_digits_n]);
+        }
+        ++exp;
+    }
+    // Print decimal point
+    if(decimal_point_n) out('.');
+    // Print fractional part that's made out of digits
+    int prec_digs = prec - mant_digits_n;
+    while(mant_digits_n) {
+        if(-exp >= mant_digits_n) {
+            out('0');
+        }
+        else {
+            out(mant_buf[--mant_digits_n]);
+        }
+        ++exp;
+    }
+    while(prec_digs-- > 0) {
+        out('0');
+    }
+    // Print right-pad
     if(flags & FLAG_LEFT) while(pad-- > 0) {
         out(' ');
     }
@@ -724,24 +825,122 @@ static inline int pfx(_etoa)(
     if(class == FP_INFINITE || class == FP_NAN) {
         return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
     }
-    // This guy does memory allocation which makes it pretty cringe
-    if(!(flags & FLAG_PREC)) prec = 6;
-    char *buf = d2exp(value, prec);
-    int len = (int)strlen(buf);
-    int pad = width - len;
-    // Left pad
+    // Disassemble the float into parts
+    int64_t exp;
+    int64_t mant;
+    {
+        union {
+            uint64_t bits;
+            double value;
+        } _ = {.value = value};
+        uint64_t bits = _.bits;
+        uint64_t neg = bits >> 63;
+        int64_t e2 = (int64_t)((bits >> 52) & ((1<<11)-1));
+        int64_t m2 = bits & ((UINT64_C(1)<<52)-1);
+        if(class == FP_ZERO) {
+            mant = 0;
+            exp = 0;
+        }
+        else {
+            fdec64 f = dtofdec64(m2, e2);
+            mant = f.mantissa;
+            exp = f.exponent;
+        }
+    }
+    // Figure out how many digits does mantissa take up (mant_digits_n)
+    // and the number of digits after decimal point (prec)
+    static ctype mant_buf[64] = {0};
+    int mant_digits_n = 0;
+    {
+        int64_t m = mant;
+        do {
+            mant_buf[mant_digits_n++] = m % 10 + '0';
+            m /= 10;
+        } while(m != 0);
+    }
+    mant_digits_n -= 1;
+    // Need to adjust exponent based on the amount of digits in the mantissa
+    exp += mant_digits_n;
+    if((flags & FLAG_PREC) == 0) {
+        prec = 6;
+    }
+    // Figure out how many symbols decimal point takes up (0 or 1)
+    int decimal_point_n = 1;
+    if(prec == 0) {
+        decimal_point_n = 0;
+        if(flags & FLAG_HASH) {
+            decimal_point_n = 1;
+        }
+    }
+    // Figure out how many digits exponent take up and it's sign
+    // also save exponent digits to a buffer starting from LSD
+    static ctype exp_buf[64] = {0};
+    int exp_digits_n = 0;
+    ctype exp_sign;
+    if(exp < 0) {
+        exp_sign = '-';
+        exp = -exp;
+    }
+    else {
+        exp_sign = '+';
+    }
+    {
+        int64_t e = exp;
+        do {
+            exp_buf[exp_digits_n++] = e % 10 + '0';
+            e /= 10;
+        } while(e != 0);
+    }
+    // Figure out sign symbol and number of chars it takes up (0 or 1)
+    int sign_n = 0;
+    ctype sign_ch;
+    if(value < 0) {
+        sign_n = 1;
+        sign_ch = '-';
+    }
+    else if(flags & FLAG_PLUS) {
+        sign_n = 1;
+        sign_ch = '+';
+    }
+    else if(flags & FLAG_SPACE) {
+        sign_n = 1;
+        sign_ch = ' ';
+    }
+    // Figure out the width of the number
+    int significand_width = 1 + decimal_point_n + prec;
+    int exp_part_width = 2 /*e+-*/ + exp_digits_n;
+    int n_width = sign_n + significand_width + exp_part_width;
+    // Figure out width-padding required
+    int pad = 0;
+    if(width > n_width) pad = width - n_width;
+    // Print width left-pad if it's made out of space
     if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) {
         out(' ');
     }
-    {
-        char *str = buf;
-        while(*str) {
-            out(*str);
-            ++str;
-        }
+    // Print sign if there
+    if(sign_n)
+        out(sign_ch);
+    // Print width left-pad if it's made out of zero
+    if(!(flags & FLAG_LEFT) && (flags & FLAG_ZERO)) while(pad-- > 0) {
+        out('0');
     }
-    free(buf);
-    // Right pad
+    // Print whole part
+    out(mant_buf[mant_digits_n]);
+    // Print decimal point
+    if(decimal_point_n) out('.');
+    // Print precision padding
+    for(int i = mant_digits_n; i < prec; ++i) {
+        out('0');
+    }
+    if(prec < mant_digits_n) mant_digits_n = prec;
+    while(mant_digits_n--)
+        out(mant_buf[mant_digits_n]);
+    // Print the exponent part
+    out((flags & FLAG_UPPER)? 'E' : 'e');
+    out(exp_sign);
+    while(exp_digits_n--)
+        out(exp_buf[exp_digits_n]);
+    // Print right-pad
     if(flags & FLAG_LEFT) while(pad-- > 0) {
         out(' ');
     }

@@ -32,8 +32,6 @@ stdio.h:
     are flushed after main() returns. I wonder if only remembering the files
     with a buffer would increase performance.
 *   Formatted scan
-*   The float printing should include width specifiers
-*   %g should use decimal exponent
 *   %s precision should specify how much characters to *write*
 
 stdlib.h:

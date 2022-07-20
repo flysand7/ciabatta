@@ -25,8 +25,8 @@ for arg in sys.argv[1:]:
         sys.exit(0)
 
 # Build dependencies rq
-if not Path("ryu/ryu.lib").exists():
-    os.chdir('ryu')
+if not Path("fdec64/fdec64.lib").exists():
+    os.chdir('fdec64')
     runpy.run_path(path_name='bake.py')
     os.chdir('..')
 
@@ -44,7 +44,7 @@ do_cuik = False
 inc_folders = [
     'inc',
     'unicope/inc',
-    'ryu',
+    'fdec64',
 ]
 
 definitions = [
@@ -99,7 +99,7 @@ def nasm_compile(file_name):
 #-----------------------------------------------------------------------------#
 
 # Compile the platform-independent part
-obj_paths = ['ryu/ryu.lib', 'unicope/unicope.lib']
+obj_paths = ['fdec64/fdec64.lib', 'unicope/unicope.lib']
 compile_map = {}
 compile_map['.asm'] = nasm_compile
 
