@@ -88,8 +88,8 @@ def clang_compile(file_name):
     cmn_flags = clang_common_flags
     flags     = dbg_flags + cmn_flags + inc_flags + def_flags
     command   = ' '.join(["clang", file_name, '-o', bin_path] + flags)
+    print('$ ', command)
     subprocess.run(command.split(' '))
-    print(file_name, '=>', bin_path)
 
 def nasm_compile(file_name):
     bin_path = get_bin_path(file_name)
