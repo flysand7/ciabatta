@@ -1,110 +1,108 @@
 
-#define __STDC_WANT_LIB_EXT2__ 1
-
 #include <stdio.h>
 #include <win.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <threads.h>
 #include <uchar.h>
 #include <errno.h>
-#include <string.h>
 
-enum str_type {
-    STR_R,
-    STR_W,
-    STR_A,
-} typedef str_type;
+enum stream_width_t {
+    STREAM_CHAR_UNSET,
+    STREAM_CHAR_NARROW,
+    STREAM_CHAR_WIDE,
+} typedef stream_width_t;
 
-enum str_flags {
-    STR_U = 1,
-    STR_X = 2,
-    STR_B = 4,
-} typedef str_flags;
+enum stream_io_mode_t {
+    STREAM_INPUT,
+    STREAM_OUTPUT,
+    STREAM_UPDATE,
+} typedef stream_io_mode_t;
 
-enum str_mode {
-    STR_BIN,
-    STR_TEXT,
-} typedef str_mode;
+enum stream_bt_mode_t {
+    STREAM_BINARY,
+    STREAM_TEXT,
+} typedef stream_bt_mode_t;
+
+struct stream_buffer_t typedef stream_buffer_t;
+struct stream_buffer_t {
+    int    is_internal;
+    int    mode;
+    size_t size;
+    void  *data;
+    size_t written;
+};
 
 struct FILE {
-    HANDLE    handle;
-    char     *name;
-    str_type  type;
-    str_flags flags;
-    str_mode  mode;
-    int       buftype;
-    size_t    bufsize;
-    int       bufidx;
-    char     *buffer;
-    mbstate_t mbstate;
-    mtx_t     lock;
-    FILE     *prev;
-    FILE     *next;
+    HANDLE           handle;
+    stream_width_t   char_width; // This technically needs not be stored
+    mbstate_t        mbstate;
+    stream_buffer_t  buffer;
+    stream_io_mode_t io_mode;
+    stream_bt_mode_t bt_mode;
+    int              eof;
+    int              err;
+    mtx_t            lock;
+    FILE            *prev;
+    FILE            *next;
 };
 
 FILE *stdout;
 FILE *stdin;
 FILE *stderr;
 
-// Linked list because I'm based and you can't say I'm wrong
-static FILE *file_list_last = NULL;
+// We hold a linked list of all file streams in order to flush all the buffers
+// after the program terminates. It might be not a good idea to store all the
+// files into this linked list, but for now performance is not a concern.
+static FILE *streams_to_close = NULL;
 
-static inline FILE *new_file(
-    HANDLE handle,
-    char *name,
-    str_type type,
-    str_flags flags,
-    int mode,
-    int buftype,
-    size_t bufsize,
-    char *buffer
-) {
-    FILE *file = malloc(sizeof(FILE));
-    if(file == NULL) return NULL;
-    mtx_init(&file->lock, mtx_recursive);
-    file->handle = handle;
-    file->name   = strdup(name);
-    file->type   = type;
-    file->flags  = flags;
-    file->mode   = mode;
-    // Buffer for cache
-    file->buftype = buftype;
-    file->bufsize = bufsize;
-    file->buffer = buffer;
-    file->bufidx = 0;
-    // Multibyte state
-    file->mbstate = (mbstate_t){0};
-    // Append to list of all streams
-    if(file_list_last != NULL) {
-        file_list_last->next = file;
-        file->prev = file_list_last;
-        file->next = NULL;
-        file_list_last = file;
+static void close_list_add(FILE *stream) {
+    if(streams_to_close != NULL) {
+        streams_to_close->next = stream;
+        stream->prev = streams_to_close;
+        stream->next = NULL;
+        streams_to_close = stream;
     }
     else {
-        file_list_last = file;
-        file->prev = NULL;
-        file->next = NULL;
+        streams_to_close = stream;
+        stream->prev = NULL;
+        stream->next = NULL;
     }
-    return file;
 }
 
-static inline void dispose_file(FILE *file) {
-    mtx_t lock = file->lock;
-    mtx_lock(&lock);
-    // Only close the file if it's not a standard handle
-    if(file->name) {
-        CloseHandle(file->handle);
-        free(file->name);
-    }
-    FILE *prev = file->prev;
-    FILE *next = file->next;
+static void close_list_remove(FILE *stream) {
+    FILE *prev = stream->prev;
+    FILE *next = stream->next;
     if(prev != NULL) prev->next = next;
     if(next != NULL) next->prev = prev;
-    if(next == NULL) file_list_last = prev;
-    free(file);
+    if(next == NULL) streams_to_close = prev;
+}
+
+static inline FILE *create_stream(
+    HANDLE handle,
+    stream_io_mode_t io_mode,
+    stream_bt_mode_t bt_mode
+) {
+    FILE *stream = malloc(sizeof(FILE));
+    if(stream == NULL) return NULL;
+    stream->handle = handle;
+    stream->char_width = STREAM_CHAR_UNSET;
+    stream->mbstate = (mbstate_t){0};
+    stream->buffer.mode = _IONBF;
+    stream->io_mode = io_mode;
+    stream->bt_mode = bt_mode;
+    stream->eof = 0;
+    stream->err = 0;
+    mtx_init(&stream->lock, mtx_recursive);
+    close_list_add(stream);
+    return stream;
+}
+
+static inline void delete_stream(FILE *stream) {
+    mtx_t lock = stream->lock;
+    mtx_lock(&lock);
+    CloseHandle(stream->handle);
+    close_list_remove(stream);
+    free(stream);
     mtx_unlock(&lock);
     mtx_destroy(&lock);
 }
@@ -114,116 +112,216 @@ void _setup_io() {
     HANDLE hstderr = GetStdHandle(STD_ERROR_HANDLE);
     HANDLE hstdin  = GetStdHandle(STD_INPUT_HANDLE);
 
-    char *out_buf = calloc(BUFSIZ, sizeof(char));
-    char *err_buf = out_buf;
-    if(hstdout != hstderr) {
-        err_buf = calloc(BUFSIZ, sizeof(char));
-    }
+    stdout = create_stream(hstdout, STREAM_UPDATE, STREAM_TEXT);
+    stderr = create_stream(hstderr, STREAM_UPDATE, STREAM_TEXT);
+    stdin  = create_stream(hstdin,  STREAM_INPUT,  STREAM_BINARY);
 
-    stdout = new_file(hstdout, NULL, STR_W, 0, 0, _IOLBF, BUFSIZ, out_buf);
-    stderr = new_file(hstderr, NULL, STR_W, 0, 0, _IOLBF, BUFSIZ, err_buf);
-    stdin  = new_file(hstdin,  NULL, STR_R, 0, 0, _IONBF, 0, NULL);
+    char *in_buf  = calloc(BUFSIZ, sizeof(char));
+    char *out_buf = calloc(BUFSIZ, sizeof(char));
+    stdin->buffer  = (stream_buffer_t){1, _IOLBF, BUFSIZ, in_buf};
+    stdout->buffer = (stream_buffer_t){1, _IOLBF, BUFSIZ, out_buf};
+    stderr->buffer = (stream_buffer_t){1, _IONBF,      0, NULL};
+}
+
+FILE *fopen(const char *restrict name, const char *restrict mode) {
+    DWORD access = 0;
+    DWORD share = 0;
+    DWORD disp = 0;
+    DWORD flags = FILE_FLAG_WRITE_THROUGH;
+    stream_io_mode_t io_mode = 0;
+    stream_bt_mode_t bt_mode;
+    int flag_p = 0;
+    int flag_b = 0;
+    int flag_x = 0;
+    switch(*mode++) {
+        case 'r': io_mode = STREAM_INPUT;  break;
+        case 'w': io_mode = STREAM_OUTPUT; break;
+        case 'a': io_mode = STREAM_UPDATE; break;
+        default: return NULL;
+    }
+    while(*mode) switch(*mode++) {
+        case '+': flag_p = 1; break;
+        case 'b': flag_b = 1; break;
+        case 'x': flag_x = 1; break;
+        default: return NULL;
+    }
+    bt_mode = flag_b? STREAM_BINARY : STREAM_TEXT;
+    // Not sure about the sharing modes
+    switch(io_mode) {
+        case STREAM_INPUT: {
+            access = GENERIC_READ | (flag_p? GENERIC_WRITE : 0);
+            share  = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+            disp   = OPEN_EXISTING;
+        } break;
+        case STREAM_OUTPUT: {
+            access = GENERIC_WRITE | (flag_p? GENERIC_READ : 0);
+            share  = 0;
+            disp   = CREATE_ALWAYS;
+            if(flag_x) {
+                disp = CREATE_NEW;
+            }
+        } break;
+        case STREAM_UPDATE: {
+            access = GENERIC_READ | GENERIC_WRITE;
+            share  = 0;
+            disp   = OPEN_ALWAYS;
+        } break;
+    }
+    HANDLE handle = CreateFileA(name, access, share, NULL, disp, flags, NULL);
+    FILE *stream = create_stream(handle, io_mode, bt_mode);
+    void *buffer_data = malloc(BUFSIZ);
+    stream->buffer = (stream_buffer_t) {1, _IOFBF, BUFSIZ, buffer_data};
+    return stream;
+}
+
+FILE *freopen(const char *restrict name, const char *restrict mode, FILE *restrict stream) {
+    return NULL;
+}
+
+FILE *tmpfile(void) {
+    return NULL;
+}
+
+int fclose(FILE *stream) {
+    return 0;
 }
 
 void _close_io() {
-    while(file_list_last != NULL) {
-        fflush(file_list_last);
-        dispose_file(file_list_last);
+    while(streams_to_close != NULL) {
+        FILE *stream = streams_to_close;
+        fflush(stream);
+        delete_stream(stream);
     }
 }
 
-int setvbuf(
-    FILE *restrict stream,
-    char *restrict buf,
-    int mode,
-    size_t size
-) {
-    mtx_lock(&stream->lock);
-    if(mode == _IONBF) {
-        stream->buftype = mode;
-        stream->buffer  = NULL;
-        stream->bufsize = 0;
-        return 0;
-    }
-    if(mode != _IOFBF && mode != _IOLBF)
+int setvbuf(FILE *restrict stream, char *restrict ptr, int mode, size_t size) {
+    if(mode != _IOFBF && mode != _IOLBF && mode != _IONBF) {
         return 1;
-    if(buf == NULL && size != 0) {
-        buf = malloc(size);
     }
-    if(size == 0) {
-        buf = NULL;
-        mode = _IONBF;
+    mtx_lock(&stream->lock);
+    stream_buffer_t *buffer = &stream->buffer;
+    buffer->mode = mode;
+    if(ptr == NULL) {
+        buffer->data = realloc(buffer->data, size);
+        buffer->size = size;
     }
-    stream->buftype = mode;
-    stream->buffer  = buf;
-    stream->bufsize = size;
+    else {
+        buffer->data = ptr;
+        buffer->size = size;
+    }
     mtx_unlock(&stream->lock);
     return 0;
 }
 
 void setbuf(FILE *restrict stream, char *restrict buf) {
-    int mode = _IOFBF;
     if(buf == NULL) {
-        mode = _IONBF;
+        setvbuf(stream, NULL, _IONBF, 0);
     }
-    setvbuf(stream, buf, mode, BUFSIZ);
+    else {
+        setvbuf(stream, buf, _IOFBF, BUFSIZ);
+    }
 }
 
 int fflush(FILE *stream) {
     mtx_lock(&stream->lock);
-    if(stream->buftype != _IONBF) {
-        DWORD written;
-        BOOL ok = WriteFile(
-            stream->handle,
-            stream->buffer,
-            stream->bufidx,
-            &written,
-            NULL
-        );
-        if(!ok) {
-            errno = EIO;
-            return EOF;
-        }
-        stream->bufidx = 0;
-    }
+    stream_buffer_t *buffer = &stream->buffer;
+    void *data = buffer->data;
+    size_t size = buffer->written;
+    DWORD bytes_written;
+    BOOL ok = WriteFile(stream->handle, data, size, &bytes_written, NULL);
+    buffer->written = 0;
     mtx_unlock(&stream->lock);
-    return 0;
-}
-
-static int try_fputc(FILE *stream, char c) {
-    if(stream->buftype != _IONBF) {
-        stream->buffer[stream->bufidx++] = c;
-        if(stream->bufidx > stream->bufsize) {
-            return fflush(stream);
-        }
-        if(stream->buftype == _IOLBF && c == '\n') {
-            return fflush(stream);
-        }
-        return c;
-    }
-    DWORD written;
-    BOOL ok = WriteFile(stream->handle, &c, 1, &written, NULL);
-    if(!ok) {
-        errno = EIO;
-        return EOF;
-    }
-    return c;
+    return (int)ok;
 }
 
 int fputc(int c, FILE *stream) {
     mtx_lock(&stream->lock);
-    int res = try_fputc(stream, c);
+    stream_buffer_t *buffer = &stream->buffer;
+    int res = c;
+    if(buffer->mode == _IONBF) {
+        unsigned char str[1] = {c};
+        DWORD bytes_written;
+        BOOL ok = WriteFile(stream->handle, &str, 1, &bytes_written, NULL);
+        if(!ok) {
+            res = 0;
+            goto cum;
+        }
+
+    }
+    else {
+        unsigned char *data = buffer->data;
+        data[buffer->written++] = (unsigned char)c;
+        int needs_flush;
+        needs_flush = (buffer->written == buffer->size);
+        if(buffer->mode == _IOLBF) {
+            needs_flush |= (c == '\n');
+        }
+        if(needs_flush) {
+            if(fflush(stream) != 0) {
+                res = 0;
+                goto cum;
+            }
+        }
+    }
+cum:
     mtx_unlock(&stream->lock);
     return res;
 }
 
-int fputs(const char *restrict s, FILE *stream) {
+int fgetc(FILE *stream) {
     mtx_lock(&stream->lock);
-    while(*s) {
-        int res = try_fputc(stream, *s);
-        if(res == EOF) return EOF;
-        ++s;
+    int res = 0;
+    stream_buffer_t *buffer = &stream->buffer;
+    int read_from_disk = 1;
+    if(buffer->mode != _IONBF) {
+        unsigned char *data = buffer->data;
+        if(buffer->written != 0) {
+            read_from_disk = 0;
+            res = data[--buffer->written];
+        }
     }
+    if(read_from_disk) {
+        unsigned char buf[1];
+        DWORD bytes_read;
+        BOOL ok = ReadFile(stream->handle, buf, 1, &bytes_read, NULL);
+        if(bytes_read != 1) {
+            res = EOF;
+            stream->eof = 1;
+            goto cum;
+        }
+        if(!ok) {
+            res = EOF;
+            goto cum;
+        }
+        res = buf[0];
+    }
+cum:
     mtx_unlock(&stream->lock);
-    return 1;
+    return res;
+}
+
+int ungetc(int c, FILE *stream) {
+    mtx_lock(&stream->lock);
+    int res;
+    stream_buffer_t *buffer = &stream->buffer;
+    if(buffer->mode == _IONBF) {
+        res = EOF;
+        goto cum;
+    }
+    else {
+        if(c == EOF) {
+            res = EOF;
+            goto cum;
+        }
+        if(buffer->written == buffer->size) {
+            res = EOF;
+            goto cum;
+        }
+        unsigned char *data = buffer->data;
+        data[buffer->written++] = (unsigned char)c;
+        res = c;
+    }
+cum:
+    mtx_unlock(&stream->lock);
+    return 0;
 }

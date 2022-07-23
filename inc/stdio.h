@@ -2,9 +2,15 @@
 
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <uchar.h>
 
 typedef struct FILE FILE;
-typedef size_t fpos_t;
+
+typedef struct {
+    int64_t   pos;
+    mbstate_t mbstate;
+} fpos_t;
 
 #if !defined(NULL)
     #define NULL ((void *)0)
@@ -90,15 +96,15 @@ int fscanf (FILE *restrict stream, const char *restrict format, ...);
 int scanf  (const char *restrict format, ...);
 
 // File reading
+#define getc fgetc
 int    fgetc  (FILE *stream);
-int    getc   (FILE *stream);
 int    getchar(void);
 int    ungetc (int c, FILE *stream);
 char  *fgets  (char *restrict s, int n, FILE *restrict stream);
 size_t fread  (void *restrict ptr, size_t size, size_t nmemb, FILE *restrict stream);
 
+#define putc fputc
 int    fputc  (int c, FILE *stream);
-int    putc   (int c, FILE *stream);
 int    putchar(int c);
 int    fputs  (const char *restrict s, FILE *restrict stream);
 int    puts   (const char *s);
