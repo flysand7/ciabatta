@@ -241,14 +241,19 @@ void setbuf(FILE *restrict stream, char *restrict buf) {
 
 int fflush(FILE *stream) {
     mtx_lock(&stream->lock);
+    int res = 0;
     stream_buffer_t *buffer = &stream->buffer;
     void *data = buffer->data;
     size_t size = buffer->written;
     DWORD bytes_written;
     BOOL ok = WriteFile(stream->handle, data, size, &bytes_written, NULL);
+    if(!ok) {
+        res = EOF;
+        stream->eof = 1;
+    }
     buffer->written = 0;
     mtx_unlock(&stream->lock);
-    return (int)ok;
+    return res;
 }
 
 int fputc(int c, FILE *stream) {
@@ -260,7 +265,8 @@ int fputc(int c, FILE *stream) {
         DWORD bytes_written;
         BOOL ok = WriteFile(stream->handle, &str, 1, &bytes_written, NULL);
         if(!ok) {
-            res = 0;
+            res = EOF;
+            stream->err = 1;
             goto cum;
         }
 
@@ -274,8 +280,7 @@ int fputc(int c, FILE *stream) {
             needs_flush |= (c == '\n');
         }
         if(needs_flush) {
-            if(fflush(stream) != 0) {
-                res = 0;
+            if(fflush(stream) == EOF) {
                 goto cum;
             }
         }
@@ -341,4 +346,66 @@ int ungetc(int c, FILE *stream) {
 cum:
     mtx_unlock(&stream->lock);
     return 0;
+}
+
+int getchar(void) {
+    return fgetc(stdin);
+}
+
+int putchar(int ch) {
+    return fputc(ch, stdout);
+}
+
+char *fgets(char *restrict str, int count, FILE *restrict stream) {
+    if(count < 1) {
+        return str;
+    }
+    if(count == 1) {
+        str[0] = 0;
+        return str;
+    }
+    mtx_lock(&stream->lock);
+    int i;
+    for(i = 0; i < count-1; ++i) {
+        int c = fgetc(stream);
+        if(c == EOF) {
+            stream->eof = 1;
+            if(i == 0) {
+                return NULL;
+            }
+            break;
+        }
+        str[i] = c;
+        if(c == '\n') {
+            ++i;
+            break;
+        }
+    }
+    str[i] = 0;
+    mtx_unlock(&stream->lock);
+    return str;
+}
+
+int fputs(char const *str, FILE *stream) {
+    mtx_lock(&stream->lock);
+    int res = 0;
+    while(*str) {
+        int c = fputc(*str++, stream);
+        if(c == EOF) {
+            res = EOF;
+            break;
+        }
+    }
+    mtx_unlock(&stream->lock);
+    return res;
+}
+
+int puts(char const *str) {
+    int res = fputs(str, stdout);
+    if(res == EOF) return EOF;
+    return putchar('\n');
+}
+
+char *gets(char str) {
+    return fgets(str, 0x7fffffff, stdin);
 }
