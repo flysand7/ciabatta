@@ -194,6 +194,23 @@ void _close_io() {
     }
 }
 
+int feof(FILE *stream) {
+    return stream->eof;
+}
+
+int ferror(FILE *stream) {
+    return stream->err;
+}
+
+void clearerr(FILE *stream) {
+    stream->eof = 0;
+    stream->err = 0;
+}
+
+void perror(char const *s) {
+    printf("%s: %s\n", s, strerror(errno));
+}
+
 int setvbuf(FILE *restrict stream, char *restrict ptr, int mode, size_t size) {
     if(mode != _IOFBF && mode != _IOLBF && mode != _IONBF) {
         return 1;
