@@ -168,6 +168,9 @@ FILE *fopen(const char *restrict name, const char *restrict mode) {
         } break;
     }
     HANDLE handle = CreateFileA(name, access, share, NULL, disp, flags, NULL);
+    if(handle == INVALID_HANDLE_VALUE) {
+        return NULL;
+    }
     FILE *stream = create_stream(handle, io_mode, bt_mode);
     void *buffer_data = malloc(BUFSIZ);
     stream->buffer = (stream_buffer_t) {1, _IOFBF, BUFSIZ, buffer_data};
@@ -406,6 +409,6 @@ int puts(char const *str) {
     return putchar('\n');
 }
 
-char *gets(char str) {
+char *gets(char *str) {
     return fgets(str, 0x7fffffff, stdin);
 }

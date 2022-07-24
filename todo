@@ -2,6 +2,8 @@
 general:
 *   Start writing documentation concerning various implementation defined
     behaviours of the library.
+*   Ok I just realised that I assumed that wchar_t is a 16-bit string in
+    a bunch of places.
 
 math.h:
 *   exp
@@ -33,6 +35,14 @@ stdio.h:
     with a buffer would increase performance.
 *   Formatted scan
 *   %s precision should specify how much characters to *write*
+*   %Ls this is an actual weird territory. If (wchar_t *) is a unicode string
+    then to determine it's "width" (to figure out field padding) would require
+    to use a Unicode composition algorithm. But the problem is that windows
+    Unicode rendering advances text by 2 units, even if it's 1 graphical
+    character that was composed from 2 unicode characters. The question
+    becomes: do we implement the thing correctly by using a more complex
+    solution, or do we succumb to windows' bullshittery. I guess the answer is
+    obvious. That's why I wrote this todo item :D
 
 stdlib.h:
 *   Strtod base 16 must be correctly rounded
