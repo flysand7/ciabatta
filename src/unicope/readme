@@ -1,0 +1,166 @@
+
+Unicope - a C11 library for unicode processing. This library provides the user
+with functions related to unicode processing as well as with the unicode data,
+like character category, their name, numeric value, et cetera.
+
+To use the library simply link your code with unicope.lib and add unicope.h to
+your include paths.
+
+===============================================================================
+    1. TYPES
+===============================================================================
+
+char8_t  - type representing UTF-8 code unit.
+char16_t - type representing UTF-16 code unit.
+char32_t - type representing UTF-32 code unit.
+uchar_t  - signed integer type capable of holding any Unicode codepoint.
+
+The above types are compatible with corresponding types that are defined in
+uchar.h. All of the types are unsigned.
+
+enum Unicode_General_Category
+    This type holds enumeration constants for unicode characters' general
+    categories.
+
+enum Unicode_Bidi_Class
+    This type holds enumeration constants for the bi-directional class of
+    unicode characters.
+
+enum Unicode_Decomposition
+    This type holds enumeration constants for the character's decomposition
+    type.
+
+struct uchar_props,
+uchar_props
+    These types hold the data associated with each unicode character.
+
+===============================================================================
+    2. CHARACTER API
+===============================================================================
+
+
+int uni_valid(uchar_t cp);
+PARAMETERS:
+    cp - any integer that might represent a codepoint
+RETURN VALUE:
+    Returns non-zero value if cp is a valid codepoint. Returns zero otherwise.
+    A codepoint is considered valid if it doesn't lie in the range u+d800 to
+    u+dc00, is positive and it's less than u+110000.
+
+
+int uni_classify(uchar_t cp);
+DESCRIPTION:
+    Returns a classification a unicode codepoint.
+RETURN VALUE:
+    Returns a value of type `enum Unicode_General_Category`, corresponding to
+    the general character category.
+
+
+uchar_t uni_tolower(uchar_t cp);
+RETURN VALUE:
+    Returns the lowercase form of cp, if such is defined. Otherwise returns cp
+    unchanged.
+
+
+uchar_t uni_toupper(uchar_t cp);
+RETURN VALUE:
+    Returns the uppercase form of cp, if such is defined. Otherwise returns cp
+    unchanged.
+
+
+uchar_t uni_totitle(uchar_t cp);
+RETURN VALUE:
+    Returns the titlecase form of cp, if such is defined. Otherwise returns cp
+    unchanged. Note, titlecase is different from lowercase. For example U+01F1
+    LATIN CAPITAL LETTER DZ will be converted to U+01F2 LATIN CAPITAL LETTER
+    D WITH SMALL LETTER z
+
+
+int uni_is_hsur(char16_t cp);
+RETURN VALUE:
+    Returns non-zero value iff the value is a high surrogate.
+
+
+int uni_is_lsur(char16_t cp);
+RETURN VALUE:
+    Returns non-zero value iff the value is a low surrogate.
+
+
+uchar_t uni_surtoc(char16_t hsur, char16_t lsur);
+PARAMETERS:
+    hsur - a correct high surrogate codepoint
+    lsur - a correct low surrogate codepoint
+RETURN VALUE:
+    A unicode character that is encoded by the given surrogate pair
+
+===============================================================================
+    3. UTF16 ENCODING/DECODING
+===============================================================================
+
+int utf16_chlen(char16_t const *s);
+DESCRIPTION:
+    Returns the length of the first unicode character in the UTF-16 string s.
+RETURN VALUE:
+    UNI_EULSUR if s points to a low surrogate code unit
+    otherwise returns the length of the UTF-16 character pointed to by s
+
+
+int utf16_chdec(char16_t const *restrict s, size_t len, uchar_t *restrict c);
+DESCRIPTION:
+    Decode the first character in the UTF-16 string s.
+PARAMETERS:
+    s   - A (possibly-invlalid) UTF-16 string.
+    len - the number of bytes in a string
+    c   - pointer to uchar_t that receives the decoded character. can be NULL
+RETURN VALUE:
+    Returns the number of code units the character occupies, or:
+    UNI_EULSUR - the string s points to a low surrogate code unit
+    UNI_EBADCP - the decoded character decodes value larger than u+10ffff
+    UNI_ESTRLN - if a character wasn't fully encoded in a string
+    0          - if the len is zero
+NOTES:
+    In case of character encoding error (UNI_EULSUR or UNI_EBADCP) the
+    character returned is 0xfffd (substitution character). In case of other
+    abnormal states (UNI_ESTRLN or length is zero) the character is not
+    modified.
+EXAMPLE:
+-------------------------------------------------------------------------------
+    // This example shows char-by-char processing of a unicode string
+    char16_t string[] = u"Улыбок тебе дед макар";
+    char16_t str = &string;
+    size_t str_len = sizeof(wstring)/2-1;
+
+    // Process a length-bounded string
+    int ch_len = 0;
+    uchar_t ch;
+    while((ch_len = utf16_chdec(str, str_len, &ch)) > 0) {
+        printf("\t%u\n", ch);
+        str += ch_len;
+        str_len -= ch_len;
+    }
+    if(ch_len < 0) ;// error_handle
+
+    // Process a nul-terminated string
+    int ch_len = 0;
+    uchar_t ch;
+    while((ch_len = utf16_chdec(str, 2, &ch)) > 0 && ch != 0) {
+        printf("\t%u\n", ch);
+        str += ch_len;
+    }
+    if(ch_len < 0) ;// error_handle
+-------------------------------------------------------------------------------
+
+int utf16_chenc(char16_t *s, size_t len, uchar_t c);
+DESCRIPTION:
+    Encode a unicode character into UTF-16 string
+PARAMETERS:
+    s   - a pointer to the place where the character should be written to
+    len - the maximum size of the string
+    c   - a unicode character to encode.
+RETURN VALUE:
+    UNI_EBADCP - the provided codepoint is invalid
+    UNI_ESTRLN - not enough space in a string to encode a character
+    otherwise returns the number of code units written into the string
+NOTES:
+    In case of error the contents of the string s are not modified
+

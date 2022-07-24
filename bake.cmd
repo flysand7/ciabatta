@@ -1,3 +1,3 @@
 
-clang src\unity.c -o ciabatta.obj -c -I inc -I fdec64 -I unicope\inc -I src\win -nodefaultlibs -g  -mfma
-lib /out:ciabatta.lib ciabatta.obj fdec64\fdec64.lib unicope\unicope.lib
+clang src\ciabatta.c -o ciabatta.obj -c -DCIABATTA_WIN -I inc -I src\_win -nodefaultlibs -g -mfma
+lib /nologo /out:ciabatta.lib ciabatta.obj src\fdec64\fdec64.lib src\unicope\unicope.lib

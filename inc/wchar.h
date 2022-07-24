@@ -3,13 +3,9 @@
 
 #include <stdint.h>
 
-typedef struct mbstate_t mbstate_t;
-typedef wchar_t wint_t;
+typedef int wint_t;
 
-struct mbstate_t {
-    char16_t next;
-    char bytes[4];
-};
+#include "_mbstate.h"
 
 #define WCHAR_MIN 0x0000
 #define WCHAR_MAX 0xffff
