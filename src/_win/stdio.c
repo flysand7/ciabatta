@@ -239,6 +239,15 @@ FILE *tmpfile(void) {
 }
 
 int fclose(FILE *stream) {
+    if(fflush(stream) == EOF) {
+        return EOF;
+    }
+    if(stream->buffer.is_internal) {
+        free(stream->buffer.data);
+    }
+    if(!CloseHandle(stream->handle)) {
+        return EOF;
+    }
     return 0;
 }
 
