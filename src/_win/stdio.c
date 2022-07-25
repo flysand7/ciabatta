@@ -70,13 +70,12 @@ static void close_list_remove(FILE *stream) {
     if(next == NULL) streams_to_close = prev;
 }
 
-static inline FILE *create_stream(
+static inline void init_stream(
+    FILE *stream,
     HANDLE handle,
     stream_io_mode_t io_mode,
     stream_bt_mode_t bt_mode
 ) {
-    FILE *stream = malloc(sizeof(FILE));
-    if(stream == NULL) return NULL;
     stream->handle = handle;
     stream->char_width = STREAM_CHAR_UNSET;
     stream->mbstate = (mbstate_t){0};
@@ -85,6 +84,16 @@ static inline FILE *create_stream(
     stream->bt_mode = bt_mode;
     stream->eof = 0;
     stream->err = 0;
+}
+
+static inline FILE *create_stream(
+    HANDLE handle,
+    stream_io_mode_t io_mode,
+    stream_bt_mode_t bt_mode
+) {
+    FILE *stream = malloc(sizeof(FILE));
+    if(stream == NULL) return NULL;
+    init_stream(stream, handle, io_mode, bt_mode);
     mtx_init(&stream->lock, mtx_recursive);
     close_list_add(stream);
     return stream;
@@ -116,13 +125,19 @@ void _setup_io() {
     stderr->buffer = (stream_buffer_t){1, _IONBF,      0, NULL};
 }
 
-FILE *fopen(const char *restrict name, const char *restrict mode) {
+int win_parse_mode(
+    char const *mode,
+    int *pio_mode,
+    int *pbt_mode,
+    DWORD *paccess,
+    DWORD *pshare,
+    DWORD *pdisp
+) {
     DWORD access = 0;
     DWORD share = 0;
     DWORD disp = 0;
-    DWORD flags = FILE_FLAG_WRITE_THROUGH;
     stream_io_mode_t io_mode = 0;
-    stream_bt_mode_t bt_mode;
+    stream_bt_mode_t bt_mode = 0;
     int flag_p = 0;
     int flag_b = 0;
     int flag_x = 0;
@@ -130,13 +145,13 @@ FILE *fopen(const char *restrict name, const char *restrict mode) {
         case 'r': io_mode = STREAM_INPUT;  break;
         case 'w': io_mode = STREAM_OUTPUT; break;
         case 'a': io_mode = STREAM_UPDATE; break;
-        default: return NULL;
+        default: return 0;
     }
     while(*mode) switch(*mode++) {
         case '+': flag_p = 1; break;
         case 'b': flag_b = 1; break;
         case 'x': flag_x = 1; break;
-        default: return NULL;
+        default: return 0;
     }
     bt_mode = flag_b? STREAM_BINARY : STREAM_TEXT;
     // Not sure about the sharing modes
@@ -160,6 +175,24 @@ FILE *fopen(const char *restrict name, const char *restrict mode) {
             disp   = OPEN_ALWAYS;
         } break;
     }
+    *paccess = access;
+    *pshare = share;
+    *pdisp = disp;
+    *pio_mode = io_mode;
+    *pbt_mode = bt_mode;
+    return 1;
+}
+
+FILE *fopen(const char *restrict name, const char *restrict mode) {
+    DWORD access;
+    DWORD share;
+    DWORD disp;
+    DWORD flags = FILE_FLAG_WRITE_THROUGH;
+    stream_io_mode_t io_mode;
+    stream_bt_mode_t bt_mode;
+    if(!win_parse_mode(mode, &io_mode, &bt_mode, &access, &share, &disp)) {
+        return NULL;
+    }
     HANDLE handle = CreateFileA(name, access, share, NULL, disp, flags, NULL);
     if(handle == INVALID_HANDLE_VALUE) {
         return NULL;
@@ -171,7 +204,34 @@ FILE *fopen(const char *restrict name, const char *restrict mode) {
 }
 
 FILE *freopen(const char *restrict name, const char *restrict mode, FILE *restrict stream) {
-    return NULL;
+    if(stream == NULL) {
+        return NULL;
+    }
+    fflush(stream);
+    DWORD access;
+    DWORD share;
+    DWORD disp;
+    DWORD flags = FILE_FLAG_WRITE_THROUGH;
+    stream_io_mode_t io_mode;
+    stream_bt_mode_t bt_mode;
+    if(!win_parse_mode(mode, &io_mode, &bt_mode, &access, &share, &disp)) {
+        return NULL;
+    }
+    if(name == NULL) {
+        HANDLE handle = ReOpenFile(stream->handle, access, share, flags);
+        if(handle == INVALID_HANDLE_VALUE) {
+            return NULL;
+        }
+    }
+    else {
+        CloseHandle(stream->handle);
+        HANDLE handle = CreateFileA(name, access, share, NULL, disp, flags, NULL);
+        if(handle == INVALID_HANDLE_VALUE) {
+            return NULL;
+        }
+        init_stream(stream, handle, io_mode, bt_mode);
+    }
+    return stream;
 }
 
 FILE *tmpfile(void) {

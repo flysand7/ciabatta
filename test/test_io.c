@@ -1,17 +1,16 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(void)
 {
-    char const *filename = "todo";
-    FILE *f = fopen(filename, "rb");
-    if(f == NULL) {
-        printf("File %s doesn't exist\n", filename);
-        return 1;
+    puts("stdout is printed to console");
+    if (freopen("redir.txt", "w", stdout) == NULL)
+    {
+       perror("freopen() failed");
+       return EXIT_FAILURE;
     }
-    int c;
-    while((c=fgetc(f)) != EOF) {
-        putchar(c);
-    }
-    return 0;
+    puts("stdout is redirected to a file"); // this is written to redir.txt
+    fclose(stdout);
+    return EXIT_SUCCESS;
 }
