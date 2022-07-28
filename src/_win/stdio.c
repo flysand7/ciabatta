@@ -413,6 +413,41 @@ cum:
     return 0;
 }
 
+int fgetpos(FILE *restrict stream, fpos_t *restrict pos) {
+    LONG pos_hi = 0;
+    DWORD pos_lo = SetFilePointer(stream->handle, 0, &pos_hi, FILE_CURRENT);
+    if(pos_lo == INVALID_SET_FILE_POINTER) {
+        return 1;
+    }
+    int64_t offset = ((int64_t)pos_hi << 32) | (int64_t)pos_lo;
+    pos->offset = offset;
+    pos->mbstate = stream->mbstate;
+    return 0;
+}
+
+int fseek(FILE *stream, long int offset, int whence) {
+    return 0;
+}
+
+int fsetpos(FILE *stream, const fpos_t *pos) {
+    LONG pos_hi = pos->offset >> 32;
+    LONG pos_lo = (LONG)(pos->offset & 0xffffffff);
+    DWORD status = SetFilePointer(stream->handle, pos_lo, &pos_hi, FILE_BEGIN);
+    if(status == INVALID_SET_FILE_POINTER) {
+        return 1;
+    }
+    stream->mbstate = pos->mbstate;
+    return 0;
+}
+
+long int ftell(FILE *stream) {
+    return 0;
+}
+
+void rewind(FILE *stream) {
+
+}
+
 int getchar(void) {
     return fgetc(stdin);
 }

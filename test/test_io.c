@@ -1,16 +1,30 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <assert.h>
 int main(void)
 {
-    puts("stdout is printed to console");
-    if (freopen("redir.txt", "w", stdout) == NULL)
-    {
-       perror("freopen() failed");
-       return EXIT_FAILURE;
-    }
-    puts("stdout is redirected to a file"); // this is written to redir.txt
-    fclose(stdout);
-    return EXIT_SUCCESS;
+    // prepare a file holding 4 values of type char
+    enum {SIZE = 4};
+    FILE* fp = fopen("test.bin", "wb");
+    assert(fp);
+    fputc('a', fp);
+    fputc('b', fp);
+    fputc('d', fp);
+    fputc('c', fp);
+    fclose(fp);
+ 
+    // demo using fsetpos to return to the beginning of a file
+    fp = fopen("test.bin", "rb");
+    fpos_t pos;
+    int c = fgetc(fp);
+    printf("First value in the file: %c\n", c);
+    fgetpos(fp, &pos);
+    c = fgetc(fp);
+    printf("Second value in the file: %c\n", c);
+    fsetpos(fp,&pos);
+    c = fgetc(fp);
+    printf("Second value in the file again: %c\n", c);
+    fclose(fp);
+    return 0;
 }
