@@ -43,9 +43,9 @@ typedef struct {
 
 #define L_tmpnam FILENAME_MAX
 
+#define SEEK_SET 0
 #define SEEK_CUR 1
 #define SEEK_END 2
-#define SEEK_SET 0
 
 #ifdef _os_win
     #define TMP_MAX  SHORT_MAX

@@ -426,6 +426,13 @@ int fgetpos(FILE *restrict stream, fpos_t *restrict pos) {
 }
 
 int fseek(FILE *stream, long int offset, int whence) {
+    // Note(bumbread): the SEEK_SET, SEEK_CUR and SEEK_END are defined to match
+    // Windows' constants, so no conversion is requierd between them.
+    LONG pos_hi = 0;
+    DWORD pos_lo = SetFilePointer(stream->handle, offset, &pos_hi, whence);
+    if(pos_lo == INVALID_SET_FILE_POINTER) {
+        return -1L;
+    }
     return 0;
 }
 
@@ -441,11 +448,17 @@ int fsetpos(FILE *stream, const fpos_t *pos) {
 }
 
 long int ftell(FILE *stream) {
-    return 0;
+    LONG pos_hi = 0;
+    DWORD pos_lo = SetFilePointer(stream->handle, 0, &pos_hi, FILE_CURRENT);
+    if(pos_lo == INVALID_SET_FILE_POINTER) {
+        return -1L;
+    }
+    int64_t offset = ((int64_t)pos_hi << 32) | (int64_t)pos_lo;
+    return offset;
 }
 
 void rewind(FILE *stream) {
-
+    fseek(stream, 0, SEEK_SET);
 }
 
 int getchar(void) {
