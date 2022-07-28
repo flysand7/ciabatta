@@ -42,3 +42,8 @@ The headers that are provided have documentation included:
 - [uchar.h](uchar.md)
 - [wchar.h](wchar.md)
 - [wctype.h](wctype.md)
+
+## Locales
+
+Not supported. The `char *` strings are assumed to be encoded using ASCII/UTF-8
+encoding.
