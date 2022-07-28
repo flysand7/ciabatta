@@ -44,15 +44,41 @@ stdio.h:
     becomes: do we implement the thing correctly by using a more complex
     solution, or do we succumb to windows' bullshittery. I guess the answer is
     obvious. That's why I wrote this todo item :D
+*   tmpfile
+*   tmpnam
+*   tmpfile_s
+*   tmpnam_s
 
 stdlib.h:
 *   Strtod base 16 must be correctly rounded
 *   Multibyte string functions
 *   Better PRNG
 *   Fix aligned_malloc
+*   Constraint Handlers
+*   getenv_s
+
+string.h:
+*   strnlen_s
+*   memset_s
+*   memmove_s
+*   memcpy_s
+*   strncpy_s
+*   strcpy_s
+*   strcat_s
+*   strncat_s
+*   strtok_s
+*   strerror_s
+*   strerrorlen_s
 
 threads.h:
 *   TODO: add todo items
+
+time.h:
+*   Probably some other funcs
+*   asctime_s
+*   ctime_s
+*   gmtime_s
+*   localtime_s
 
 wchar.h:
 *   Basically everything

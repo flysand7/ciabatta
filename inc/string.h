@@ -62,7 +62,8 @@ char   *strtok_r(char *restrict s1, const char *restrict s2, char **restrict ctx
 // Extension 1
 #if __STDC_WANT_LIB_EXT1__ == 1
 
-size_t strnlen_s(const char *str, size_t strsz);
+    size_t strnlen_s(const char *str, size_t strsz);
+    
     // Safe memory copies
     errno_t memset_s (void *s,           rsize_t smax,  int c,                   rsize_t n);
     errno_t memmove_s(void *s1,          rsize_t s1max, const void *s2,          rsize_t n);
