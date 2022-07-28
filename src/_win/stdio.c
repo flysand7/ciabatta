@@ -461,6 +461,43 @@ void rewind(FILE *stream) {
     fseek(stream, 0, SEEK_SET);
 }
 
+size_t fwrite(void const *restrict buffer, size_t size, size_t count, FILE *restrict stream) {
+    mtx_lock(&stream->lock);
+    unsigned char const *bytes = (unsigned char const*)buffer;
+    size_t num_written;
+    for(num_written = 0; num_written < count; ++num_written) {
+        for(size_t bytes_written = 0; bytes_written < size; ++bytes_written) {
+            int ch = fputc(bytes[bytes_written], stream);
+            if(ch == EOF) {
+                goto end;
+            }
+        }
+        bytes += size;
+    }
+end:
+    mtx_unlock(&stream->lock);
+    return num_written;
+}
+
+size_t fread(void *restrict buffer, size_t size, size_t count, FILE *restrict stream) {
+    mtx_lock(&stream->lock);
+    unsigned char *bytes = (unsigned char *)buffer;
+    size_t num_read;
+    for(num_read = 0; num_read < count; ++num_read) {
+        for(size_t bytes_read = 0; bytes_read < size; ++bytes_read) {
+            int ch = fgetc(stream);
+            if(ch == EOF) {
+                goto end;
+            }
+            bytes[bytes_read] = ch;
+        }
+        bytes += size;
+    }
+end:
+    mtx_unlock(&stream->lock);
+    return num_read;
+}
+
 int getchar(void) {
     return fgetc(stdin);
 }
