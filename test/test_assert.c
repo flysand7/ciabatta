@@ -1,17 +1,13 @@
-
 #include <assert.h>
-#include <stddef.h>
-#include <errno.h>
-void do_more_stuff(char *ptr) {
-    assert(ptr != NULL);
-}
 
-void do_stuff() {
-    do_more_stuff(NULL);
+int factorial(int n) {
+    assert(n >= 0);
+    if(n == 0) return 1;
+    return n*factorial(n-1);
 }
 
 int main() {
-    errno = 0;
-    assert(2+2 == 4);
-    do_stuff();
+    printf("Factorial of %d is %d\n", 10, factorial(10));
+    printf("Factorial of %d is %d\n", -1, factorial(-1));
+    return 0;
 }
