@@ -35,6 +35,7 @@ stdio.h:
     with a buffer would increase performance.
 *   Formatted scan
 *   %s precision should specify how much characters to *write*
+*   %s check for NULL
 *   %Ls this is an actual weird territory. If (wchar_t *) is a unicode string
     then to determine it's "width" (to figure out field padding) would require
     to use a Unicode composition algorithm. But the problem is that windows
