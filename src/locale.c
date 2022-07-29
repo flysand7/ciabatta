@@ -19,7 +19,7 @@ char *setlocale(int category, const char *locale) {
     if(strcmp(locale, "C") == 0) {
         switch (category) {
         case LC_ALL: {
-            _locale.decimal_point = ".";
+            _locale.decimal_point = "."; // fuck the french, the german, the russians and the rest of the wrongthinkers
             _locale.thousands_sep = "";
             _locale.grouping = "";
             _locale.mon_decimal_point = "";
