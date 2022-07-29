@@ -103,6 +103,7 @@ int    ungetc (int c, FILE *stream);
 char  *fgets  (char *restrict s, int n, FILE *restrict stream);
 size_t fread  (void *restrict ptr, size_t size, size_t nmemb, FILE *restrict stream);
 
+// File writing
 #define putc fputc
 int    fputc  (int c, FILE *stream);
 int    putchar(int c);
