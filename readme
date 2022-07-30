@@ -35,7 +35,7 @@ USAGE
   For clang users: add the following flags to your compilation command:
     -I <path/to/ciabatta/inc> -nostdlib -mfma
   Don't forget to link to the following libraries:
-    -lciabatta.lib -luser32 -lkernel32 -lDbgHelp
+    -lciabatta.lib -lkernel32 -lDbgHelp
 
 CONTRIBUTING
   Pull requests are always welcome.
