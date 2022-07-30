@@ -10,26 +10,25 @@ Macro definitions:
 
 Assert a given condition is true, otherwise abort execution of a program.
 
-<details><summary>Description</summary>
-
 The macro checks whether `expr` is true, and if not, prints the
-information about where the error occurs and then aborts execution in a way
-equivalent to calling abort() function (See SIGABRT).
+diagnostic information and then aborts execution in a way equivalent to calling
+abort() function (See SIGABRT).
 
-You can disable the assertion checks by defining NDEBUG macro.
+If DEBUG macro is defined, assert does not print a diagnostic message, and
+instead simply causes a debug break.
 
-</details>
-
-<details><summary>Declaration</summary>
+If NDEBUG macro is defined assert expands to an empty statement. If both NDEBUG
+and DEBUG are defined, then DEBUG macro is ignored.
 
 ```c
 #if defined(NDEBUG)
     #define assert(expr) ((void)0)
+#elif defined(DEBUG)
+    #define assert(expr) /* debug break */
 #else
-    #define assert(expr) /* see description */
+    #define assert(expr) /* print diagnostic, then abort */
 #endif
 ```
-</details>
 
 <details>
 <summary>Example</summary>
@@ -74,11 +73,6 @@ Trace:
 
 Keyword macro that expands to C11 keyword `_Static_assert`.
 
-<details>
-<summary>Definition</summary>
-
 ```c
 #define static_assert _Static_assert
 ```
-</details>
-
