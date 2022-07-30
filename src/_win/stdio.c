@@ -123,6 +123,9 @@ void _setup_io() {
     stdin->buffer  = (stream_buffer_t){1, _IOLBF, BUFSIZ, in_buf};
     stdout->buffer = (stream_buffer_t){1, _IOLBF, BUFSIZ, out_buf};
     stderr->buffer = (stream_buffer_t){1, _IONBF,      0, NULL};
+
+    SetConsoleCP(CP_UTF8);  // maybe will work someday
+    SetConsoleOutputCP(CP_UTF8);
 }
 
 int win_parse_mode(

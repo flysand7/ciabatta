@@ -4,3 +4,6 @@
 [submodule "fdec64"]
 	path = src/fdec64
 	url = https://github.com/bumbread/fdec64.git
+[submodule "src/libwinsane"]
+	path = src/libwinsane
+	url = https://github.com/flysand7/libwinsane.git
