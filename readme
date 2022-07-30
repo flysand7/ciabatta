@@ -32,7 +32,10 @@ PLATFORM SUPPORT
   - x86-64
 
 USAGE
-  (TODO)
+  For clang users: add the following flags to your compilation command:
+    -I <path/to/ciabatta/inc> -nostdlib -mfma
+  Don't forget to link to the following libraries:
+    -lciabatta.lib -luser32 -lkernel32 -lDbgHelp -lshell32
 
 CONTRIBUTING
   Pull requests are always welcome.
