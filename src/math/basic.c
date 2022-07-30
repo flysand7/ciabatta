@@ -2,17 +2,6 @@
 #include <math.h>
 #include <stdint.h>
 
-#if !defined(__FMA__)
-    #error "Get a better CPU (the kind that supports FMA) or enable -mfma"
-#endif
-
-// xmmintrin.h depends on mm_malloc.h, which itself includes other CRT headers
-// Which introduces compiler errors. Actually does it really matter? I would
-// need to check again
-#undef __STDC_HOSTED__
-#include <immintrin.h>
-#include <xmmintrin.h>
-
 double fabs(double x) {
     union {double f; uint64_t i;} u = {x};
     u.i &= -1ULL/2;

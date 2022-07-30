@@ -21,6 +21,19 @@
 #include <wchar.h>
 #include <wctype.h>
 
+// Intrinsics
+#if !defined(__FMA__)
+    #error "Get a better CPU (the kind that supports FMA) or enable -mfma"
+#endif
+// xmmintrin.h depends on mm_malloc.h, which itself includes other CRT headers
+// Which introduces compiler errors. Actually does it really matter? I would
+// need to check again
+#undef __STDC_HOSTED__
+#include <immintrin.h>
+#include <xmmintrin.h>
+
+#include "intrin.h"
+
 // Dependencies
 #include "fdec64/fdec64.h"
 #include "unicope/inc/unicope.h"
