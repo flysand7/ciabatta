@@ -32,10 +32,13 @@ PLATFORM SUPPORT
   - x86-64
 
 USAGE
-  For clang users: add the following flags to your compilation command:
-    -I <path/to/ciabatta/inc> -nostdlib -mfma
+  NOTE: libwinsane.obj can be obtained by running:
+    bake -DNO_CRT
+  In the libwinsane directory.
+  Add the following flags to your compilation command:
+    -I <path/to/ciabatta/inc> libwinsane.obj -nostdlib -mfma
   Don't forget to link to the following libraries:
-    -lciabatta.lib -lkernel32 -lDbgHelp
+    -lciabatta.lib
 
 CONTRIBUTING
   Pull requests are always welcome.

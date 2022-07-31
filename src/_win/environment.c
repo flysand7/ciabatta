@@ -7,6 +7,9 @@ int _fltused=0;
 
 extern int main(int argc, char** argv);
 
+#pragma comment(lib, "kernel32.lib")
+#pragma comment(lib, "DbgHelp.lib")
+
 // Exit routines
 #define ATEXIT_FUNC_COUNT  64
 #define ATQEXIT_FUNC_COUNT 64
