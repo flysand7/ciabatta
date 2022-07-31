@@ -1,13 +1,13 @@
 
 #pragma once
 
+#include <types/mbstate.h>
+
 #include <stddef.h>
 #include <stdint.h>
 
 typedef uint_least16_t char16_t;
 typedef uint_least32_t char32_t;
-
-#include "_mbstate.h"
 
 size_t mbrtoc16(
     char16_t   *restrict pc16,

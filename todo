@@ -4,6 +4,7 @@ general:
     behaviours of the library.
 *   Ok I just realised that I assumed that wchar_t is a 16-bit string in
     a bunch of places.
+*   Decide what the heck I want to do with wchar_t
 
 math.h:
 *   exp

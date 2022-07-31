@@ -1,14 +1,17 @@
 
 #pragma once
 
+#include <types/mbstate.h>
+#include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <time.h>
+#include <limits.h>
 
 typedef int wint_t;
 
-#include "_mbstate.h"
-
-#define WCHAR_MIN 0x0000
-#define WCHAR_MAX 0xffff
+// #define WCHAR_MIN 0x0000
+// #define WCHAR_MAX 0xffff
 
 #ifndef WEOF
     #define WEOF -1

@@ -130,8 +130,8 @@ void _setup_io() {
 
 int win_parse_mode(
     char const *mode,
-    int *pio_mode,
-    int *pbt_mode,
+    stream_io_mode_t *pio_mode,
+    stream_bt_mode_t *pbt_mode,
     DWORD *paccess,
     DWORD *pshare,
     DWORD *pdisp

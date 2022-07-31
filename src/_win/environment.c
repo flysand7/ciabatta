@@ -42,11 +42,20 @@ void mainCRTStartup() {
 }
 
 
+_Noreturn void _Exit(int status) {
+    ExitProcess(status);
+    #if defined(_MSC_VER)
+        __assume(0);
+    #elif defined(__GNUC__)
+        __builtin_unreachable();
+    #endif
+}
+
 _Noreturn void quick_exit(int status) {
     while(atqexit_func_count--) {
         atqexit_funcs[atqexit_func_count]();
     }
-    ExitProcess(status);
+    _Exit(status);
 }
 
 _Noreturn void exit(int status) {
@@ -54,16 +63,12 @@ _Noreturn void exit(int status) {
         atexit_funcs[atqexit_func_count]();
     }
     _close_io();
-    ExitProcess(status);
-}
-
-_Noreturn void _Exit(int status) {
-    ExitProcess(status);
+    _Exit(status);
 }
 
 _Noreturn void abort(void) {
     raise(SIGABRT);
-    ExitProcess(-69);
+    _Exit(-69);
 }
 
 int atexit(void (*func)(void)) {
@@ -126,7 +131,7 @@ int system(const char* string) {
         .hStdError = GetStdHandle(STD_ERROR_HANDLE),
         .hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE)
     };
-    PROCESS_INFORMATION pi = {};
+    PROCESS_INFORMATION pi = {0};
 
     if (!CreateProcessW(NULL, cmd_line, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
         goto error;

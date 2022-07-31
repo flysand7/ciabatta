@@ -5,6 +5,10 @@
     #define __func__ __FUNCTION__
 #endif
 
+#if defined (_MSC_VER)
+    #define _Noreturn
+#endif
+
 void _Noreturn _assert(
     char const *cond,
     char const *func,
