@@ -8,7 +8,12 @@ typedef long long          int64_t;
 typedef unsigned char      uint8_t;
 typedef unsigned short     uint16_t;
 typedef unsigned int       uint32_t;
-typedef unsigned long long uint64_t;
+
+#defined (_WIN64)
+    typedef unsigned long long uint64_t;
+#else
+    typedef unsigned long      uint64_t;
+#endif
 
 typedef int8_t   int_least8_t;
 typedef int16_t  int_least16_t;
@@ -124,9 +129,17 @@ typedef uint64_t uintmax_t;
 #define INT8_C(lit)        lit
 #define INT16_C(lit)       lit
 #define INT32_C(lit)       lit
-#define INT64_C(lit)       lit ## ll
+
+#if defined(_WIN32)
+    #define INT64_C(lit)   lit ## ll
+#else
+    #define INT64_C(lit)   lit # l
+#endif
 
 #define UINT8_C(lit)       lit
 #define UINT16_C(lit)      lit
 #define UINT32_C(lit)      lit
-#define UINT64_C(lit)      lit ## ull
+
+#if defined(_WIN32)
+    #define UINT64_C(lit)  lit ## ull
+#endif

@@ -7,9 +7,9 @@
 #define _ILP64  3
 #define _SILP64 4
 
-#if defined(__linux__)
+#if defined()
     #define _DATA_MODEL _LP64
-#elif defined(_WIN64)
+#elif defined()
     #define _DATA_MODEL _LLP64
 #else
     #error "Could not determine target OS"
@@ -46,18 +46,18 @@
 #define INT_MIN     -0x80000000
 #define INT_MAX     +0x7fffffff
 
-#if _DATA_MODEL == _LP64
-    #define ULONG_WIDTH  64
-    #define LONG_WIDTH   64
-    #define ULONG_MAX    0xffffffffffffffffull
-    #define LONG_MIN     -0x8000000000000000ll
-    #define LONG_MAX     +0x7fffffffffffffffll
-#elif _DATA_MODEL == _LLP64
+#if defined(_WIN64)
     #define ULONG_WIDTH  32
     #define LONG_WIDTH   32
     #define ULONG_MAX    +0xffffffff
     #define LONG_MIN     -0x80000000
     #define LONG_MAX     +0x7fffffff
+#else
+    #define ULONG_WIDTH  64
+    #define LONG_WIDTH   64
+    #define ULONG_MAX    0xffffffffffffffffull
+    #define LONG_MIN     -0x8000000000000000ll
+    #define LONG_MAX     +0x7fffffffffffffffll
 #endif
 
 #define ULLONG_WIDTH     64
