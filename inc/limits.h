@@ -1,20 +1,6 @@
 
 #pragma once
 
-#define _ILP32  0
-#define _LLP64  1
-#define _LP64   2
-#define _ILP64  3
-#define _SILP64 4
-
-#if defined()
-    #define _DATA_MODEL _LP64
-#elif defined()
-    #define _DATA_MODEL _LLP64
-#else
-    #error "Could not determine target OS"
-#endif
-
 #define MB_LEN_MAX 5
 
 #define CHAR_BIT   8
