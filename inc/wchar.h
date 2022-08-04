@@ -1,17 +1,34 @@
 
 #pragma once
 
-#include <types/mbstate.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
 #include <limits.h>
 
+#if defined(_WIN32)
+    typedef unsigned short wchar_t;
+#else
+    typedef int wchar_t;
+#endif
+
 typedef int wint_t;
+
+#if !defined(_mbstate_t_defined)
+    #define _mbstate_t_defined
+    typedef struct mbstate_t mbstate_t;
+    struct mbstate_t {
+        union {
+            unsigned short leftover;
+            unsigned short high_surrogate;
+        };
+    };
+#endif
 
 // #define WCHAR_MIN 0x0000
 // #define WCHAR_MAX 0xffff
+
 
 #ifndef WEOF
     #define WEOF -1

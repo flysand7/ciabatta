@@ -10,14 +10,18 @@
     #endif
 #endif
 
-#include <types/size.h>
-
 #if !defined(NULL)
     #define NULL ((void *)0)
 #endif
 
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
+
+#if defined(_WIN32)
+    typedef unsigned long long size_t;
+#else
+    typedef unsigned long size_t;
+#endif
 
 typedef struct div_t {
     int quot;
