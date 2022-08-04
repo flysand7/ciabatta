@@ -8,7 +8,12 @@
 #define NULL ((void *)0)
 #define offsetof(st, m) ((size_t)((char *)&((st *)0)->m - (char *)0))
 
-typedef unsigned long long size_t;
+#if defined(_WIN32)
+    typedef unsigned long size_t;
+#else
+    typedef unsigned long long size_t;
+#endif
+
 typedef long long          ptrdiff_t;
 typedef long long          max_align_t;
 typedef unsigned short     wchar_t; //
