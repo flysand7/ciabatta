@@ -1,10 +1,14 @@
 
 #pragma once
 
-#include <stddef.h>
-
 #if !defined(NULL)
     #define NULL ((void *)0)
+#endif
+
+#if defined(_WIN32)
+    typedef unsigned long long size_t;
+#else
+    typedef unsigned long size_t;
 #endif
 
 #if !defined(__STDC_LIB_EXT1__)

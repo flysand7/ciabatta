@@ -1,9 +1,7 @@
 
 #pragma once
 
-#include <stddef.h>
-#include <limits.h>
-#include <wchar.h>
+#include <stdint.h>
 
 #define PRIi8       "hhi"
 #define PRIu8       "hhu"
@@ -254,6 +252,12 @@
     #define SCNoPTR     "lo"
     #define SCNdPTR     "ld"
     #define SCNxPTR     "lx"
+#endif
+
+#if defined(_WIN32)
+    typedef unsigned short wchar_t;
+#else
+    typedef int wchar_t;
 #endif
 
 typedef struct imaxdiv_t imaxdiv_t;

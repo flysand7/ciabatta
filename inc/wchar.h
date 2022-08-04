@@ -1,19 +1,39 @@
 
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <time.h>
-#include <limits.h>
+#include <locale.h>
+#include <stdarg.h>
+
+#if !defined(WEOF)
+    #define WEOF -1
+#endif
+
+#if !defined(NULL)
+    #define NULL ((void *)0)
+#endif
 
 #if defined(_WIN32)
+    #if !defined(WCHAR_MIN)
+        #define WCHAR_MIN 0x0000
+    #endif
+    #if !defined(WCHAR_MAX)
+        #define WCHAR_MAX 0xffff
+    #endif
     typedef unsigned short wchar_t;
 #else
+    #if !defined(WCHAR_MIN)
+        #define WCHAR_MIN -0x80000000
+    #endif
+    #if !defined(WCHAR_MAX)
+        #define WCHAR_MAX +0x7fffffff
+    #endif
     typedef int wchar_t;
 #endif
 
 typedef int wint_t;
+typedef int wint_t;
+typedef int (*wctrans_t)(wint_t wc);
+typedef int (*wctype_t)(wint_t wc);
 
 #if !defined(_mbstate_t_defined)
     #define _mbstate_t_defined
@@ -26,13 +46,22 @@ typedef int wint_t;
     };
 #endif
 
-// #define WCHAR_MIN 0x0000
-// #define WCHAR_MAX 0xffff
-
-
-#ifndef WEOF
-    #define WEOF -1
+#if !defined(_tm_defined)
+    #define _tm_defined
+    struct tm {
+        int tm_sec;
+        int tm_min;
+        int tm_hour;
+        int tm_mon;
+        int tm_mday;
+        int tm_year;
+        int tm_wday;
+        int tm_yday;
+        int tm_isdst;
+    };
 #endif
+
+typedef struct FILE FILE;
 
 // String length
 size_t wcslen(const wchar_t *s);

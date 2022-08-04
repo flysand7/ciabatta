@@ -1,7 +1,5 @@
 #pragma once
 
-#include <time.h>
-#include <stdbool.h>
 #include <stdatomic.h>
 
 #if defined(_WIN32)
@@ -13,29 +11,38 @@
 #define ONCE_FLAG_INIT      1
 #define TSS_DTOR_ITERATIONS 32
 
+#if !defined(_timespec_defined)
+    #define _timespec_defined
+    typedef unsigned long long time_t;
+    struct timespec {
+        time_t tv_sec;
+        long   tv_nsec;
+    };
+#endif
+
 #if defined(_WIN32)
-typedef struct cnd_t {
-	int idk_yet;
-} cnd_t;
+    typedef struct cnd_t {
+    	int idk_yet;
+    } cnd_t;
 
-typedef struct thrd_t {
-    void* handle;
-} thrd_t;
+    typedef struct thrd_t {
+        void* handle;
+    } thrd_t;
 
-typedef struct tss_t {
-	int idk_yet;
-} tss_t;
+    typedef struct tss_t {
+    	int idk_yet;
+    } tss_t;
 
-typedef struct mtx_t {
-    int type;
-    // Done to handle recursive mutexes
-    unsigned long recursion;
-    unsigned long owner;
-    atomic_int counter;
-    void* semaphore;
-} mtx_t;
+    typedef struct mtx_t {
+        int type;
+        // Done to handle recursive mutexes
+        unsigned long recursion;
+        unsigned long owner;
+        atomic_int counter;
+        void* semaphore;
+    } mtx_t;
 #else
-#error "Not implemented"
+    #error "Not implemented"
 #endif
 
 typedef void(*tss_dtor_t)  (void*);
@@ -85,11 +92,11 @@ int    thrd_detach (thrd_t thr);
 int    thrd_equal  (thrd_t thr0, thrd_t thr1);
 int    thrd_join   (thrd_t thr, int *res);
 void   thrd_yield  (void);
-_Noreturn void thrd_exit(int res);
 int thrd_sleep(
     const struct timespec *duration,
     struct timespec *remaining
 );
+_Noreturn void thrd_exit(int res);
 
 int   tss_create(tss_t *key, tss_dtor_t dtor);
 void  tss_delete(tss_t  key);

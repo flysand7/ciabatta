@@ -9,9 +9,17 @@
     #define NULL ((void *)0)
 #endif
 
-#define bool _Bool
-#define true 1
-#define false 0
+#if !defined(bool)
+    #define bool _Bool
+#endif
+
+#if !defined(true)
+    #define true 1
+#endif
+
+#if !defined(false)
+    #define false 0
+#endif
 
 #define offsetof(st, m) ((size_t)((char *)&((st *)0)->m - (char *)0))
 #define alignas _Alignas

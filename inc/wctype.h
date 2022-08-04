@@ -5,7 +5,7 @@ typedef int wint_t;
 typedef int (*wctrans_t)(wint_t wc);
 typedef int (*wctype_t)(wint_t wc);
 
-#ifndef WEOF
+#if !defined(WEOF)
 	#define WEOF 0
 #endif
 

@@ -1,8 +1,11 @@
 
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
+#if defined(_WIN32)
+    typedef unsigned long long size_t;
+#else
+    typedef unsigned long size_t;
+#endif
 
 #if !defined(_mbstate_t_defined)
     #define _mbstate_t_defined
@@ -15,8 +18,8 @@
     };
 #endif
 
-typedef uint_least16_t char16_t;
-typedef uint_least32_t char32_t;
+typedef unsigned short char16_t;
+typedef unsigned int   char32_t;
 
 size_t mbrtoc16(
     char16_t   *restrict pc16,

@@ -2,9 +2,27 @@
 #pragma once
 
 #include <stdarg.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <uchar.h>
+
+#if !defined(NULL)
+    #define NULL ((void *)0)
+#endif
+
+#if defined(_WIN32)
+    typedef unsigned long long size_t;
+#else
+    typedef unsigned long size_t;
+#endif
+
+#if !defined(_mbstate_t_defined)
+    #define _mbstate_t_defined
+    typedef struct mbstate_t mbstate_t;
+    struct mbstate_t {
+        union {
+            unsigned short leftover;
+            unsigned short high_surrogate;
+        };
+    };
+#endif
 
 typedef struct FILE FILE;
 

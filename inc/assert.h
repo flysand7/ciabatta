@@ -23,7 +23,7 @@ void _Noreturn _assert(
         #define assert(c) if (!(c)) __builtin_trap()
     #elif _MSC_VER
         #define assert(c) if (!(c)) __debugbreak()
-    // TODO: Handle Cuik, and if such handling is not required remove this comment
+        // TODO: Handle Cuik, and if such handling is not required remove this comment
     #else
         // In debug mode there shouldn't be any optimizations so this should
         // work as a simple way to cause a trap.
