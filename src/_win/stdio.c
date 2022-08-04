@@ -413,7 +413,7 @@ int ungetc(int c, FILE *stream) {
     }
 cum:
     mtx_unlock(&stream->lock);
-    return 0;
+    return res;
 }
 
 int fgetpos(FILE *restrict stream, fpos_t *restrict pos) {

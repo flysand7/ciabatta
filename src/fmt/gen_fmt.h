@@ -263,7 +263,7 @@ static int pfx(vprintfcb)(
                         double value;
                     } _ = {.value = value};
                     uint64_t bits = _.bits;
-                    uint64_t neg = bits >> 63;
+                    // uint64_t neg = bits >> 63;
                     int64_t e2 = (int64_t)((bits >> 52) & ((1<<11)-1));
                     int64_t m2 = bits & ((UINT64_C(1)<<52)-1);
                     if(class == FP_ZERO) {
@@ -352,7 +352,7 @@ static int pfx(vprintfcb)(
                     out(' ');
                 }
                 // Print string
-                mbstate_t ps = {0};
+                //mbstate_t ps = {0};
                 for(int i = 0; i < len; ++i) {
                     out(str[i]);
                 }
@@ -547,7 +547,7 @@ static inline int pfx(_dtoh)(
         double value;
     } _ = {.value = value};
     uint64_t bits = _.bits;
-    uint64_t neg = bits >> 63;
+    // uint64_t neg = bits >> 63;
     int64_t exp = (int64_t)((bits >> 52) & 0x7ff) - 1023;
     int64_t mant = bits & ((UINT64_C(1)<<51)-1);
     if(class == FP_SUBNORMAL || class == FP_ZERO) {
@@ -555,7 +555,6 @@ static inline int pfx(_dtoh)(
     }
     // Figure out how many hex digits does mantissa take up (mant_digits_n)
     // and the number of digits after decimal point (prec)
-    static ctype mant_buf[64] = {0};
     int mant_digits_n;
     int nonsig_digits_n = 0;
     if(mant != 0) {
@@ -690,7 +689,7 @@ static inline int pfx(_dtoa)(
             double value;
         } _ = {.value = value};
         uint64_t bits = _.bits;
-        uint64_t neg = bits >> 63;
+        //uint64_t neg = bits >> 63;
         int64_t e2 = (int64_t)((bits >> 52) & ((1<<11)-1));
         int64_t m2 = bits & ((UINT64_C(1)<<52)-1);
         if(class == FP_ZERO) {
@@ -816,7 +815,6 @@ static inline int pfx(_etoa)(
             double value;
         } _ = {.value = value};
         uint64_t bits = _.bits;
-        uint64_t neg = bits >> 63;
         int64_t e2 = (int64_t)((bits >> 52) & ((1<<11)-1));
         int64_t m2 = bits & ((UINT64_C(1)<<52)-1);
         if(class == FP_ZERO) {

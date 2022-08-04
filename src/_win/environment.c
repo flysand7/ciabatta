@@ -164,26 +164,6 @@ int _wcsicmp(wchar_t const* s1, wchar_t const* s2) {
     return diff;
 }
 
-static size_t count_wide_chars(const wchar_t* str) {
-    size_t len = 0;
-    while (str[len] != 0) len++;
-    return len;
-}
-
-static bool wchar_to_ansi(char* out, const wchar_t* str, size_t len) {
-    for (size_t i = 0; i < len; i++) {
-        wchar_t ch = *str++;
-        if (ch < 0 || ch > 0x7F) {
-            *out++ = 0;
-            return false;
-        }
-        *out++ = ch;
-    }
-
-    *out++ = 0;
-    return true;
-}
-
 static int cmdline_to_argv8(const wchar_t *cmd, char **argv);
 
 static char **get_command_args(int *argc_ptr) {
