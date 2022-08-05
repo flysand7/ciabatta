@@ -1,9 +1,5 @@
 #pragma once
 
-#if defined(_WIN32)
-    #define _Thread_local __declspec(thread)
-#endif
-
 #define thread_local _Thread_local
 
 #define ONCE_FLAG_INIT      1

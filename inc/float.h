@@ -19,7 +19,7 @@
 #define FLT_HAS_SUBNORM  1
 
 #define DBL_DECIMAL_DIG  10
-#define DBL_MIN          0x1.0000000000000p-1021
+#define DBL_MIN          0x1.0000000000000p-1022
 #define DBL_MAX          0x1.fffffffffffffp+1023
 #define DBL_TRUE_MIN     0x1.0000000000000p-1074
 #define DBL_EPSILON      0x1.0000000000001p+0
