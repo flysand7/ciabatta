@@ -1,16 +1,4 @@
 
-// TODO(bumbread): now that we do static builds perhaps this could be moved
-// into the main source file?
-// Call me weak if you want but I'm actually too lazy to type
-// them out every time, also they take up a lot of horiz space.
-typedef long long intll;
-typedef long intl;
-typedef unsigned long long intull;
-typedef unsigned long intul;
-typedef unsigned intu;
-
-#define inrange(start, c, end) ((start) <= (c) && (c) <= (end))
-
 static bool isbase(int c, int base) {
     int val = 0;
     if(isdigit(c)) {
@@ -69,7 +57,7 @@ static intull strtoi_generic(const char *restrict nptr,
     if(is_signed) {
         ++int_abs_max;
     }
-    if(!inrange(0, inbase, 36)) {
+    if(!IN_RANGE(0, inbase, 36)) {
         goto finish;
     }
     intull base = (intull)inbase;

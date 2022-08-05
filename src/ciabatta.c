@@ -37,9 +37,10 @@
 
 #include "intrin.h"
 
+#include "util.c"
+
 // Dependencies
 #include "decfloat/decfloat.c"
-#include "decfloat/decfloat.h"
 
 // Platform-independent stuff
 #include "fmt/gen_fmt.c"
@@ -48,8 +49,8 @@
 #include "math/gen_math.c"
 #include "math/ieee754.c"
 #include "math/round.c"
+#include "conv/conversion.c"
 #include "stdlib/algorithm.c"
-#include "stdlib/conversion.c"
 #include "stdlib/multibyte.c"
 #include "stdlib/random.c"
 #include "ctype.c"

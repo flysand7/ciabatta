@@ -1,9 +1,7 @@
 
-typedef unsigned char byte;
-
 void *memcpy(void *restrict s1, const void *restrict s2, size_t n) {
-    const byte *restrict c2 = s2;
-    byte *restrict c1 = s1;
+    const u8 *restrict c2 = s2;
+    u8 *restrict c1 = s1;
 
     while (n--) {
         *c1++ = *c2++;
@@ -12,8 +10,8 @@ void *memcpy(void *restrict s1, const void *restrict s2, size_t n) {
 }
 
 void *memmove(void *s1, const void *s2, size_t n) {
-    byte* c1 = s1;
-    const byte* c2 = s2;
+    u8* c1 = s1;
+    const u8* c2 = s2;
     // Note(bumbread): shouldn't this be backwards?
     if (c1 != c2) {
         if (c1 < c2) {
@@ -61,8 +59,8 @@ char *strncat(char *restrict s1, const char *restrict s2, size_t n) {
 
 
 int memcmp(const void *s1, const void *s2, size_t n) {
-    const byte *u1 = s1;
-    const byte *u2 = s2;
+    const u8 *u1 = s1;
+    const u8 *u2 = s2;
     for (; n--; u1++, u2++) {
         if (*u1 != *u2) return *u1 - *u2;
     }
@@ -70,7 +68,7 @@ int memcmp(const void *s1, const void *s2, size_t n) {
 }
 
 void *memset(void *s, int c, size_t n) {
-    byte *restrict buf = s;
+    u8 *restrict buf = s;
     while (n--) {
         *buf++ = c;
     }

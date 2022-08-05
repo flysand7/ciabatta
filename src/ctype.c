@@ -1,6 +1,4 @@
 
-#define in_range(low, v, high) ((low <= v) && (v <= high))
-
 int isalnum(int c) {
     return isalpha(c) || isdigit(c);
 }
@@ -14,11 +12,11 @@ int isblank(int c) {
 }
 
 int iscntrl(int c) {
-    return in_range('\x00', c, '\x1f') || c == '\x7f';
+    return IN_RANGE('\x00', c, '\x1f') || c == '\x7f';
 }
 
 int isdigit(int c) {
-    return in_range('0', c, '9');
+    return IN_RANGE('0', c, '9');
 }
 
 int isgraph(int c) {
@@ -26,32 +24,32 @@ int isgraph(int c) {
 }
 
 int islower(int c) {
-    return in_range('a', c, 'z');
+    return IN_RANGE('a', c, 'z');
 }
 
 int isprint(int c) {
-    return in_range(' ', c, '\x7e');
+    return IN_RANGE(' ', c, '\x7e');
 }
 
 int ispunct(int c) {
-    return in_range('\x21', c, '\x2f')
-        || in_range('\x3a', c, '\x40')
-        || in_range('\x5b', c, '\x60')
-        || in_range('\x7b', c, '\x7e');
+    return IN_RANGE('\x21', c, '\x2f')
+        || IN_RANGE('\x3a', c, '\x40')
+        || IN_RANGE('\x5b', c, '\x60')
+        || IN_RANGE('\x7b', c, '\x7e');
 }
 
 int isspace(int c) {
-    return in_range('\x09', c, '\x0d') || c == ' ';
+    return IN_RANGE('\x09', c, '\x0d') || c == ' ';
 }
 
 int isupper(int c) {
-    return in_range('A', c, 'Z');
+    return IN_RANGE('A', c, 'Z');
 }
 
 int isxdigit(int c) {
-    return in_range('0', c, '9')
-        || in_range('a', c, 'f')
-        || in_range('A', c, 'F');
+    return IN_RANGE('0', c, '9')
+        || IN_RANGE('a', c, 'f')
+        || IN_RANGE('A', c, 'F');
 }
 
 int tolower(int c) {
