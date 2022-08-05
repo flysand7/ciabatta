@@ -135,7 +135,7 @@ static inline uint64_t div1e8(const uint64_t x) {
 
 
 
-decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeExponent) {
+static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeExponent) {
   int32_t e2;
   uint64_t m2;
   if (ieeeExponent == 0) {

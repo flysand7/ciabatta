@@ -66,6 +66,7 @@
     #include "_win/win.h"
     #include "_win/assert.c"
     #include "_win/cmdline.c"
+    #include "_win/entry.c"
     #include "_win/environment.c"
     #include "_win/heap.c"
     #include "_win/signal.c"

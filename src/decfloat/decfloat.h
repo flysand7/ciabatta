@@ -6,4 +6,4 @@ typedef struct {
     int32_t exponent;
 } decfloat_t;
 
-decfloat_t todecfloat(const uint64_t ieeeMant, const uint32_t ieeeExp);
+static decfloat_t todecfloat(const uint64_t ieeeMant, const uint32_t ieeeExp);

@@ -270,7 +270,7 @@ static int pfx(vprintfcb)(
                         E = 0;
                     }
                     else {
-                        decfloat_t f = todecfloat(m2, e2);
+                        decfloat_t f = dtodecfloat(m2, e2);
                         E = f.exponent;
                     }
                 }
@@ -321,15 +321,15 @@ static int pfx(vprintfcb)(
                         out(wstr[i]);
                     }
                     else {
-                        char utf8[5];
-                        char *s = utf8;
-                        size_t r = c16rtomb(s, wstr[i], &ps);
-                        if(r == (size_t)(-1)) return -1;
-                        if(r != 0) {
-                            while(*s != 0) {
-                                out(*s++);
-                            }
-                        }
+                        // char utf8[5];
+                        // char *s = utf8;
+                        // size_t r = c16rtomb(s, wstr[i], &ps);
+                        // if(r == (size_t)(-1)) return -1;
+                        // if(r != 0) {
+                        //     while(*s != 0) {
+                        //         out(*s++);
+                        //     }
+                        // }
                     }
                 }
                 // Print right-pad
@@ -697,7 +697,7 @@ static inline int pfx(_dtoa)(
             exp = 0;
         }
         else {
-            decfloat_t f = todecfloat(m2, e2);
+            decfloat_t f = dtodecfloat(m2, e2);
             mant = f.mantissa;
             exp = f.exponent;
         }
@@ -822,7 +822,7 @@ static inline int pfx(_etoa)(
             exp = 0;
         }
         else {
-            decfloat_t f = todecfloat(m2, e2);
+            decfloat_t f = dtodecfloat(m2, e2);
             mant = f.mantissa;
             exp = f.exponent;
         }

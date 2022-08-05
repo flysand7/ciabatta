@@ -1,15 +1,11 @@
 
 #pragma once
 
-#if !defined(__func__)
-    #define __func__ __FUNCTION__
-#endif
-
 #if defined(_MSC_VER) && !defined(__clang__)
     #define _Noreturn
 #endif
 
-void _Noreturn _assert(
+void _assert(
     char const *cond,
     char const *func,
     char const *file,

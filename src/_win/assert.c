@@ -1,6 +1,9 @@
 
 #include <assert.h>
 
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "DbgHelp.lib")
+
 static void _print_stack_trace() {
     HANDLE process = GetCurrentProcess();
     SymInitialize(process, NULL, TRUE);
@@ -26,17 +29,36 @@ static void _print_stack_trace() {
 }
 
 
-void _Noreturn _assert(
+void _assert(
     char const *cond,
     char const *func,
     char const *file,
     int line
 ) {
-    printf("Assertion failed: %s\n", cond);
-    printf("  Function: %s\n", func);
-    printf("  File: %s\n", file);
-    printf("  Line: %d\n", line);
-    printf("Trace:\n");
-    _print_stack_trace();
-    abort();
+    if(GetConsoleWindow() == NULL) {
+        // For GUI application we display the info into a messagebox
+        char buf[1024];
+        int i = 0;
+        i += snprintf(buf+i, sizeof buf-i, "Assertion failed: %s\n", cond);
+        i += snprintf(buf+i, sizeof buf-i, "  Function: %s\n", func);
+        i += snprintf(buf+i, sizeof buf-i, "  File: %s\n", file);
+        i += snprintf(buf+i, sizeof buf-i, "  Line: %d\n", line);
+display_msg:
+        int reaction = MessageBoxA(NULL, buf, "Assertion Failed", 0x00000032L);
+        switch(reaction) {
+            case IDABORT:    abort();
+            case IDRETRY:    goto display_msg;
+            case IDCONTINUE: return;
+        }
+    }
+    else {
+        // For console application we print the info to console
+        printf("Assertion failed: %s\n", cond);
+        printf("  Function: %s\n", func);
+        printf("  File: %s\n", file);
+        printf("  Line: %d\n", line);
+        printf("Trace:\n");
+        _print_stack_trace();
+        abort();
+    }
 }

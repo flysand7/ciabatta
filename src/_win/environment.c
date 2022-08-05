@@ -2,11 +2,7 @@
 // Windows symbols because windows
 int _fltused=0;
 
-extern int main(int argc, char** argv);
-extern int wmain(int argc, wchar_t** argv, wchar_t **envp);
-
 #pragma comment(lib, "kernel32.lib")
-#pragma comment(lib, "DbgHelp.lib")
 
 // Exit routines
 #define ATEXIT_FUNC_COUNT  64
@@ -17,27 +13,6 @@ static int atexit_func_count;
 static int atqexit_func_count;
 
 static char **get_command_args(int *argc_ptr);
-
-_Noreturn void mainCRTStartup() {
-    // Set-up some platform stuff
-    _setup_eh();
-    _setup_heap();
-    _setup_timer();
-    _setup_io();
-
-    // Set-up CRT stuff
-    srand(0);
-    setlocale(LC_ALL, "C");
-
-    // Parse command-line arguments
-    int argc;
-    char **args = get_command_args(&argc);
-    int exit_code = main(argc, args);
-
-    // we call exit because we want atexit routines run
-    // and all the file handles to be freed
-    exit(exit_code);
-}
 
 _Noreturn void _Exit(int status) {
     ExitProcess(status);
