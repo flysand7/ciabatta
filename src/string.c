@@ -14,7 +14,7 @@ void *memcpy(void *restrict s1, const void *restrict s2, size_t n) {
 void *memmove(void *s1, const void *s2, size_t n) {
     byte* c1 = s1;
     const byte* c2 = s2;
-
+    // Note(bumbread): shouldn't this be backwards?
     if (c1 != c2) {
         if (c1 < c2) {
             // reverse copy

@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(__clang__)
     #define _Noreturn __declspec(noreturn)
 #endif
 

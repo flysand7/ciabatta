@@ -58,6 +58,7 @@
 #include "locale.c"
 #include "string.c"
 #include "uchar.c"
+#include "wchar.c"
 #include "wctype.c"
 
 // Windows stuff
