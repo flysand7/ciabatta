@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdatomic.h>
-
 #if defined(_WIN32)
     #define _Thread_local __declspec(thread)
 #endif
@@ -38,7 +36,7 @@
         // Done to handle recursive mutexes
         unsigned long recursion;
         unsigned long owner;
-        atomic_int counter;
+        _Atomic(int) counter;
         void* semaphore;
     } mtx_t;
 #else
