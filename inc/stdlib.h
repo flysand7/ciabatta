@@ -1,5 +1,9 @@
 #pragma once
 
+#if defined(_MSC_VER)
+    #define _Noreturn __declspec(noreturn)
+#endif
+
 #if !defined(__STDC_LIB_EXT1__)
     #define __STDC_LIB_EXT1__
 #endif
