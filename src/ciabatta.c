@@ -38,8 +38,8 @@
 #include "intrin.h"
 
 // Dependencies
-#include "fdec64/fdec64.h"
-#include "unicope/inc/unicope.h"
+#include "decfloat/decfloat.c"
+#include "decfloat/decfloat.h"
 
 // Platform-independent stuff
 #include "fmt/gen_fmt.c"

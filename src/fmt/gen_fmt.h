@@ -270,7 +270,7 @@ static int pfx(vprintfcb)(
                         E = 0;
                     }
                     else {
-                        fdec64 f = dtofdec64(m2, e2);
+                        decfloat_t f = todecfloat(m2, e2);
                         E = f.exponent;
                     }
                 }
@@ -697,7 +697,7 @@ static inline int pfx(_dtoa)(
             exp = 0;
         }
         else {
-            fdec64 f = dtofdec64(m2, e2);
+            decfloat_t f = todecfloat(m2, e2);
             mant = f.mantissa;
             exp = f.exponent;
         }
@@ -822,7 +822,7 @@ static inline int pfx(_etoa)(
             exp = 0;
         }
         else {
-            fdec64 f = dtofdec64(m2, e2);
+            decfloat_t f = todecfloat(m2, e2);
             mant = f.mantissa;
             exp = f.exponent;
         }

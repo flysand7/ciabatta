@@ -42,7 +42,8 @@ int iswblank(wint_t wc) {
 }
 
 int iswcntrl(wint_t wc) {
-    return uni_classify(wc) == UCHAR_Cc;
+    return 0;
+    //return uni_classify(wc) == UCHAR_Cc;
 }
 
 int iswdigit(wint_t wc) {
@@ -54,35 +55,36 @@ int iswgraph(wint_t wc) {
 }
 
 int iswlower(wint_t wc) {
-    return uni_classify(wc) == UCHAR_Ll;
+    return 0;
+    // return uni_classify(wc) == UCHAR_Ll;
 }
 
 int iswprint(wint_t wc) {
-    switch(uni_classify(wc)) {
-        case UCHAR_Cc:
-        case UCHAR_Cf:
-        case UCHAR_Co:
-        case UCHAR_Cs:
-            return 0;
-    }
+    // switch(uni_classify(wc)) {
+    //     case UCHAR_Cc:
+    //     case UCHAR_Cf:
+    //     case UCHAR_Co:
+    //     case UCHAR_Cs:
+    //         return 0;
+    // }
     return 1;
 }
 
 int iswpunct(wint_t wc) {
-    switch(uni_classify(wc)) {
-        case UCHAR_Pc:
-        case UCHAR_Pd:
-        case UCHAR_Pe:
-        case UCHAR_Pf:
-        case UCHAR_Pi:
-        case UCHAR_Po:
-        case UCHAR_Ps:
-        case UCHAR_Sk:
-        case UCHAR_Sc:
-        case UCHAR_Sm:
-        case UCHAR_So:
-            return 1;
-    }
+    // switch(uni_classify(wc)) {
+    //     case UCHAR_Pc:
+    //     case UCHAR_Pd:
+    //     case UCHAR_Pe:
+    //     case UCHAR_Pf:
+    //     case UCHAR_Pi:
+    //     case UCHAR_Po:
+    //     case UCHAR_Ps:
+    //     case UCHAR_Sk:
+    //     case UCHAR_Sc:
+    //     case UCHAR_Sm:
+    //     case UCHAR_So:
+    //         return 1;
+    // }
     return 0;
 }
 
@@ -100,7 +102,8 @@ int iswspace(wint_t wc) {
 }
 
 int iswupper(wint_t wc) {
-    return uni_classify(wc) == UCHAR_Lu;
+    // return uni_classify(wc) == UCHAR_Lu;
+    return 0;
 }
 
 int iswxdigit(wint_t wc) {
@@ -108,9 +111,11 @@ int iswxdigit(wint_t wc) {
 }
 
 wint_t towlower(wint_t wc) {
-    return uni_tolower(wc);
+    // return uni_tolower(wc);
+    return wc;
 }
 
 wint_t towupper(wint_t wc) {
-    return uni_toupper(wc);
+    return wc;
+    // return uni_toupper(wc);
 }

@@ -78,7 +78,8 @@ void thrd_yield(void) {
 
 _Noreturn void thrd_exit(int res) {
     // TODO(NeGate): setup TSS dtors here
-    ExitThread((DWORD) res);
+    ExitThread((DWORD)res);
+    __builtin_unreachable();
 }
 
 void mtx_destroy(mtx_t *mtx) {

@@ -32,12 +32,17 @@ PLATFORM SUPPORT
   - x86-64
 
 USAGE
-  NOTE: libwinsane.obj can be obtained by running:
-    bake -DNO_CRT
-  In the libwinsane directory.
-  Add the following flags to your compilation command:
-    -I <path/to/ciabatta/inc> libwinsane.obj -nostdlib -mfma
-  Don't forget to link to the following libraries:
+  Note that the library can only be used with clang
+  Once MSVC compiler finally decides to support C11 atomic types I'll consider
+  supporting MSVC, until then clang is your only option
+  1. Run bake.cmd
+  2. Make sure you've got the following in some folder:
+  - The inc folder
+  - The ciabatta.lib archive file
+  - The utf8.obj object file
+  3. Add the following flags to your compilation command:
+    -I <path/to/ciabatta/inc> utf8.obj -nostdlib -mfma
+  4. Don't forget to link to the following libraries:
     -lciabatta.lib
 
 CONTRIBUTING
