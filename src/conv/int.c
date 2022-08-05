@@ -1,46 +1,4 @@
 
-static bool isbase(int c, int base) {
-    int val = 0;
-    if(isdigit(c)) {
-        val = c-'0';
-    }
-    else if(islower(c)) {
-        val = c-'a'+10;
-    }
-    else if(isupper(c)) {
-        val = c-'A'+10;
-    }
-    else {
-        return false;
-    }
-    return val < base;
-}
-
-static bool strprefix_i(char const *restrict str, char const *restrict prefix) {
-    while(*prefix != 0) {
-        if(*str == 0) break;
-        if(toupper(*str) != toupper(*prefix)) return false;
-        ++prefix;
-        ++str;
-    }
-    return true;
-}
-
-// Called only when isbase(c, base) for some base in range
-static long todigit(int c) {
-    int val = 0;
-    if(isdigit(c)) {
-        val = c-'0';
-    }
-    else if(islower(c)) {
-        val = c-'a'+10;
-    }
-    else if(isupper(c)) {
-        val = c-'A'+10;
-    }
-    return val;
-}
-
 static intull strtoi_generic(const char *restrict nptr,
                              char **restrict endptr,
                              int inbase,
@@ -77,7 +35,7 @@ static intull strtoi_generic(const char *restrict nptr,
     }
     // See if we need to parse base in C-like format
     // then set the base accordingly
-    if(strprefix_i(str, "0X")) {
+    if(strpfx_i(str, "0X")) {
         ++str;
         if(base == 16 || base == 0) {
             ++str;
@@ -140,119 +98,6 @@ static intull strtoi_generic(const char *restrict nptr,
     return value;
 }
 
-static double strtod_generic(const char *restrict nptr, char **restrict endptr) {
-    const char *restrict str = nptr;
-    bool conv_performed = false;
-    double value = 0.0;
-    double coef = 1.0;
-    // Skip space on the beginning
-    while(isspace(*str)) {
-        ++str;
-    }
-    // Check for inf and nan
-    if(strprefix_i(str, "INF")) {
-        str += sizeof "INF"-1;
-        value = HUGE_VAL;
-        conv_performed = true;
-        goto finish;
-    }
-    if(strprefix_i(str, "INFINITY")) {
-        str += sizeof "INFINITY"-1;
-        value = HUGE_VAL;
-        conv_performed = true;
-        goto finish;
-    }
-    if(strprefix_i(str, "NAN")) {
-        str += sizeof "NAN"-1;
-        value = NAN;
-        conv_performed = true;
-        if(*str == '(') {
-            while(*str != ')') {
-                ++str;
-            }
-            ++str;
-        }
-        goto finish;
-    }
-    // Parse C float
-    if(*str == '+') {
-        ++str;
-    }
-    else if(*str == '-') {
-        coef = -1.;
-        ++str;
-    }
-    int base = 10;
-    if(strprefix_i(str, "0X")) {
-        str += sizeof "0X"-1;
-        base = 16;
-    }
-    // Parse the whole part
-    while(isbase(*str, base)) {
-        long digit = todigit(*str);
-        value = 10.0*value + (double)digit;
-        ++str;
-    }
-    if(*str != '.') {
-        value = 0.0;
-        goto finish;
-    }
-    ++str;
-    // Parse the fractional part
-    long exp = 1;
-    while(isbase(*str, base)) {
-        long digit = todigit(*str);
-        double fract = (double)digit;
-        long cexp = exp;
-        while(cexp-- != 0) {
-            fract /= (double)base;
-        }
-        value += fract;
-        ++exp;
-        ++str;
-    }
-    // Parse the exponent
-    if((base == 10 && strprefix_i(str, "E"))
-       || (base == 16 && strprefix_i(str, "P")))
-    {
-        ++str;
-        long exp = 0;
-        long exp_coef = 1;
-        if(*str == '+') {
-            ++str;
-        }
-        else if(*str == '-') {
-            exp_coef = -1;
-            ++str;
-        }
-        while(isdigit(*str)) {
-            exp = 10*exp + (long)(*str-'0');
-            ++str;
-        }
-        if(exp_coef == 1) {
-            while(exp--!=0) value = value * base;
-        }
-        else if(exp_coef == -1) {
-            while(exp--!=0) value = value / base;
-        }
-    }
-    if(!isfinite(value)) {
-        errno = ERANGE;
-        value = coef*HUGE_VAL;
-    }
-    conv_performed = true;
-    finish:
-    if(endptr != NULL) {
-        if(conv_performed) {
-            *endptr = (char *)str;
-        }
-        else {
-            *endptr = (char *)nptr;
-        }
-    }
-    return coef*value;
-}
-
 intl strtol(const char *restrict nptr, char **restrict endptr, int base) {
     intull int_max = (intull)LONG_MAX;
     intl coef;
@@ -292,10 +137,6 @@ intull strtoull(const char *restrict nptr, char **restrict endptr, int base) {
     return strtoi_generic(nptr, endptr, base, NULL, int_max);
 }
 
-double atof(const char *nptr) {
-    return strtod(nptr, (char **)NULL);
-}
-
 int atoi(const char *nptr) {
     return (int)strtol(nptr, (char **)NULL, 10);
 }
@@ -306,18 +147,6 @@ long int atol(const char *nptr) {
 
 long long int atoll(const char *nptr) {
     return strtoll(nptr, (char **)NULL, 10);
-}
-
-double strtod(const char *restrict nptr, char **restrict endptr) {
-    return strtod_generic(nptr, endptr);
-}
-
-float strtof(const char *restrict nptr, char **restrict endptr) {
-    return (float)strtod_generic(nptr, endptr);
-}
-
-long double strtold(const char *restrict nptr, char **restrict endptr) {
-    return (long double)strtod_generic(nptr, endptr);
 }
 
 char *itoa(int value, char *str, int base) {

@@ -32,9 +32,12 @@ typedef unsigned int           intu;
 typedef unsigned long int      intul;
 typedef unsigned long long int intull;
 
+typedef float       f32;
+typedef double      f64;
+typedef long double fl64;
+
 typedef wchar_t wchar;
 
-#define COUNTOF(arr) (sizeof (arr) / sizeof ((arr)[0]))
 #define IN_RANGE(start, v, end) ((start) <= (v) && (v) <= (end))
 
 #define CONCAT(a,b) a ## b
