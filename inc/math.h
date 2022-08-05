@@ -23,11 +23,11 @@ typedef double double_t;
 #define math_errhandling (MATH_ERRNO | MATH_ERREXCEPT)
 
 // Classification
-#define FP_INFINITE  0
-#define FP_NAN       1
+#define FP_ZERO      0
+#define FP_SUBNORMAL 1
 #define FP_NORMAL    2
-#define FP_SUBNORMAL 3
-#define FP_ZERO      4
+#define FP_INFINITE  4
+#define FP_NAN       5
 int     _fpclassify(double);
 int     _fpclassifyf(float);
 int     _fpclassifyl(long double);

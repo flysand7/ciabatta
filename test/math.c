@@ -5,6 +5,7 @@
 #include <fenv.h>
 #include <inttypes.h>
 #include <errno.h>
+#include <limits.h>
 
 const char *show_classification(double x) {
     switch(fpclassify(x)) {

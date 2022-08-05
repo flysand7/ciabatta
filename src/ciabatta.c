@@ -46,7 +46,7 @@
 #include "math/basic.c"
 #include "math/division.c"
 #include "math/gen_math.c"
-#include "math/ieee754.c"
+#include "math/bits.c"
 #include "math/round.c"
 #include "conv/digits.c"
 #include "conv/strpfx.c"

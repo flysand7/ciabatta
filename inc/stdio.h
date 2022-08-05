@@ -27,7 +27,7 @@
 typedef struct FILE FILE;
 
 typedef struct {
-    int64_t   offset;
+    unsigned long long offset;
     mbstate_t mbstate;
 } fpos_t;
 

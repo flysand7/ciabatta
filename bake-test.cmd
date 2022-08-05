@@ -1,1 +1,0 @@
-clang test\test_%test%.c utf8.obj -Iinc -g -lciabatta.lib
