@@ -2,9 +2,8 @@
 general:
 *   Start writing documentation concerning various implementation defined
     behaviours of the library.
-*   Ok I just realised that I assumed that wchar_t is a 16-bit string in
-    a bunch of places.
-*   Decide what the heck I want to do with wchar_t
+*   (MSVC Ext.) Different kinds of main functions: wmain, WinMain, wWinMain, DllMain
+*   (MSVC Ext.) envp argument for main functions
 
 math.h:
 *   exp
@@ -82,4 +81,6 @@ time.h:
 *   localtime_s
 
 wchar.h:
-*   Basically everything
+*   Collation, IO, Tokenization, Conversions
+
+
