@@ -58,8 +58,6 @@ f64 nearbyint(f64 x) {
     // if e.g. mantissa is 0b101.., and exponent is -2, the value is 0b101*2^-2
     // or 0b1.01, meaning there are 2 fractional digits
     int nfrac_digs = -exp;
-    // The rest of the digits are whole
-    int nwhole_digs = F64_MANT_BITS - nfrac_digs;
     u64 frac_mask = (((u64)1<<(nfrac_digs))-1);
     u64 frac_mant = mant & frac_mask;
     // The mantissas for 1.0 and 0.5
@@ -121,7 +119,6 @@ f32 nearbyintf(f32 x) {
         return x;
     }
     int nfrac_digs = -exp;
-    int nwhole_digs = F32_MANT_BITS - nfrac_digs;
     u64 frac_mask = (((u64)1<<(nfrac_digs))-1);
     u64 frac_mant = mant & frac_mask;
     u64 one = (((u64)1<<(nfrac_digs)));
