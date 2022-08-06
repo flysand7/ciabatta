@@ -28,6 +28,14 @@ int main() {
     printf("-0.0 is %s\n", show_classification(-0.0));
     printf("1.0 is %s\n", show_classification(1.0));
 
+    printf("\n\n=== nearbyint === \n");
+    double d;
+    printf("nearbyint(+0.0)  = %f\n", d=nearbyint(+0.0));
+    printf("nearbyint(-0.0)  = %f\n", d=nearbyint(-0.0));
+    printf("nearbyint(+16.4) = %f\n", d=nearbyint(+16.4));
+    printf("nearbyint(+16.5) = %f\n", d=nearbyint(+16.5));
+    printf("nearbyint(+16.8) = %f\n", d=nearbyint(+16.8));
+
     printf("\n\n=== signbit === \n");
     printf("signbit(+0.0) = %d\n", signbit(+0.0));
     printf("signbit(-0.0) = %d\n", signbit(-0.0));

@@ -44,10 +44,10 @@ typedef wchar_t wchar;
 #define STR_(a) #a
 #define STR(a) STR_(a)
 
-#define F64_BITS(x) ((union {f64 f; u64 i;}){x}).i
-#define F64_CONS(x) ((union {f64 f; u64 i;}){x}).f
-#define F32_BITS(x) ((union {f32 f; u32 i;}){x}).i
-#define F32_CONS(x) ((union {f32 f; u32 i;}){x}).f
+#define F64_BITS(x) ((union {f64 f; u64 i;}){.f=x}).i
+#define F64_CONS(x) ((union {f64 f; u64 i;}){.i=x}).f
+#define F32_BITS(x) ((union {f32 f; u32 i;}){.f=x}).i
+#define F32_CONS(x) ((union {f32 f; u32 i;}){.i=x}).f
 
 #define F64_MANT_MASK UINT64_C(0xfffffffffffff)
 #define F64_MANT_MAX  UINT64_C(0xfffffffffffff)
