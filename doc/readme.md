@@ -12,15 +12,8 @@ in different kinds of programs.
 The implementation doesn't provide all headers. The headers that aren't
 provided are supposed to be provided by compiler. The list of such headers:
 
-- float.h
-- iso646.h
-- limits.h
-- stdalign.h
 - stdarg.h
-- stdbool.h
-- stddef.h
-- stdint.h
-- stdnoreturn.h
+- setjmp.h
 
 The headers that are provided have documentation included:
 

@@ -1,14 +1,8 @@
 
 #pragma once
 
-#if !defined(bool)
-    #define bool _Bool
-#endif
+#define __bool_true_false_are_defined 1
 
-#if !defined(true)
-    #define true 1
-#endif
-
-#if !defined(false)
-    #define false 0
-#endif
+#define bool  _Bool
+#define true  1
+#define false 0
