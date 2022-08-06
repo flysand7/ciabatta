@@ -1,10 +1,4 @@
 
-#include <math.h>
-#include <stdint.h>
-#include <fenv.h>
-#include <float.h>
-#include <limits.h>
-
 #define asuint64(x) ((union {double f; uint64_t i;}){x}).i
 #define asdouble(x) ((union {double f; uint64_t i;}){x}).f
 

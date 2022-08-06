@@ -1,5 +1,4 @@
 
-
 static ftype suffix(cordic)(
     ftype x0,  // x initial value
     ftype y0,  // y initial value

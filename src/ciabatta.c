@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fenv.h>
+#include <float.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <locale.h>
