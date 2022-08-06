@@ -55,41 +55,35 @@ int _fpclassifyl(fl64 x) {
 
 
 int _signbit(f64 x) {
-    union {
-        f64 d;
-        uint64_t i;
-    } y = { x };
-    return y.i>>63;
+    return F64_BITS(x)>>63;
 }
 
 int _signbitf(float x) {
-    union {
-        float f;
-        uint32_t i;
-    } y = { x };
-    return y.i>>31;
+    return F32_BITS(x)>>31;
 }
 
 int _signbitl(fl64 x) {
-    return _signbit(x);
+    return _signbit((f64)x);
 }
 
 f64 copysign(f64 x, f64 y) {
-    union {f64 f; uint64_t i;} ux={x}, uy={y};
-    ux.i &= ~(1ULL<<63);
-    ux.i |= uy.i & (1ULL<<63);
-    return ux.f;
+    u64 xbits = F64_BITS(x);
+    u64 ybits = F64_BITS(y);
+    xbits &= ~(UINT64_C(1)<<63);
+    xbits |= ybits & (UINT64_C(1)<<63);
+    return F64_CONS(xbits);
 }
 
 float copysignf(float x, float y) {
-    union {float f; uint32_t i;} ux={x}, uy={y};
-    ux.i &= 0x7fffffff;
-    ux.i |= uy.i & 0x80000000;
-    return ux.f;
+    u32 xbits = F32_BITS(x);
+    u32 ybits = F32_BITS(y);
+    xbits &= ~(UINT32_C(1)<<31);
+    xbits |= ybits & (1u<<31);
+    return F64_CONS(xbits);
 }
 
 fl64 copysignl(fl64 x, fl64 y) {
-    return copysign(x, y);
+    return copysign((f64)x, (f64)y);
 }
 
 f64 nan(const char *s) {
