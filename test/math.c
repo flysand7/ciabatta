@@ -106,15 +106,15 @@ int main() {
     if(fetestexcept(FE_INVALID)) printf("    FE_INVALID was raised\n");
 
     printf("\n\n=== exp === \n");
-    printf("exp(1) = %f\n", exp(1));
-    printf("FV of $100, continuously compounded at 3%% for 1 year = %f\n",
+    printf("exp(1) = %e\n", exp(1));
+    printf("FV of $100, continuously compounded at 3%% for 1 year = %e\n",
             100*exp(0.03));
     // special values
-    printf("exp(-0) = %f\n", exp(-0.0));
-    printf("exp(-Inf) = %f\n", exp(-INFINITY));
+    printf("exp(-0) = %e\n", exp(-0.0));
+    printf("exp(-Inf) = %e\n", exp(-INFINITY));
     //error handling
     errno = 0; feclearexcept(FE_ALL_EXCEPT);
-    printf("exp(710) = %f\n", exp(710));
+    printf("exp(710) = %e\n", exp(710));
     if(errno == ERANGE) printf("    errno == ERANGE\n");
     if(fetestexcept(FE_OVERFLOW)) printf("    FE_OVERFLOW raised\n");
 

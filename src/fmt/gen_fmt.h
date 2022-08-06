@@ -773,8 +773,8 @@ static inline int pfx(_dtoa)(
     // Print decimal point
     if(decimal_point_n) out('.');
     // Print fractional part that's made out of digits
-    int prec_digs = prec - mant_digits_n;
-    while(mant_digits_n) {
+    int prec_digs = prec < mant_digits_n ? prec : mant_digits_n;
+    while(mant_digits_n < prec_digs) {
         if(-exp >= mant_digits_n) {
             out('0');
         }

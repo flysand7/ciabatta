@@ -48,6 +48,8 @@ stdio.h:
 *   tmpnam
 *   tmpfile_s
 *   tmpnam_s
+*   Printing 8.98846567431157854073e+307
+*   Printing negative zero
 
 stdlib.h:
 *   Strtod base 16 must be correctly rounded
