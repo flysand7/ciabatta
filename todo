@@ -72,6 +72,16 @@ string.h:
 *   strerror_s
 *   strerrorlen_s
 
+tgmath.h:
+*   Due to the use of conditional operator in type-generic macros the
+    expression always expands to the value of type `long double`. This leads
+    to warnings when used with printf, e.g. as in printf("%f\n", exp(0)).
+    Using _Generic macros isn't a good choice either, because it won't work
+    with typedef'd types.
+    In other words there's no pure-C way to do tgmath.h.
+    That's probably the reason msvc stdlib headers don't implement tgmath.h.
+    clang implements it with __attribute__((__overloadable__)).
+
 threads.h:
 *   TODO: add todo items
 

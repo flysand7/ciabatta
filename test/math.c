@@ -1,11 +1,5 @@
 
-#include <stdio.h>
-#include <math.h>
-#include <float.h>
-#include <fenv.h>
-#include <inttypes.h>
-#include <errno.h>
-#include <limits.h>
+#include <std.h>
 
 const char *show_classification(double x) {
     switch(fpclassify(x)) {
