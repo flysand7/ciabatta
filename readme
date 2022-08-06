@@ -1,54 +1,72 @@
 
+-------------------------------------------------------------------------------
 ABOUT
-  Ciabatta  -  An implementation of CRT for x86-64 windows and linux platforms.
-The  goal  is  to  provide  a  platform-independent  CRT  with  the  purpose of
-explicitly  defining  some  of platform-defined behaviours in order to simplify
-the development and providing additional functionality to aid the developers in
-writing cross-platform applications.
+-------------------------------------------------------------------------------
 
-Note that Undefined Behaviour is impossible to define on a CRT level, since the
-semantics  of the language can only be changed at the compiler level. Sometimes
-the  compilers will replace CRT function calls with builtin functions, which is
-meant  as  an optimization, e.g. replacing some forms of prinf() with puts() or
-replacing  strlen with an x86 rep movsb instruction. Even if ciabatta does have
-a  specific  behaviour  under  given  UB  conditions,  that  behaviour  is  not
-guaranteed.
+Ciabatta - An implementation of cross-platform C standard library with the
+following goals:
 
-The goals:
-  - Providing  API  for sockets, unicode processing (not just encodings), maybe
-    the  support  for  common  image  and  data  file  formats and other useful
-    non-standard functionality.
-  - Making  it  easy  to  port  the library to a new platform, e.g. a custom OS
-    kernel or a different processor architecture.
-  - Defining  implementation-defined  behaviours  of  some of the functions and
-    explicitly documenting them.
-  - Make it reasonably fast compared to MSVCRT and GLIBC.
+- Providing C standard library that fully implements all C features. Some
+  standard libraries lack many features of C11 and C23, like threads.h or
+  aligned_alloc in case of msvcrt.
 
+- Making standard library that is easy to port to other platforms, for example
+  an embedded platform or a custom operating system.
+
+- Allowing applications to debug and step into standard library functions
+
+- Reasonably fast CRT compared to MSVCRT and glibc.
+
+- Extend the possibilities of C standard library with commonly used
+  functionality: implementing POSIX standard (including directories and
+  sockets), capability for unicode processing.
+
+Ciabatta is not binary-compatible with other CRT libraries. That means that any
+libraries that your project uses have to also be compiled with Ciabatta,
+otherwise you might run into issues.
+
+Please note that as of today ciabatta is still during development and does not
+implement many of the features that need to be implemented. Using it at current
+time is discouraged.
+
+-------------------------------------------------------------------------------
 PLATFORM SUPPORT
-  OS/Kernel:
-  - Windows (64-bit)
-  - TODO: Linux
-  Processor Architecture
-  - x86-64
+-------------------------------------------------------------------------------
 
+OS:
+- Win64
+- Linux (planned)
+- ...?  (not planned)
+
+Processor Architecture:
+- x86-64
+
+-------------------------------------------------------------------------------
 USAGE
-  Note that the library can only be used with clang
-  Once MSVC compiler finally decides to support C11 atomic types I'll consider
-  supporting MSVC, until then clang is your only option
-  1. Run bake.cmd
-  2. Make sure you've got the following in some folder:
-  - The inc folder
-  - The ciabatta.lib archive file
-  - The utf8.obj object file
-  3. Add the following flags to your compilation command:
-    -I <path/to/ciabatta/inc> utf8.obj -nostdlib -mfma
-  4. Don't forget to link to the following libraries:
-    -lciabatta.lib
+-------------------------------------------------------------------------------
 
+Using ciabatta with msvc is not supported. The only compiler that the library
+have been compiled and tested with is clang.
+
+Note that the library can only be used with clang
+1. Run bake.cmd to compile ciabatta
+2. Grab the following files into your project's directory:
+- The inc folder
+- The ciabatta.lib archive file
+- The utf8.obj object file
+3. Add the following flags to your compilation command:
+  -I inc utf8.obj -nostdlib -mfma
+4. Don't forget to link to the following libraries:
+  -lciabatta.lib
+
+-------------------------------------------------------------------------------
 CONTRIBUTING
-  Pull requests are always welcome.
+-------------------------------------------------------------------------------
 
+Pull requests welcome and accepted in any form.
 
+-------------------------------------------------------------------------------
 LICENCE
+-------------------------------------------------------------------------------
 
 TBD, but probably i'll make it MIT or WTFPL :kekw:
