@@ -15,11 +15,10 @@ void _assert(
 #if defined(NDEBUG)
     #define assert(ignore) ((void)0)
 #elif defined(_DEBUG)
-    #if __GNUC__
+    #if defined(__GNUC__) || defined(__CUIKC__)
         #define assert(c) if (!(c)) __builtin_trap()
-    #elif _MSC_VER
+    #elif defined(_MSC_VER)
         #define assert(c) if (!(c)) __debugbreak()
-        // TODO: Handle Cuik, and if such handling is not required remove this comment
     #else
         // In debug mode there shouldn't be any optimizations so this should
         // work as a simple way to cause a trap.
