@@ -40,7 +40,7 @@ static inline int pfx(_dtoa)(
     int w,
     void *ctx,
     pfx(cbfn) cb,
-    double value,
+    decfloat_t value,
     int prec,
     int width,
     int flags
@@ -49,7 +49,7 @@ static inline int pfx(_etoa)(
     int w,
     void *ctx,
     pfx(cbfn) cb,
-    double value,
+    decfloat_t value,
     int prec,
     int width,
     int flags
@@ -65,6 +65,23 @@ static inline int pfx(_infnantoa)(
 );
 
 #define out(ch) do { if((w++, !cb(ctx, (ch)))) return -1; } while(0)
+
+#define print_lwidth_spaces(flags, pad)                                    \
+    do if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) { \
+         out(' ');                                                         \
+    }                                                                      \
+    while(0)
+
+#define print_lwidth_zeros(flags, pad)                                     \
+    do if(!(flags & FLAG_LEFT) &&  (flags & FLAG_ZERO)) while(pad-- > 0) { \
+         out('0');                                                         \
+    }                                                                      \
+    while(0)
+
+#define print_rwidth(flags, pad)                                           \
+    if(flags & FLAG_LEFT) while(pad-- > 0) {                               \
+        out(' ');                                                          \
+    }
 
 // Generic print
 static int pfx(vprintfcb)(
@@ -245,43 +262,39 @@ static int pfx(vprintfcb)(
             char conv = tolower(*fmt);
             ++fmt;
             double value = va_arg(va, double);
+            int class = fpclassify(value);
+            if(class == FP_INFINITE || class == FP_NAN) {
+                return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
+            }
+            decfloat_t dec_value = f64_to_decimal(value);
             if(conv == 'f') {
-                w = pfx(_dtoa)(w, ctx, cb, value, prec, width, flags);
+                w = pfx(_dtoa)(w, ctx, cb, dec_value, prec, width, flags);
             }
             else if(conv == 'e') {
-                w = pfx(_etoa)(w, ctx, cb, value, prec, width, flags);
+                w = pfx(_etoa)(w, ctx, cb, dec_value, prec, width, flags);
             }
             else {
                 int P = prec;
                 if(!(flags & FLAG_PREC)) P = 6;
                 if(prec == 0) P = 1;
-                int class = fpclassify(value);
                 int64_t E;
                 {
-                    union {
-                        uint64_t bits;
-                        double value;
-                    } _ = {.value = value};
-                    uint64_t bits = _.bits;
-                    // uint64_t neg = bits >> 63;
-                    int64_t e2 = (int64_t)((bits >> 52) & ((1<<11)-1));
-                    int64_t m2 = bits & ((UINT64_C(1)<<52)-1);
                     if(class == FP_ZERO) {
                         E = 0;
                     }
                     else {
-                        decfloat_t f = dtodecfloat(m2, e2);
-                        E = f.exponent;
+                        E = dec_value.exponent;
                     }
                 }
                 if(class == FP_SUBNORMAL || class == FP_ZERO) {
                     E = 0;
                 }
+                flags |= FLAG_PREC;
                 if(P > E && E >= -4) {
-                    w = pfx(_dtoa)(w, ctx, cb, value, P-(E+1), width, flags);
+                    w = pfx(_dtoa)(w, ctx, cb, dec_value, P-(E+1), width, flags);
                 }
                 else {
-                    w = pfx(_etoa)(w, ctx, cb, value, P-1, width, flags);
+                    w = pfx(_etoa)(w, ctx, cb, dec_value, P-1, width, flags);
                 }
             }
             if(w < 0) return -1;
@@ -493,12 +506,9 @@ static inline int pfx(_infnantoa)(
     if(isnan(value)) name = "nan", nchars = 3;
     // Figure out prefix
     int pref_len = 0;
-    union {
-        uint64_t bits;
-        double value;
-    } _ = {value};
-    uint64_t bits = _.bits;
-    uint64_t neg = bits >> 63;
+    u64 bits = F64_BITS(value);
+    u64 mant = F64_MANT(bits);
+    int neg = F64_SIGN(bits) & (mant == 0);
     if(neg) pref_len = 1;
     else if(flags & FLAG_PLUS) pref_len = 1;
     else if(flags & FLAG_SPACE) pref_len = 1;
@@ -537,133 +547,123 @@ static inline int pfx(_dtoh)(
     int width,
     int flags
 ) {
-    int class = fpclassify(value);
-    if(class == FP_INFINITE || class == FP_NAN) {
-        return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
-    }
-    // Disassemble the float into parts
-    union {
-        uint64_t bits;
-        double value;
-    } _ = {.value = value};
-    uint64_t bits = _.bits;
-    // uint64_t neg = bits >> 63;
-    int64_t exp = (int64_t)((bits >> 52) & 0x7ff) - 1023;
-    int64_t mant = bits & ((UINT64_C(1)<<51)-1);
-    if(class == FP_SUBNORMAL || class == FP_ZERO) {
-        exp = 0;
-    }
-    // Figure out how many hex digits does mantissa take up (mant_digits_n)
-    // and the number of digits after decimal point (prec)
-    int mant_digits_n;
-    int nonsig_digits_n = 0;
-    if(mant != 0) {
-        int64_t m = mant;
-        while((m & 0xf) == 0) {
-            ++nonsig_digits_n;
-            m >>= 4;
-        }
-    }
-    else {
-        nonsig_digits_n = 52/4;
-    }
-    mant_digits_n = 52/4 - nonsig_digits_n;
-    if((flags & FLAG_PREC) == 0) {
-        prec = mant_digits_n;
-    }
-    // Figure out how many symbols decimal point takes up (0 or 1)
-    int decimal_point_n = 1;
-    if(prec == 0) {
-        decimal_point_n = 0;
-        if(flags & FLAG_HASH) {
-            decimal_point_n = 1;
-        }
-    }
-    // Figure out how many digits exponent take up and it's sign
-    // also save exponent digits to a buffer starting from LSD
-    static ctype exp_buf[64] = {0};
-    int exp_digits_n = 0;
-    ctype exp_sign;
-    if(exp < 0) {
-        exp_sign = '-';
-        exp = -exp;
-    }
-    else {
-        exp_sign = '+';
-    }
+    // Filter out inifnities and NaN
     {
-        int64_t e = exp;
+        int class = fpclassify(value);
+        if(class == FP_INFINITE || class == FP_NAN) {
+            return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
+        }
+    }
+    // Deconstruct the float
+    u64 bits = F64_BITS(value);
+    u64 flt_sgn = F64_SIGN(bits);
+    u64 flt_mnt = F64_MANT(bits);
+    i64 flt_exp = F64_BEXP(bits);
+    u64 frc;
+    u64 mnt;
+    i64 exp;
+    {
+        mnt = flt_mnt;
+        exp = flt_exp - 0x3ff;
+        if(flt_exp == 0 && flt_mnt == 0) {
+            exp = 0;
+        }
+    }
+    // Calculate widths of different number parts and extract some data
+    static ctype frc_buffer[64] = {0};
+    static ctype exp_buffer[64] = {0};
+    ctype *frc_buf = frc_buffer + sizeof frc_buffer;
+    ctype *exp_buf = exp_buffer + sizeof exp_buffer;
+    ctype sgn_ch;
+    ctype exp_sgn_ch;
+    int has_sgn;
+    int has_point;
+    int nfrc = 0;
+    int nexp = 0;
+    int nfrcp = 0;
+    {
+        // Sign
+        if(flt_sgn) {
+            has_sgn = 1;
+            sgn_ch  = '-';
+        }
+        else if(flags & FLAG_PLUS) {
+            has_sgn = 1;
+            sgn_ch  = '+';
+        }
+        else if(flags & FLAG_SPACE) {
+            has_sgn = 1;
+            sgn_ch  = ' ';
+        }
+        // Fractional part
+        frc = mnt;
+        if(frc != 0) {
+            while(!(frc & 0xf)) {
+                frc >>= 4;
+            }
+        }
+        u64 f = frc;
         do {
-            exp_buf[exp_digits_n++] = e % 10 + '0';
+            int d = f % 16;
+            f /= 16;
+            *--frc_buf = fromdigit(d, flags & FLAG_UPPER);
+        } while(f != 0);
+        // Frac/whole digits
+        if(flags & FLAG_PREC) {
+            nfrcp = prec;
+        }
+        else {
+            nfrcp = nfrc;
+        }
+        // Decimal point
+        has_point = 1;
+        if(nfrc == 0 && !(flags & FLAG_HASH)) {
+            has_point = 0;
+        }
+        // Exponent
+        i64 e = exp;
+        if(e < 0) {
+            exp_sgn_ch = '-';
+            e = -e;
+        }
+        else {
+            exp_sgn_ch = '+';
+        }
+        do {
+            *--exp_buf = (e%10) + '0';
             e /= 10;
+            nexp ++;
         } while(e != 0);
     }
-    // Figure out sign symbol and number of chars it takes up (0 or 1)
-    int sign_n = 0;
-    ctype sign_ch;
-    if(value < 0) {
-        sign_n = 1;
-        sign_ch = '-';
+    // Figure out the width of a float
+    int nfloat = has_sgn + 2 + 1 + has_point + nfrcp + 1 + 1 + nexp;
+    int pad = MIN(0, width - nfloat);
+    print_lwidth_spaces(flags, pad);
+    if(has_sgn) {
+        out(sgn_ch);
     }
-    else if(flags & FLAG_PLUS) {
-        sign_n = 1;
-        sign_ch = '+';
-    }
-    else if(flags & FLAG_SPACE) {
-        sign_n = 1;
-        sign_ch = ' ';
-    }
-    // Figure out the width of the number
-    int significand_width = 1 + decimal_point_n + prec;
-    int exp_part_width = 2 /*p+-*/ + exp_digits_n;
-    int n_width = sign_n + 2 /*0x*/ + significand_width + exp_part_width;
-    // Figure out width-padding required
-    int pad = 0;
-    if(width > n_width) pad = width - n_width;
-    // Print width left-pad if it's made out of space
-    if(!(flags & FLAG_LEFT) && !(flags & FLAG_ZERO)) while(pad-- > 0) {
-        out(' ');
-    }
-    // Print sign if there
-    if(sign_n)
-        out(sign_ch);
-    // Print 0x, 0X
     out('0');
     out((flags & FLAG_UPPER)? 'X' : 'x');
-    // Print width left-pad if it's made out of zero
-    if(!(flags & FLAG_LEFT) && (flags & FLAG_ZERO)) while(pad-- > 0) {
-        out('0');
+    print_lwidth_zeros(flags, pad);
+    out((flt_exp == 0) ? '0' : '1');
+    if(has_point) {
+        out('.');
     }
-    // Print whole part
-    out((class == FP_SUBNORMAL || class == FP_ZERO)? '0' : '1');
-    // Print decimal point
-    if(decimal_point_n) out('.');
-    int digs = mant_digits_n < prec? mant_digits_n : prec;
-    for(int i = 0; i != digs; ++i) {
-        int bit = 52 - 4 - i;
-        int digit = (int)((mant >> bit) & 0xf);
-        ctype ch;
-        if(digit < 10)
-             ch = digit+'0';
-        else if(flags & FLAG_UPPER)
-             ch = digit+'A'-10;
-        else ch = digit+'a'-10;
-        out(ch);
+    int i;
+    for(i = 0; i != nfrcp; ++i) {
+        if(i < nfrc) {
+            out(frc_buf[i]);
+        }
+        else {
+            out('0');
+        }
     }
-    // Print precision padding
-    for(int i = mant_digits_n; i < prec; ++i) {
-        out('0');
-    }
-    // Print the exponent part
     out((flags & FLAG_UPPER)? 'P' : 'p');
-    out(exp_sign);
-    if(exp_digits_n) do
-        out(exp_buf[exp_digits_n]);
-    while(exp_digits_n--);
-    // Print right-pad
-    if(flags & FLAG_LEFT) while(pad-- > 0) {
-        out(' ');
+    out(exp_sgn_ch);
+    for(int i = 0; i != nexp; ++i) {
+        out(exp_buf[i]);
     }
+    print_rwidth(flags, pad);
     return w;
 }
 
@@ -671,37 +671,13 @@ static inline int pfx(_dtoa)(
     int w,
     void *ctx,
     pfx(cbfn) cb,
-    double value,
+    decfloat_t value,
     int prec,
     int width,
     int flags
 ) {
-    int class = fpclassify(value);
-    if(class == FP_INFINITE || class == FP_NAN) {
-        return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
-    }
-    // Disassemble the float into parts
-    int64_t exp;
-    int64_t mant;
-    {
-        union {
-            uint64_t bits;
-            double value;
-        } _ = {.value = value};
-        uint64_t bits = _.bits;
-        //uint64_t neg = bits >> 63;
-        int64_t e2 = (int64_t)((bits >> 52) & ((1<<11)-1));
-        int64_t m2 = bits & ((UINT64_C(1)<<52)-1);
-        if(class == FP_ZERO) {
-            mant = 0;
-            exp = 0;
-        }
-        else {
-            decfloat_t f = dtodecfloat(m2, e2);
-            mant = f.mantissa;
-            exp = f.exponent;
-        }
-    }
+    int64_t exp = value.exponent;
+    int64_t mant = value.mantissa;
     // Figure out how many digits does mantissa take up (mant_digits_n)
     // and the number of digits after decimal point (prec)
     // and the number of digits before decimal point (while_digits_n)
@@ -731,7 +707,7 @@ static inline int pfx(_dtoa)(
     // Figure out sign symbol and number of chars it takes up (0 or 1)
     int sign_n = 0;
     ctype sign_ch;
-    if(value < 0) {
+    if(value.sign) {
         sign_n = 1;
         sign_ch = '-';
     }
@@ -797,36 +773,13 @@ static inline int pfx(_etoa)(
     int w,
     void *ctx,
     pfx(cbfn) cb,
-    double value,
+    decfloat_t value,
     int prec,
     int width,
     int flags
 ) {
-    int class = fpclassify(value);
-    if(class == FP_INFINITE || class == FP_NAN) {
-        return pfx(_infnantoa)(w, ctx, cb, value, prec, width, flags);
-    }
-    // Disassemble the float into parts
-    int64_t exp;
-    int64_t mant;
-    {
-        union {
-            uint64_t bits;
-            double value;
-        } _ = {.value = value};
-        uint64_t bits = _.bits;
-        int64_t e2 = (int64_t)((bits >> 52) & ((1<<11)-1));
-        int64_t m2 = bits & ((UINT64_C(1)<<52)-1);
-        if(class == FP_ZERO) {
-            mant = 0;
-            exp = 0;
-        }
-        else {
-            decfloat_t f = dtodecfloat(m2, e2);
-            mant = f.mantissa;
-            exp = f.exponent;
-        }
-    }
+    int64_t exp = value.exponent;
+    int64_t mant = value.mantissa;
     // Figure out how many digits does mantissa take up (mant_digits_n)
     // and the number of digits after decimal point (prec)
     static ctype mant_buf[64] = {0};
@@ -874,7 +827,7 @@ static inline int pfx(_etoa)(
     // Figure out sign symbol and number of chars it takes up (0 or 1)
     int sign_n = 0;
     ctype sign_ch;
-    if(value < 0) {
+    if(value.sign) {
         sign_n = 1;
         sign_ch = '-';
     }

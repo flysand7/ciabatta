@@ -3,6 +3,7 @@
 
 typedef struct decfloat_t decfloat_t;
 struct decfloat_t {
+    u64 sign;
     u64 exponent;
     i64 mantissa;
 };
@@ -18,10 +19,10 @@ static const char DIGIT_TABLE[200] = {
     "75767778798081828384858687888990919293949596979899"
 };
 
-static inline uint32_t pow5Factor(uint64_t value) {
-  const uint64_t m_inv_5 = 14757395258967641293u; // 5 * m_inv_5 = 1 (mod 2^64)
-  const uint64_t n_div_5 = 3689348814741910323u;  // #{ n | n = 0 (mod 2^64) } = 2^64 / 5
-  uint32_t count = 0;
+static inline u32 pow5Factor(u64 value) {
+  const u64 m_inv_5 = 14757395258967641293u; // 5 * m_inv_5 = 1 (mod 2^64)
+  const u64 n_div_5 = 3689348814741910323u;  // #{ n | n = 0 (mod 2^64) } = 2^64 / 5
+  u32 count = 0;
   for (;;) {
       value *= m_inv_5;
       if (value > n_div_5)
@@ -32,38 +33,38 @@ static inline uint32_t pow5Factor(uint64_t value) {
 }
 
 // Returns true if value is divisible by 5^p.
-static inline bool multipleOfPowerOf5(const uint64_t value, const uint32_t p) {
+static inline bool multipleOfPowerOf5(const u64 value, const u32 p) {
     // I tried a case distinction on p, but there was no performance difference.
     return pow5Factor(value) >= p;
 }
 
 // Returns true if value is divisible by 2^p.
-static inline bool multipleOfPowerOf2(const uint64_t value, const uint32_t p) {
+static inline bool multipleOfPowerOf2(const u64 value, const u32 p) {
     // __builtin_ctzll doesn't appear to be faster here.
     return (value & ((1ull << p) - 1)) == 0;
 }
 
-static inline uint64_t umul128(const uint64_t a, const uint64_t b, uint64_t* const productHi) {
+static inline u64 umul128(const u64 a, const u64 b, u64* const productHi) {
     return _umul128(a, b, productHi);
 }
 
-static inline uint64_t umulh(const uint64_t a, const uint64_t b) {
-    uint64_t hi;
+static inline u64 umulh(const u64 a, const u64 b) {
+    u64 hi;
     umul128(a, b, &hi);
     return hi;
 }
 
-static inline uint64_t shiftright128(const uint64_t lo, const uint64_t hi, const uint32_t dist) {
+static inline u64 shiftright128(const u64 lo, const u64 hi, const u32 dist) {
     return __shiftright128(lo, hi, (unsigned char) dist);
 }
 
-static inline uint64_t mulShift64(const uint64_t m, const uint64_t* const mul, const int32_t j) {
+static inline u64 mulShift64(const u64 m, const u64* const mul, const int32_t j) {
                 // m is maximum 55 bits
-    uint64_t high1;                                   // 128
-    const uint64_t low1 = umul128(m, mul[1], &high1); // 64
-    uint64_t high0;                                   // 64
+    u64 high1;                                   // 128
+    const u64 low1 = umul128(m, mul[1], &high1); // 64
+    u64 high0;                                   // 64
     umul128(m, mul[0], &high0);                       // 0
-    const uint64_t sum = high0 + low1;
+    const u64 sum = high0 + low1;
     if (sum < high0) {
         ++high1; // overflow into high1
     }
@@ -71,23 +72,23 @@ static inline uint64_t mulShift64(const uint64_t m, const uint64_t* const mul, c
 }
 
 
-static inline uint64_t mulShiftAll64(const uint64_t m, const uint64_t* const mul, const int32_t j,
-    uint64_t* const vp, uint64_t* const vm, const uint32_t mmShift) {
+static inline u64 mulShiftAll64(const u64 m, const u64* const mul, const int32_t j,
+    u64* const vp, u64* const vm, const u32 mmShift) {
     *vp = mulShift64(4 * m + 2, mul, j);
     *vm = mulShift64(4 * m - 1 - mmShift, mul, j);
     return mulShift64(4 * m, mul, j);
 }
 
 // Returns floor(log_10(2^e)); requires 0 <= e <= 1650.
-static inline uint32_t log10Pow2(const int32_t e) {
+static inline u32 log10Pow2(const int32_t e) {
     // The first value this approximation fails for is 2^1651 which is just greater than 10^297.
-    return (((uint32_t) e) * 78913) >> 18;
+    return (((u32) e) * 78913) >> 18;
 }
 
 // Returns floor(log_10(5^e)); requires 0 <= e <= 2620.
-static inline uint32_t log10Pow5(const int32_t e) {
+static inline u32 log10Pow5(const int32_t e) {
     // The first value this approximation fails for is 5^2621 which is just greater than 10^1832.
-    return (((uint32_t) e) * 732923) >> 20;
+    return (((u32) e) * 732923) >> 20;
 }
 
 // Returns e == 0 ? 1 : ceil(log_2(5^e)); requires 0 <= e <= 3528.
@@ -95,10 +96,10 @@ static inline int32_t pow5bits(const int32_t e) {
     // This approximation works up to the point that the multiplication overflows at e = 3529.
     // If the multiplication were done in 64 bits, it would fail at 5^4004 which is just greater
     // than 2^9297.
-    return (int32_t) (((((uint32_t) e) * 1217359) >> 19) + 1);
+    return (int32_t) (((((u32) e) * 1217359) >> 19) + 1);
 }
 
-static inline uint32_t decimalLength17(const uint64_t v) {
+static inline u32 decimalLength17(const u64 v) {
     // This is slightly faster than a loop.
     // The average output length is 16.38 digits, so we check high-to-low.
     // Function precondition: v is not an 18, 19, or 20-digit number.
@@ -122,25 +123,25 @@ static inline uint32_t decimalLength17(const uint64_t v) {
     return 1;
 }
 
-static inline uint64_t div5(const uint64_t x) {
+static inline u64 div5(const u64 x) {
     return umulh(x, 0xCCCCCCCCCCCCCCCDu) >> 2;
 }
 
-static inline uint64_t div10(const uint64_t x) {
+static inline u64 div10(const u64 x) {
     return umulh(x, 0xCCCCCCCCCCCCCCCDu) >> 3;
 }
 
-static inline uint64_t div100(const uint64_t x) {
+static inline u64 div100(const u64 x) {
     return umulh(x >> 2, 0x28F5C28F5C28F5C3u) >> 2;
 }
 
-static inline uint64_t div1e8(const uint64_t x) {
+static inline u64 div1e8(const u64 x) {
     return umulh(x, 0xABCC77118461CEFDu) >> 26;
 }
 
-static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeExponent) {
+static decfloat_t ieee_to_decimal(u64 sign, u64 ieeeMantissa, u32 ieeeExponent) {
     int32_t e2;
-    uint64_t m2;
+    u64 m2;
     if (ieeeExponent == 0) {
                 // We subtract 2 so that the bounds computation has 2 additional bits.
         e2 = 1 - DOUBLE_BIAS - DOUBLE_MANTISSA_BITS - 2;
@@ -153,22 +154,22 @@ static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeEx
     const bool acceptBounds = even;
 
     // Step 2: Determine the interval of valid decimal representations.
-    const uint64_t mv = 4 * m2;
+    const u64 mv = 4 * m2;
     // Implicit bool -> int conversion. True is 1, false is 0.
-    const uint32_t mmShift = ieeeMantissa != 0 || ieeeExponent <= 1;
+    const u32 mmShift = ieeeMantissa != 0 || ieeeExponent <= 1;
     // We would compute mp and mm like this:
-    // uint64_t mp = 4 * m2 + 2;
-    // uint64_t mm = mv - 1 - mmShift;
+    // u64 mp = 4 * m2 + 2;
+    // u64 mm = mv - 1 - mmShift;
 
     // Step 3: Convert to a decimal power base using 128-bit arithmetic.
-    uint64_t vr, vp, vm;
+    u64 vr, vp, vm;
     int32_t e10;
     bool vmIsTrailingZeros = false;
     bool vrIsTrailingZeros = false;
     if (e2 >= 0) {
         // I tried special-casing q == 0, but there was no effect on performance.
         // This expression is slightly faster than max(0, log10Pow2(e2) - 1).
-        const uint32_t q = log10Pow2(e2) - (e2 > 3);
+        const u32 q = log10Pow2(e2) - (e2 > 3);
         e10 = (int32_t) q;
         const int32_t k = DOUBLE_POW5_INV_BITCOUNT + pow5bits((int32_t) q) - 1;
         const int32_t i = -e2 + (int32_t) q + k;
@@ -177,7 +178,7 @@ static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeEx
             // This should use q <= 22, but I think 21 is also safe. Smaller values
             // may still be safe, but it's more difficult to reason about them.
             // Only one of mp, mv, and mm can be a multiple of 5, if any.
-            const uint32_t mvMod5 = ((uint32_t) mv) - 5 * ((uint32_t) div5(mv));
+            const u32 mvMod5 = ((u32) mv) - 5 * ((u32) div5(mv));
             if (mvMod5 == 0) {
                 vrIsTrailingZeros = multipleOfPowerOf5(mv, q);
             } else if (acceptBounds) {
@@ -192,7 +193,7 @@ static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeEx
         }
     } else {
         // This expression is slightly faster than max(0, log10Pow5(-e2) - 1).
-        const uint32_t q = log10Pow5(-e2) - (-e2 > 1);
+        const u32 q = log10Pow5(-e2) - (-e2 > 1);
         e10 = (int32_t) q + e2;
         const int32_t i = -e2 - (int32_t) q;
         const int32_t k = pow5bits(i) - DOUBLE_POW5_BITCOUNT;
@@ -220,19 +221,19 @@ static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeEx
     // Step 4: Find the shortest decimal representation in the interval of valid representations.
     int32_t removed = 0;
     uint8_t lastRemovedDigit = 0;
-    uint64_t output;
+    u64 output;
     // On average, we remove ~2 digits.
     if (vmIsTrailingZeros || vrIsTrailingZeros) {
         // General case, which happens rarely (~0.7%).
         for (;;) {
-            const uint64_t vpDiv10 = div10(vp);
-            const uint64_t vmDiv10 = div10(vm);
+            const u64 vpDiv10 = div10(vp);
+            const u64 vmDiv10 = div10(vm);
             if (vpDiv10 <= vmDiv10) {
                 break;
             }
-            const uint32_t vmMod10 = ((uint32_t) vm) - 10 * ((uint32_t) vmDiv10);
-            const uint64_t vrDiv10 = div10(vr);
-            const uint32_t vrMod10 = ((uint32_t) vr) - 10 * ((uint32_t) vrDiv10);
+            const u32 vmMod10 = ((u32) vm) - 10 * ((u32) vmDiv10);
+            const u64 vrDiv10 = div10(vr);
+            const u32 vrMod10 = ((u32) vr) - 10 * ((u32) vrDiv10);
             vmIsTrailingZeros &= vmMod10 == 0;
             vrIsTrailingZeros &= lastRemovedDigit == 0;
             lastRemovedDigit = (uint8_t) vrMod10;
@@ -243,14 +244,14 @@ static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeEx
         }
         if (vmIsTrailingZeros) {
             for (;;) {
-                const uint64_t vmDiv10 = div10(vm);
-                const uint32_t vmMod10 = ((uint32_t) vm) - 10 * ((uint32_t) vmDiv10);
+                const u64 vmDiv10 = div10(vm);
+                const u32 vmMod10 = ((u32) vm) - 10 * ((u32) vmDiv10);
                 if (vmMod10 != 0) {
                     break;
                 }
-                const uint64_t vpDiv10 = div10(vp);
-                const uint64_t vrDiv10 = div10(vr);
-                const uint32_t vrMod10 = ((uint32_t) vr) - 10 * ((uint32_t) vrDiv10);
+                const u64 vpDiv10 = div10(vp);
+                const u64 vrDiv10 = div10(vr);
+                const u32 vrMod10 = ((u32) vr) - 10 * ((u32) vrDiv10);
                 vrIsTrailingZeros &= lastRemovedDigit == 0;
                 lastRemovedDigit = (uint8_t) vrMod10;
                 vr = vrDiv10;
@@ -268,11 +269,11 @@ static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeEx
     } else {
         // Specialized for the common case (~99.3%). Percentages below are relative to this.
         bool roundUp = false;
-        const uint64_t vpDiv100 = div100(vp);
-        const uint64_t vmDiv100 = div100(vm);
+        const u64 vpDiv100 = div100(vp);
+        const u64 vmDiv100 = div100(vm);
         if (vpDiv100 > vmDiv100) { // Optimization: remove two digits at a time (~86.2%).
-            const uint64_t vrDiv100 = div100(vr);
-            const uint32_t vrMod100 = ((uint32_t) vr) - 100 * ((uint32_t) vrDiv100);
+            const u64 vrDiv100 = div100(vr);
+            const u32 vrMod100 = ((u32) vr) - 100 * ((u32) vrDiv100);
             roundUp = vrMod100 >= 50;
             vr = vrDiv100;
             vp = vpDiv100;
@@ -284,13 +285,13 @@ static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeEx
         // Loop iterations below (approximately), with optimization above:
         // 0: 70.6%, 1: 27.8%, 2: 1.40%, 3: 0.14%, 4+: 0.02%
         for (;;) {
-            const uint64_t vpDiv10 = div10(vp);
-            const uint64_t vmDiv10 = div10(vm);
+            const u64 vpDiv10 = div10(vp);
+            const u64 vmDiv10 = div10(vm);
             if (vpDiv10 <= vmDiv10) {
                 break;
             }
-            const uint64_t vrDiv10 = div10(vr);
-            const uint32_t vrMod10 = ((uint32_t) vr) - 10 * ((uint32_t) vrDiv10);
+            const u64 vrDiv10 = div10(vr);
+            const u32 vrMod10 = ((u32) vr) - 10 * ((u32) vrDiv10);
             roundUp = vrMod10 >= 5;
             vr = vrDiv10;
             vp = vpDiv10;
@@ -303,7 +304,16 @@ static decfloat_t dtodecfloat(const uint64_t ieeeMantissa, const uint32_t ieeeEx
     const int32_t exp = e10 + removed;
 
     decfloat_t fd;
-    fd.exponent = exp;
+    fd.sign = sign;
+    fd.exponent = output? exp : 0;
     fd.mantissa = output;
     return fd;
+}
+
+static decfloat_t f64_to_decimal(double d) {
+    u64 bits = F64_BITS(d);
+    u64 ieee_exp = F64_BEXP(bits);
+    u64 ieee_mant = F64_MANT(bits);
+    u64 sign = bits >> 63;
+    return ieee_to_decimal(sign, ieee_mant, ieee_exp);
 }

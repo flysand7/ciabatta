@@ -30,3 +30,19 @@ static inline intl todigit(int c) {
     return val;
 }
 
+static inline int fromdigit(int digit, int upper) {
+    int ch;
+    if(digit < 10) {
+        ch = digit+'0';
+    }
+    else {
+        if(upper) {
+            ch = digit-10+'A';
+        }
+        else {
+            ch = digit-10+'a';
+        }
+    }
+    return ch;
+}
+

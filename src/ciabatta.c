@@ -38,21 +38,19 @@
 
 #include "intrin.h"
 
-// Dependencies
-#include "util.c"
-#include "conv/decfloat/decfloat.c"
-
 // Platform-independent stuff
-#include "fmt/gen_fmt.c"
+#include "util.c"
 #include "math/basic.c"
 #include "math/division.c"
 #include "math/gen_math.c"
 #include "math/bits.c"
 #include "math/round.c"
+#include "conv/decfloat/decfloat.c"
 #include "conv/digits.c"
 #include "conv/strpfx.c"
 #include "conv/int.c"
 #include "conv/float.c"
+#include "fmt/gen_fmt.c"
 #include "stdlib/algorithm.c"
 #include "stdlib/multibyte.c"
 #include "stdlib/random.c"

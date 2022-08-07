@@ -71,3 +71,6 @@ typedef wchar_t wchar;
 #define F32_SIGN(bits) (bits >> (F32_MANT_BITS + F32_BEXP_BITS))
 #define F32_BEXP(bits) ((bits >> F32_MANT_BITS) & F32_BEXP_MASK)
 #define F32_MANT(bits) ((bits) & F32_MANT_MASK)
+
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#define MAX(a,b) ((a)>(b)?(a):(b))
