@@ -14,16 +14,16 @@ The macro checks whether `expr` is true, and if not, prints the
 diagnostic information and then aborts execution in a way equivalent to calling
 abort() function (See SIGABRT).
 
-If DEBUG macro is defined, assert does not print a diagnostic message, and
+If `_DEBUG` macro is defined, assert does not print a diagnostic message, and
 instead simply causes a debug break.
 
 If NDEBUG macro is defined assert expands to an empty statement. If both NDEBUG
-and DEBUG are defined, then DEBUG macro is ignored.
+and `_DEBUG` are defined, then `_DEBUG` macro is ignored.
 
 ```c
 #if defined(NDEBUG)
     #define assert(expr) ((void)0)
-#elif defined(DEBUG)
+#elif defined(`_DEBUG`)
     #define assert(expr) /* debug break */
 #else
     #define assert(expr) /* print diagnostic, then abort */

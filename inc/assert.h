@@ -14,7 +14,7 @@ void _assert(
 
 #if defined(NDEBUG)
     #define assert(ignore) ((void)0)
-#elif defined(DEBUG)
+#elif defined(_DEBUG)
     #if __GNUC__
         #define assert(c) if (!(c)) __builtin_trap()
     #elif _MSC_VER
