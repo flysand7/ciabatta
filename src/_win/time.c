@@ -12,7 +12,7 @@
 static uint64_t timer_freq;
 static uint64_t timer_start;
 
-void _setup_timer(void) {
+static void _setup_timer(void) {
     LARGE_INTEGER freq, start;
     QueryPerformanceFrequency(&freq);
     QueryPerformanceCounter(&start);

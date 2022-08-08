@@ -42,7 +42,7 @@ static LONG _win32_handler(EXCEPTION_POINTERS *ExceptionInfo) {
 }
 
 
-void _setup_eh() {
+static void _setup_eh() {
     void *res = AddVectoredExceptionHandler(1, &_win32_handler);
     if(res == NULL) {
         ExitProcess(-69420);

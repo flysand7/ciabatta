@@ -7,9 +7,9 @@
 #include <DbgHelp.h>
 #include <winternl.h>
 
-void _setup_timer(void);
-void _setup_eh();
-void _setup_heap();
-void _setup_io();
-void _close_io();
-void __security_init_cookie();
+static void _setup_timer(void);
+static void _setup_eh();
+static void _setup_heap();
+static void _setup_io();
+static void _close_io();
+static void __security_init_cookie();

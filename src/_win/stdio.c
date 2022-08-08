@@ -109,7 +109,7 @@ static inline void delete_stream(FILE *stream) {
     mtx_destroy(&lock);
 }
 
-void _setup_io() {
+static void _setup_io() {
     HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
     HANDLE hstderr = GetStdHandle(STD_ERROR_HANDLE);
     HANDLE hstdin  = GetStdHandle(STD_INPUT_HANDLE);
@@ -254,7 +254,7 @@ int fclose(FILE *stream) {
     return 0;
 }
 
-void _close_io() {
+static void _close_io() {
     while(streams_to_close != NULL) {
         FILE *stream = streams_to_close;
         fflush(stream);

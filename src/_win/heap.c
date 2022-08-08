@@ -9,7 +9,7 @@ static intptr_t align_forward(intptr_t p, size_t a) {
     return (p+a-1)&~(a-1);
 }
 
-void _setup_heap() {
+static void _setup_heap() {
     heap_handle = GetProcessHeap();
     if (heap_handle == NULL) {
         ExitProcess(-42069);
