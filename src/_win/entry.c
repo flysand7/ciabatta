@@ -12,6 +12,7 @@ _Noreturn void mainCRTStartup() {
     _setup_heap();
     _setup_timer();
     _setup_io();
+    __security_init_cookie();
 
     srand(0);
     setlocale(LC_ALL, "C");
@@ -28,6 +29,7 @@ _Noreturn void WinMainCRTStartup() {
     _setup_heap();
     _setup_timer();
     _setup_io();
+    __security_init_cookie();
 
     srand(0);
     setlocale(LC_ALL, "C");
