@@ -58,6 +58,7 @@ stdlib.h:
 *   Fix aligned_malloc
 *   Constraint Handlers
 *   getenv_s
+*   aligned_alloc can't be used with free()
 
 string.h:
 *   strnlen_s
