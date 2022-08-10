@@ -38,6 +38,7 @@ wchar_t *wcscpy(wchar_t *restrict dst, wchar_t const *restrict src) {
 }
 
 wchar_t *wcsncpy(wchar_t *restrict dst, wchar_t const *restrict src, size_t n) {
+    // TODO: more than one null terminator, not write if n was reached
     size_t i;
     for(i = 0; i != n && src[i]; ++i) {
         dst[i] = src[i];
@@ -87,6 +88,7 @@ int wcsncmp(wchar_t const *s1, wchar_t const *s2, size_t n) {
 }
 
 int wmemcmp(wchar_t const *s1, wchar_t const *s2, size_t n) {
+    // TODO: OOB when ranges are equal
     size_t i;
     for(i = 0; i != n; ++i) {
         if(s1[i] != s2[i]) break;

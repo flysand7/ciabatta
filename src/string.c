@@ -1,67 +1,71 @@
 
-void *memcpy(void *restrict s1, const void *restrict s2, size_t n) {
-    const u8 *restrict c2 = s2;
-    u8 *restrict c1 = s1;
-
+void *memcpy(void *restrict to, void const *restrict from, size_t n) {
+    u8       *restrict dst = to;
+    u8 const *restrict src = from;
     while (n--) {
-        *c1++ = *c2++;
+        *dst++ = *src++;
     }
-    return s1;
+    return dst;
 }
 
-void *memmove(void *s1, const void *s2, size_t n) {
-    u8* c1 = s1;
-    const u8* c2 = s2;
-    if (c1 != c2) {
-        if (c1 < c2) {
+void *memmove(void *to, const void *from, size_t n) {
+    u8       *dst = to;
+    u8 const *src = from;
+    if (src != dst) {
+        if (src < dst) {
             // reverse copy
-            for (size_t i = n; i--;) c1[i] = c2[i];
+            for (size_t i = n; i--;) dst[i] = src[i];
         } else {
             // normal copy
-            for (size_t i = 0; i < n; i++) c1[i] = c2[i];
+            for (size_t i = 0; i < n; i++) dst[i] = src[i];
         }
     }
-
-    return s1;
+    return dst;
 }
 
-char *strcpy(char *restrict s1, const char *restrict s2) {
-    while(*s2 != 0) {
-        *s1++ = *s2++;
-    }
-    *s1 = 0;
-    return s1;
-}
-
-char *strncpy(char *restrict s1, const char *restrict s2, size_t n) {
+char *strcpy(char *restrict dst, char const *restrict src) {
     size_t i = 0;
-    for(; i < n && *s2 != 0; ++ i) {
-        *s1++ = *s2++;
+    for(i = 0; src[i]; ++i) {
+        dst[i] = src[i];
     }
-    for(; i < n; ++i) {
-        *s1++ = 0;
+    dst[i] = 0;
+    return dst;
+}
+
+char *strncpy(char *restrict dst, char const *restrict src, size_t n) {
+    size_t i;
+    for(i = 0; i != n && src[i]; ++i) {
+        dst[i] = src[i];
     }
-    return s1;
+    for(; i != n; ++i) {
+        dst[i] = 0;
+    }
+    return dst;
 }
 
 
-char *strcat(char *restrict s1, const char *restrict s2) {
-    size_t start = strlen(s1);
-    return strcpy(s1+start, s2);
+char *strcat(char *restrict dst, const char *restrict src) {
+    size_t start = strlen(dst);
+    return strcpy(dst+start, src);
 }
 
-char *strncat(char *restrict s1, const char *restrict s2, size_t n) {
-    size_t start = strlen(s1);
-    strncpy(s1+start, s2, n);
-    return s1;
+char *strncat(char *restrict dst, char const *restrict src, size_t n) {
+    size_t start = strlen(dst);
+    strncpy(dst+start, src, n);
+    return dst;
 }
 
 
-int memcmp(const void *s1, const void *s2, size_t n) {
-    const u8 *u1 = s1;
-    const u8 *u2 = s2;
-    for (; n--; u1++, u2++) {
-        if (*u1 != *u2) return *u1 - *u2;
+int memcmp(void const *p1, void const *p2, size_t n) {
+    u8 const *s1 = p1;
+    u8 const *s2 = p2;
+    size_t i;
+    for(i = 0; i != n; ++i) {
+        if(s1[i] != s2[i]) break;
+    }
+    if(i != n) {
+        if(s1[i] < s2[i]) return -1;
+        if(s1[i] > s2[i]) return 1;
     }
     return 0;
 }
@@ -74,21 +78,24 @@ void *memset(void *s, int c, size_t n) {
     return s;
 }
 
-int strcmp(const char *s1, const char *s2) {
-    int diff;
-    do {
-        diff = *s1 - *s2;
-    } while(diff == 0 && *s1++ != 0 && *s2++ != 0);
-    return diff;
+int strcmp(char const *s1, char const *s2) {
+    size_t i;
+    for(i = 0; s1[i] && s2[i]; ++i) {
+        if(s1[i] != s2[i]) break;
+    }
+    if(s1[i] < s2[i]) return -1;
+    if(s1[i] > s2[i]) return +1;
+    return 0;
 }
 
 int strncmp(const char *s1, const char *s2, size_t n) {
-    int diff = 0;
-    size_t i = 0;
-    if(n != 0) do {
-        diff = *s1 - *s2;
-    } while(++i < n && diff != 0 && *s1 != 0 && *s2 != 0);
-    return diff;
+    size_t i;
+    for(i = 0; i != n && s1[i] && s2[i]; ++i) {
+        if(s1[i] != s2[i]) break;
+    }
+    if(s1[i] < s2[i]) return -1;
+    if(s1[i] > s2[i]) return +1;
+    return 0;
 }
 
 int strcoll(const char *s1, const char *s2) {
