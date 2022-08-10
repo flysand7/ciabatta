@@ -29,6 +29,9 @@ math.h:
 *   M_LOG10
 *   other stuff?
 
+stdint.h:
+*   Implement 7.20.3
+
 stdio.h:
 *   The only reason to keep a linked list of all streams is to make sure they
     are flushed after main() returns. I wonder if only remembering the files
