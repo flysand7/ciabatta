@@ -143,3 +143,11 @@ typedef uint64_t uintmax_t;
 #if defined(_WIN32)
     #define UINT64_C(lit)  lit ## ull
 #endif
+
+#if __STDC_WANT_LIB_EXT1__ == 1
+    #if defined(_WIN32)
+        #define RSIZE_MAX  0xffffffffffffull;
+    #else
+        #define RSIZE_MAX  0xfffffffffffful;
+    #endif
+#endif

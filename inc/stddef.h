@@ -19,3 +19,6 @@
     typedef int wchar_t;
 #endif
 
+#if __STDC_WANT_LIB_EXT1__ == 1
+    typedef size_t rsize_t;
+#endif
