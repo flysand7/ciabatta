@@ -23,8 +23,10 @@
 
 #if defined(_WIN32)
     typedef unsigned long long size_t;
+    typedef unsigned short wchar_t;
 #else
     typedef unsigned long size_t;
+    typedef int wchar_t;
 #endif
 
 typedef struct div_t {
