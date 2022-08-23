@@ -50,7 +50,7 @@
 #include "conv/strpfx.c"
 #include "conv/int.c"
 #include "conv/float.c"
-#include "fmt/gen_fmt.c"
+#include "fmt/fmt.c"
 #include "stdlib/algorithm.c"
 #include "stdlib/multibyte.c"
 #include "stdlib/random.c"
