@@ -6,7 +6,7 @@ windres -o utf8.obj utf8.rc
 ld -relocatable -o libwinsane.obj utf8.obj
 
 :: Compile chkstk
-nasm src\_win\chkstk.asm -ochkstk.o -fwin64
+nasm src\os_win\chkstk.asm -ochkstk.o -fwin64
 
 :: Compile the rest of the party
 clang -Wall src\ciabatta.c -o ciabatta.obj -c -DCIABATTA_WIN -I inc -I src\_win -nodefaultlibs -g -mfma

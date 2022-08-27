@@ -65,15 +65,15 @@
 
 // Windows stuff
 #if defined(CIABATTA_WIN)
-    #include "_win/win.h"
-    #include "_win/cookie.c"
-    #include "_win/assert.c"
-    #include "_win/cmdline.c"
-    #include "_win/entry.c"
-    #include "_win/environment.c"
-    #include "_win/heap.c"
-    #include "_win/signal.c"
-    #include "_win/stdio.c"
-    #include "_win/threads.c"
-    #include "_win/time.c"
+    #include "os_win/win.h"
+    #include "os_win/cookie.c"
+    #include "os_win/assert.c"
+    #include "os_win/cmdline.c"
+    #include "os_win/entry.c"
+    #include "os_win/environment.c"
+    #include "os_win/heap.c"
+    #include "os_win/signal.c"
+    #include "os_win/stdio.c"
+    #include "os_win/threads.c"
+    #include "os_win/time.c"
 #endif
