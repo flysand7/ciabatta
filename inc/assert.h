@@ -22,7 +22,7 @@ void _assert(
     #else
         // In debug mode there shouldn't be any optimizations so this should
         // work as a simple way to cause a trap.
-        #define assert(c) if (!(c)) *(volatile int *)0 = 0
+        #define assert(c) do { if (!(c)) *(volatile int *)0 = 0; } while(0)
     #endif
 #else
     #define _static_assert _Static_assert
