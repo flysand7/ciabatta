@@ -12,4 +12,3 @@ static void _setup_eh();
 static void _setup_heap();
 static void _setup_io();
 static void _close_io();
-static void __security_init_cookie();
