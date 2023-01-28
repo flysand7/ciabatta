@@ -25,15 +25,15 @@
 
 // Intrinsics
 #if !defined(__FMA__)
-    #if !defined(_MSC_VER)
-        #error "Get a better CPU (the kind that supports FMA) or enable -mfma"
-    #endif
+#if !defined(_MSC_VER)
+#error "Get a better CPU (the kind that supports FMA) or enable -mfma"
+#endif
 #endif
 // xmmintrin.h depends on mm_malloc.h, which itself includes other CRT headers
 // Which introduces compiler errors. Actually does it really matter? I would
 // need to check again
 #undef __STDC_HOSTED__
-#include <immintrin.h>
+// #include <immintrin.h>
 #include <xmmintrin.h>
 
 #include "intrin.h"
@@ -65,15 +65,15 @@
 
 // Windows stuff
 #if defined(CIABATTA_WIN)
-    #include "os_win/win.h"
-    #include "os_win/cookie.c"
-    #include "os_win/assert.c"
-    #include "os_win/cmdline.c"
-    #include "os_win/entry.c"
-    #include "os_win/environment.c"
-    #include "os_win/heap.c"
-    #include "os_win/signal.c"
-    #include "os_win/stdio.c"
-    #include "os_win/threads.c"
-    #include "os_win/time.c"
+#include "os_win/win.h"
+#include "os_win/cookie.c"
+#include "os_win/assert.c"
+#include "os_win/cmdline.c"
+#include "os_win/entry.c"
+#include "os_win/environment.c"
+#include "os_win/heap.c"
+#include "os_win/signal.c"
+#include "os_win/stdio.c"
+#include "os_win/threads.c"
+#include "os_win/time.c"
 #endif

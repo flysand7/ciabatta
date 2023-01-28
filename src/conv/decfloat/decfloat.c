@@ -14,22 +14,22 @@ struct decfloat_t {
 
 static const char DIGIT_TABLE[200] = {
     "00010203040506070809101112131415161718192021222324"
-    "25262728293031323334353637383940414243444546474849"
-    "50515253545556575859606162636465666768697071727374"
-    "75767778798081828384858687888990919293949596979899"
+        "25262728293031323334353637383940414243444546474849"
+        "50515253545556575859606162636465666768697071727374"
+        "75767778798081828384858687888990919293949596979899"
 };
 
 static inline u32 pow5Factor(u64 value) {
-  const u64 m_inv_5 = 14757395258967641293u; // 5 * m_inv_5 = 1 (mod 2^64)
-  const u64 n_div_5 = 3689348814741910323u;  // #{ n | n = 0 (mod 2^64) } = 2^64 / 5
-  u32 count = 0;
-  for (;;) {
-      value *= m_inv_5;
-      if (value > n_div_5)
-          break;
-      ++count;
-  }
-  return count;
+    const u64 m_inv_5 = 14757395258967641293u; // 5 * m_inv_5 = 1 (mod 2^64)
+    const u64 n_div_5 = 3689348814741910323u;  // #{ n | n = 0 (mod 2^64) } = 2^64 / 5
+    u32 count = 0;
+    for (;;) {
+        value *= m_inv_5;
+        if (value > n_div_5)
+            break;
+        ++count;
+    }
+    return count;
 }
 
 // Returns true if value is divisible by 5^p.
@@ -59,11 +59,11 @@ static inline u64 shiftright128(const u64 lo, const u64 hi, const u32 dist) {
 }
 
 static inline u64 mulShift64(const u64 m, const u64* const mul, const int32_t j) {
-                // m is maximum 55 bits
+    // m is maximum 55 bits
     u64 high1;                                   // 128
     const u64 low1 = umul128(m, mul[1], &high1); // 64
     u64 high0;                                   // 64
-    umul128(m, mul[0], &high0);                       // 0
+    umul128(m, mul[0], &high0);                  // 0
     const u64 sum = high0 + low1;
     if (sum < high0) {
         ++high1; // overflow into high1
@@ -143,7 +143,7 @@ static decfloat_t ieee_to_decimal(u64 sign, u64 ieeeMantissa, u32 ieeeExponent) 
     int32_t e2;
     u64 m2;
     if (ieeeExponent == 0) {
-                // We subtract 2 so that the bounds computation has 2 additional bits.
+        // We subtract 2 so that the bounds computation has 2 additional bits.
         e2 = 1 - DOUBLE_BIAS - DOUBLE_MANTISSA_BITS - 2;
         m2 = ieeeMantissa;
     } else {

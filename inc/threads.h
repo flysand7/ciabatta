@@ -6,37 +6,37 @@
 #define TSS_DTOR_ITERATIONS 32
 
 #if !defined(_timespec_defined)
-    #define _timespec_defined
-    typedef unsigned long long time_t;
-    struct timespec {
-        time_t tv_sec;
-        long   tv_nsec;
-    };
+#define _timespec_defined
+typedef unsigned long long time_t;
+struct timespec {
+    time_t tv_sec;
+    long   tv_nsec;
+};
 #endif
 
 #if defined(_WIN32)
-    typedef struct cnd_t {
-    	int idk_yet;
-    } cnd_t;
+typedef struct cnd_t {
+    int idk_yet;
+} cnd_t;
 
-    typedef struct thrd_t {
-        void* handle;
-    } thrd_t;
+typedef struct thrd_t {
+    void* handle;
+} thrd_t;
 
-    typedef struct tss_t {
-    	int idk_yet;
-    } tss_t;
+typedef struct tss_t {
+    int idk_yet;
+} tss_t;
 
-    typedef struct mtx_t {
-        int type;
-        // Done to handle recursive mutexes
-        unsigned long recursion;
-        unsigned long owner;
-        _Atomic(int) counter;
-        void* semaphore;
-    } mtx_t;
+typedef struct mtx_t {
+    int type;
+    // Done to handle recursive mutexes
+    unsigned long recursion;
+    unsigned long owner;
+    _Atomic(int) counter;
+    void* semaphore;
+} mtx_t;
 #else
-    #error "Not implemented"
+#error "Not implemented"
 #endif
 
 typedef void(*tss_dtor_t)  (void*);
@@ -50,11 +50,11 @@ enum {
 };
 
 enum {
-	thrd_success,
-	thrd_timedout,
-	thrd_busy,
-	thrd_error,
-	thrd_nomem
+    thrd_success,
+    thrd_timedout,
+    thrd_busy,
+    thrd_error,
+    thrd_nomem
 };
 
 void call_once(once_flag *flag, void (*func)(void));
@@ -86,7 +86,7 @@ int    thrd_detach (thrd_t thr);
 int    thrd_equal  (thrd_t thr0, thrd_t thr1);
 int    thrd_join   (thrd_t thr, int *res);
 void   thrd_yield  (void);
-int thrd_sleep(
+int    thrd_sleep(
     const struct timespec *duration,
     struct timespec *remaining
 );

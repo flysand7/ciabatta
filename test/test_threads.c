@@ -7,7 +7,7 @@ int cnt;
 
 int f(void* thr_data)
 {
-    for(int n = 0; n < 1000; ++n) {
+    for(int n = 0; n < 100000; ++n) {
         atomic_fetch_add_explicit(&acnt, 1, memory_order_relaxed); // atomic
         ++cnt; // undefined behavior, in practice some updates missed
     }

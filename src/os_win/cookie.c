@@ -1,10 +1,10 @@
 
 u64 __security_cookie;
 
-static void __security_init_cookie() {
+void __security_init_cookie() {
     // They say it's a random number so I generated
     // one using numbergenerator.org
-    __security_cookie = 0xb26e04cc62ba48a;
+    __security_cookie = 0xb26e04cc62ba48aULL;
 }
 
 void __security_check_cookie(u64 retrieved) {

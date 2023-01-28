@@ -75,6 +75,28 @@ long double fminl(long double x, long double y) {
     return fmin(x, y);
 }
 
+#ifdef __CUIK__
+#warning "Cuik doesn't support the FMA intrinsics... fix that NeGate"
+double fma(double x, double y, double z) {
+    return (x * y) + z;
+}
+
+float fmaf(float x, float y, float z) {
+    return (x * y) + z;
+}
+
+long double fmal(long double x, long double y, long double z) {
+    return (x * y) + z;
+}
+
+double sqrt(double x) {
+    return 0.0;
+}
+
+float sqrtf(float x) {
+    return 0.0;
+}
+#else
 double fma(double x, double y, double z) {
     __m128d xd = _mm_set_sd(x);
     __m128d yd = _mm_set_sd(y);
@@ -115,4 +137,4 @@ float sqrtf(float x) {
 long double sqrtl(long double x) {
     return sqrt(x);
 }
-
+#endif

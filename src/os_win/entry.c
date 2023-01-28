@@ -4,8 +4,8 @@
 #pragma weak WinMain
 
 int main(int argc, char** argv);
-int wmain(int argc, wchar_t** argv, wchar_t **envp);
-int WinMain(HINSTANCE inst, HINSTANCE pinst, LPSTR cmdline, int showcmd);
+// int wmain(int argc, wchar_t** argv, wchar_t **envp);
+// int WinMain(HINSTANCE inst, HINSTANCE pinst, LPSTR cmdline, int showcmd);
 
 _Noreturn void mainCRTStartup() {
     _setup_eh();
@@ -24,7 +24,7 @@ _Noreturn void mainCRTStartup() {
     exit(exit_code);
 }
 
-_Noreturn void WinMainCRTStartup() {
+/*_Noreturn void WinMainCRTStartup() {
     _setup_eh();
     _setup_heap();
     _setup_timer();
@@ -39,4 +39,4 @@ _Noreturn void WinMainCRTStartup() {
     int exit_code = WinMain(inst, 0, cmdline, SW_SHOWDEFAULT);
 
     exit(exit_code);
-}
+}*/
