@@ -38,7 +38,7 @@
 
 #include "intrin.h"
 
-// Platform-independent stuff
+// Platform-independent functionality
 #include "util.c"
 #include "math/basic.c"
 #include "math/division.c"
@@ -63,7 +63,7 @@
 #include "wchar.c"
 #include "wctype.c"
 
-// Windows stuff
+// Windows platform functionality
 #if defined(CIABATTA_WIN)
     #include "os_win/win.h"
     #include "os_win/cookie.c"

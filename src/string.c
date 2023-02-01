@@ -210,7 +210,7 @@ char *strtok_r(char *restrict s1, const char *restrict s2, char **restrict ctx) 
 char *strerror(int errnum) {
     switch(errnum) {
         case 0:      return "No errors";
-        case EDOM:   return "Value is out of domain of the function";
+        case EDOM:   return "Value is outside of domain of the function";
         case EILSEQ: return "Illegal byte sequence";
         case ERANGE: return "Value is out of range";
     }
