@@ -322,6 +322,7 @@ tm_t *gmtime(const time_t *timer) {
     timestamp /= 24;
     int year = 1970;
     int days = timestamp;
+    int days_since_epoch = days;
     // Start subtracting 400,100,4-year-stretches
     const int DAYS_IN_400_YEARS = 365 * 400 + 97;
     const int DAYS_IN_100_YEARS = 365 * 100 + 24;
@@ -332,8 +333,6 @@ tm_t *gmtime(const time_t *timer) {
     days %= DAYS_IN_100_YEARS;
     year += (days / DAYS_IN_4_YEARS) * 4;
     days %= DAYS_IN_4_YEARS;
-    // Save
-    int days_since_epoch = days;
     // Count remaining up-to 3 years in a loop
     for(;;) {
         int this_year_days = 365 + _is_leap_year(year);
@@ -343,9 +342,8 @@ tm_t *gmtime(const time_t *timer) {
         year += 1;
         days -= this_year_days;
     }
-    // Save
-    int days_since_year = days;
     // Find the current month
+    int days_since_year = days;
     int month = 0;
     for(;;) {
         int days_in_month = _days_in_month[month] + _is_leap_year(year);
@@ -364,23 +362,15 @@ tm_t *gmtime(const time_t *timer) {
     return time;
 }
 
-static bool _offset_utc_time_to_local(tm_t *time) {
+tm_t *localtime(const time_t *timer) {
     TIME_ZONE_INFORMATION tz;
     if(GetTimeZoneInformation(&tz) == TIME_ZONE_ID_INVALID) {
-        return false;
+        return NULL;
     }
     int bias = tz.Bias;
     time->tm_min -= bias;
-    _tm_adjust(time);
-    return true;
-}
-
-tm_t *localtime(const time_t *timer) {
-    tm_t *utc_time = gmtime(timer);
-    if(!_offset_utc_time_to_local(utc_time)) {
-        return NULL;
-    }
-    return utc_time;
+    tm_t *local_time = gmtime(timer);
+    return local_time;
 }
 
 // String formatting
