@@ -69,7 +69,7 @@ static void _file_untrack(FILE *stream) {
 // Multithreaded access
 
 static inline void _file_lock_init(FILE *stream) {
-    mtx_init(&stream->lock, mtx_recursive);
+    mtx_init(&stream->lock, mtx_plain);
 }
 
 static inline void _file_lock_destroy(FILE *stream) {
@@ -345,15 +345,17 @@ int fflush(FILE *stream) {
     _file_lock(stream);
     int res = 0;
     FileBuffer *buffer = &stream->buffer;
-    void *data = buffer->data;
-    size_t size = buffer->written;
-    DWORD bytes_written;
-    BOOL ok = WriteFile(stream->handle, data, size, &bytes_written, NULL);
-    if(!ok) {
-        res = EOF;
-        stream->eof = 1;
+    if(buffer->written != 0) {
+        size_t size = buffer->written;
+        void *data = buffer->data;
+        DWORD bytes_written;
+        BOOL ok = WriteFile(stream->handle, data, size, &bytes_written, NULL);
+        if(!ok) {
+            res = EOF;
+            stream->eof = 1;
+        }
+        buffer->written = 0;
     }
-    buffer->written = 0;
     _file_unlock(stream);
     return res;
 }
