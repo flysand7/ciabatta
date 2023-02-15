@@ -9,7 +9,7 @@ void __security_init_cookie() {
 
 void __security_check_cookie(u64 retrieved) {
     if(__security_cookie != retrieved) {
-        printf("Bro you've got a buffer overrun\n");
+        // printf("Bro you've got a buffer overrun\n");
         abort();
     }
 }

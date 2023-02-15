@@ -3,48 +3,29 @@
 
 #include <stdarg.h>
 
-#if !defined(NULL)
-    #define NULL ((void *)0)
-#endif
+// 7.23.3 p.2: Header version
+#define __STDC_VERSION_STDIO_H__ 202311L
 
+// 7.23.3 p.3: Types
 #if defined(_WIN32)
     typedef unsigned long long size_t;
 #else
     typedef unsigned long size_t;
 #endif
 
-#if !defined(_mbstate_t_defined)
-    #define _mbstate_t_defined
-    typedef struct mbstate_t mbstate_t;
-    struct mbstate_t {
-        union {
-            unsigned short leftover;
-            unsigned short high_surrogate;
-        };
-    };
-#endif
-
 typedef struct FILE FILE;
 
 typedef struct {
     unsigned long long offset;
-    mbstate_t mbstate;
+    union {
+        unsigned short leftover;
+        unsigned short high_surrogate;
+    } mbstate;
 } fpos_t;
 
+// 7.23.3 p.4: Macros
 #if !defined(NULL)
     #define NULL ((void *)0)
-#endif
-
-#if !defined(__STDC_LIB_EXT1__)
-    #define __STDC_LIB_EXT1__
-    typedef int errno_t;
-    typedef size_t rsize_t;
-#endif
-
-#ifdef __STDC_WANT_SECURE_LIB__
-    #if !defined(__STDC_WANT_LIB_EXT1__)
-        #define __STDC_WANT_LIB_EXT1__ 1
-    #endif
 #endif
 
 #define _IONBF    0
@@ -52,13 +33,15 @@ typedef struct {
 #define _IOLBF    2
 #define BUFSIZ    512
 #define EOF       (-1)
-#define FOPEN_MAX 1024
+#define FOPEN_MAX 32
 
 #ifdef _os_win
     #define FILENAME_MAX 260
 #else
     #define FILENAME_MAX 4096
 #endif
+
+#define _PRINTF_NAN_LEN_MAX 20
 
 #define L_tmpnam FILENAME_MAX
 
@@ -72,17 +55,21 @@ typedef struct {
     #define TMP_MAX INT_MAX
 #endif
 
-extern FILE *stdout;
-extern FILE *stderr;
-extern FILE *stdin;
+#define stdout _internal_stdout
+#define stderr _internal_stderr
+#define stdin  _internal_stdin
+
+extern FILE *_internal_stdout;
+extern FILE *_internal_stderr;
+extern FILE *_internal_stdin;
 
 // File manipulation
 int remove(const char *filename);
 int rename(const char *oldname, const char *newname);
-FILE *tmpfile(void);
-char *tmpnam(char *s);
 
 // Opening and closing files
+char *tmpnam(char *s);
+FILE *tmpfile(void);
 FILE *fopen  (const char *restrict filename, const char *restrict mode);
 FILE *freopen(const char *restrict filename, const char *restrict mode, FILE *restrict stream);
 int   fclose (FILE *stream);

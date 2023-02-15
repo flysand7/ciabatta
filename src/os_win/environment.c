@@ -34,7 +34,7 @@ _Noreturn void exit(int status) {
     while(atexit_func_count--) {
         atexit_funcs[atqexit_func_count]();
     }
-    _close_io();
+    _io_close();
     _Exit(status);
 }
 

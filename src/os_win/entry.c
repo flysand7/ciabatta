@@ -11,7 +11,7 @@ _Noreturn void mainCRTStartup() {
     _setup_eh();
     _setup_heap();
     _setup_timer();
-    _setup_io();
+    _io_init();
     __security_init_cookie();
 
     srand(0);
@@ -28,7 +28,7 @@ _Noreturn void mainCRTStartup() {
     _setup_eh();
     _setup_heap();
     _setup_timer();
-    _setup_io();
+    _io_init();
     __security_init_cookie();
 
     srand(0);
