@@ -20,28 +20,8 @@
     };
 #endif
 
-// TODO(bumbread): move this out to platform-specific folder
 #if defined(_WIN32)
-    typedef struct cnd_t {
-        int idk_yet;
-    } cnd_t;
-
-    typedef struct thrd_t {
-        void* handle;
-    } thrd_t;
-
-    typedef struct tss_t {
-        int idk_yet;
-    } tss_t;
-
-    typedef struct mtx_t {
-        int type;
-        // Done to handle recursive mutexes
-        unsigned long recursion;
-        unsigned long owner;
-        _Atomic(int) counter;
-        void* semaphore;
-    } mtx_t;
+    #include "os_win/threads_types.h"
 #else
     #error "Not implemented"
 #endif

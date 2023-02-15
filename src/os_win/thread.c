@@ -9,13 +9,13 @@
 
 DWORD _tls_index = 0;
 
-typedef struct thrd__wrapper_info {
+typedef struct UserClosure {
     thrd_start_t func;
     void* arg;
-} thrd__wrapper_info;
+} UserClosure;
 
-static DWORD thrd__wrapper(void* arg) {
-    thrd__wrapper_info info = *((thrd__wrapper_info*) arg);
+static DWORD _thread_call_user(void* arg) {
+    UserClosure info = *((UserClosure*) arg);
     int result = info.func(info.arg);
 
     // TODO(NeGate): setup TSS dtors here
@@ -27,7 +27,7 @@ thrd_t thrd_current(void) {
 }
 
 int thrd_create(thrd_t *thr, thrd_start_t func, void *arg) {
-    thrd__wrapper_info* info = malloc(sizeof(thrd__wrapper_info));
+    UserClosure* info = malloc(sizeof(UserClosure));
     if (info == NULL) {
         return thrd_nomem;
     }
@@ -35,9 +35,10 @@ int thrd_create(thrd_t *thr, thrd_start_t func, void *arg) {
     info->func = func;
     info->arg = arg;
 
-    // technically thrd_start_t and LPTHREAD_START_ROUTINE aren't the same but are close
-    // enough to be ABI compatible, namely a difference in signedness of the return val.
-    thr->handle = CreateThread(NULL, 0, thrd__wrapper, info, 0, NULL);
+    // technically thrd_start_t and LPTHREAD_START_ROUTINE aren't the same
+    // but are close enough to be ABI compatible, namely a difference in
+    // signedness of the return val.
+    thr->handle = CreateThread(NULL, 0, _thread_call_user, info, 0, NULL);
     return thr->handle != NULL ? thrd_success : thrd_error;
 }
 

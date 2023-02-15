@@ -7,21 +7,24 @@ int cnt;
 
 int f(void* thr_data)
 {
-    for(int n = 0; n < 100000; ++n) {
-        atomic_fetch_add_explicit(&acnt, 1, memory_order_relaxed); // atomic
-        ++cnt; // undefined behavior, in practice some updates missed
-    }
+    for(int n = 0; n < 5; ++n)
+        puts("b");
     return 0;
 }
 
 int main(void)
 {
-    thrd_t thr[10];
-    for(int n = 0; n < 10; ++n)
-        thrd_create(&thr[n], f, NULL);
-    for(int n = 0; n < 10; ++n)
-        thrd_join(thr[n], NULL);
-
-    printf("The atomic counter is %d\n", acnt);
-    printf("The non-atomic counter is %d\n", cnt);
+    thrd_t thread;
+    int status = thrd_create(&thread, f, NULL);
+    if(status == thrd_error) {
+        puts("Failed creating threads");
+    }
+    for(int n = 0; n < 5; ++n) {
+        puts("a");
+    }
+    int res;
+    if(thrd_join(thread, &res) == thrd_error) {
+        puts("Failed waiting on thread");
+    }
+    puts("Finished");
 }
