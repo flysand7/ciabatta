@@ -22,5 +22,9 @@ int main() {
     char const *day_of_week = wday[time_str.tm_wday];
     struct tm *gmt = gmtime(&timestamp);
     struct tm *local = localtime(&timestamp);
+    puts(asctime(gmt));
+    puts(asctime(local));
+    time_t cur_time = time(NULL);
+    puts(ctime(&cur_time));
     return 0;
 }

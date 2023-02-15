@@ -3,7 +3,7 @@
 #define NS_PER_MS                   1000000
 
 #define TIME_TICKS_PER_SEC          1000000000ULL
-#define NS_BEFORE_UNIX_EPOCH        11644473600000000000ULL
+#define FT_TICKS_BEFORE_UNIX_EPOCH        116444736000000000ULL
 
 typedef struct tm tm_t;
 
@@ -35,8 +35,8 @@ static ULONGLONG _time_filetime_to_ns(FILETIME ft) {
 static ULONGLONG _time_utc_ns() {
     FILETIME ft;
     GetSystemTimeAsFileTime(&ft);
-    ULONGLONG ns = _time_filetime_to_ns(ft);
-    ULONGLONG unix_ns = ns - NS_BEFORE_UNIX_EPOCH;
+    ULONGLONG ticks = _time_filetime_to_ns(ft);
+    ULONGLONG unix_ns = (ticks - FT_TICKS_BEFORE_UNIX_EPOCH*100);
     return unix_ns;
 }
 
@@ -93,7 +93,7 @@ clock_t clock(void) {
 }
 
 time_t time(time_t *timer) {
-    ULONGLONG unix_nanos  = _time_mono_ns();
+    ULONGLONG unix_nanos  = _time_utc_ns();
     time_t    timer_ticks = unix_nanos;
     if(timer != NULL) {
         *timer = timer_ticks;
@@ -362,24 +362,76 @@ tm_t *gmtime(const time_t *timer) {
     return time;
 }
 
-tm_t *localtime(const time_t *timer) {
+static bool _offset_utc_time_to_local(tm_t *time) {
     TIME_ZONE_INFORMATION tz;
     if(GetTimeZoneInformation(&tz) == TIME_ZONE_ID_INVALID) {
-        return NULL;
+        return false;
     }
     int bias = tz.Bias;
     time->tm_min -= bias;
-    tm_t *local_time = gmtime(timer);
-    return local_time;
+    mktime(time);
+    return true;
+}
+
+tm_t *localtime(const time_t *timer) {
+    tm_t *utc_time = gmtime(timer);
+    if(!_offset_utc_time_to_local(utc_time)) {
+        return NULL;
+    }
+    return utc_time;
 }
 
 // String formatting
 
-char *asctime(const tm_t *timeptr) {
-    return NULL;
+static void _time_str_print2(char *str, int v) {
+    char hi = (v/10)%10 + '0';
+    char lo = v%10 + '0';
+    str[0] = hi;
+    str[1] = lo;
 }
+
+static void _time_str_print4(char *str, int v) {
+    char c1 = (v/1000)%10 + '0';
+    char c2 = (v/100)%10 + '0';
+    char c3 = (v/10)%10 + '0';
+    char c4 = v%10 + '0';
+    str[0] = c1;
+    str[1] = c2;
+    str[2] = c3;
+    str[3] = c4;
+}
+
+char *asctime(const struct tm *time) {
+    static const char wday_name[7][5] = {
+        "Sun ", "Mon ", "Tue ", "Wed ", "Thu ", "Fri ", "Sat ",
+    };
+    static const char mon_name[12][5] = {
+        "Jan ", "Feb ", "Mar ", "Apr ", "May ", "Jun ",
+        "Jul ", "Aug ", "Sep ", "Oct ", "Nov ", "Dec ",
+    };
+    char *buf = calloc(1, 26);
+    if(buf == NULL) {
+        return NULL;
+    }
+    strcpy(buf, wday_name[time->tm_wday]);
+    strcat(buf, mon_name[time->tm_mon]);
+    char *str = buf+8;
+    _time_str_print2(str+0, time->tm_mday);
+    _time_str_print2(str+3, time->tm_hour);
+    _time_str_print2(str+6, time->tm_min);
+    _time_str_print2(str+9, time->tm_sec);
+    str[2] = ' ';
+    str[5] = ':';
+    str[8] = ':';
+    str[11] = ' ';
+    _time_str_print4(str+12, 1900+time->tm_year);
+    str[16] = '\n';
+    str[17] = 0;
+    return buf;
+}
+
 char *ctime(const time_t *timer) {
-    return NULL;
+    return asctime(localtime(timer));
 }
 
 size_t strftime(char *restrict s, size_t size, const char *restrict fmt, const tm_t *restrict time) {
