@@ -64,6 +64,7 @@ void *_mem_alloc(size_t alignment, size_t size) {
     // memory buffer according to required alignment.
     size_t block_size = _mem_min_block_size(alignment, size);
     void *block_start = HeapAlloc(heap_handle, 0, block_size);
+    memset(block_start, 0, block_size);
     if(block_start == NULL) {
         return NULL;
     }
