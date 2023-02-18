@@ -1,8 +1,16 @@
 #pragma once
 
+// Note(bumbread): some of the macros and types are platform-dependent
+// and can be found in os_win/ subfolder.
+
+#if defined(_WIN32)
+    #include "os_win/threads_types.h"
+#else
+    #error "Not implemented"
+#endif
+
 // 7.28.1 p.3: Macros
 
-#define ONCE_FLAG_INIT      1
 #define TSS_DTOR_ITERATIONS 32
 
 // TODO(bumbread): check the spec for whether thread_local needs to be declared
@@ -20,18 +28,8 @@
     };
 #endif
 
-#if defined(_WIN32)
-    #include "os_win/threads_types.h"
-#else
-    #error "Not implemented"
-#endif
-
 typedef void(*tss_dtor_t)  (void*);
 typedef int (*thrd_start_t)(void*);
-
-// TODO(bumbread): this probably should be a mutex or a semaphore
-// also probably can be implemented with interlocked increment
-typedef int once_flag;
 
 // 7.28.1 p.5: Enumeration constants
 

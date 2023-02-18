@@ -2,33 +2,36 @@
 #include <threads.h>
 #include <stdatomic.h>
 
+#define N_THREADS 1
+
 _Thread_local int counter;
-tss_t key;
+once_flag flag = ONCE_FLAG_INIT;
+
+void init() {
+    puts("Hey I got a call");
+}
 
 int f(void* thr_data) {
-    tss_set(key, "Thread 2 finished");
+    call_once(&flag, init);
     for(int n = 0; n < 5; ++n)
         counter++;
-    puts(tss_get(key));
+    puts("Finished");
     return 0;
 }
 
 int main(void)
 {
-    tss_create(&key, NULL);
-    thrd_t thread;
-    int status = thrd_create(&thread, f, NULL);
-    if(status == thrd_error) {
-        puts("Failed creating threads");
+    thrd_t thread[N_THREADS];
+    for(int i = 0; i != N_THREADS; ++i) {
+        int status = thrd_create(&thread[i], f, NULL);
+        if(status == thrd_error) {
+            puts("Failed creating threads");
+        }
     }
-    for(int n = 0; n < 10; ++n) {
-        counter++;
+    for(int i = 0; i != N_THREADS; ++i) {
+        int res;
+        if(thrd_join(thread[i], &res) == thrd_error) {
+            puts("Failed waiting on thread");
+        }
     }
-    tss_set(key, "Thread 1 finished");
-    int res;
-    if(thrd_join(thread, &res) == thrd_error) {
-        puts("Failed waiting on thread");
-    }
-    puts(tss_get(key));
-    tss_delete(key);
 }

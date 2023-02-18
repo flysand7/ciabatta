@@ -130,16 +130,21 @@ _Noreturn void thrd_exit(int res) {
 #define TSS_KEYS_MAX 1088
 
 static tss_dtor_t _tss_dtors[TSS_KEYS_MAX];
+static bool _tss_init[TSS_KEYS_MAX];
 
 static void _thread_cleanup() {
     for(int i = 0; i != TSS_DTOR_ITERATIONS; ++i) {
-        for(unsigned k = 0; k != TSS_KEYS_MAX; ++k) {
+        for(unsigned k = 1; k != TSS_KEYS_MAX; ++k) {
+            if(!_tss_init[k]) {
+                continue;
+            }
             void *data = TlsGetValue(k);
-            if(data != NULL) {
-                TlsSetValue(k, NULL);
-                if(_tss_dtors[k]) {
-                    _tss_dtors[k](data);
-                }
+            if(data == NULL) {
+                continue;
+            }
+            TlsSetValue(k, NULL);
+            if(_tss_dtors[k]) {
+                _tss_dtors[k](data);
             }
         }
     }
@@ -156,11 +161,13 @@ int tss_create(tss_t *key, tss_dtor_t dtor) {
         TlsFree(tls_index);
         return thrd_error;
     }
+    _tss_init[tls_index] = true;
     _tss_dtors[tls_index] = dtor;
     return thrd_success;
 }
 
 void tss_delete(tss_t key) {
+    _tss_init[key.tls_index] = false;
     _tss_dtors[key.tls_index] = NULL;
     TlsFree(key.tls_index);
 }
@@ -178,6 +185,18 @@ int tss_set(tss_t key, void *val) {
        return thrd_error;
    }
    return thrd_success;
+}
+
+// Call once
+
+static BOOL _call_once_trampoline(PINIT_ONCE init_once, PVOID param, PVOID *ctx) {
+    void (*user_func)(void) = *ctx;
+    user_func();
+    return TRUE;
+}
+
+void call_once(once_flag *flag, void (*func)(void)) {
+    InitOnceExecuteOnce((void *)flag, _call_once_trampoline, NULL, (void **)&func);
 }
 
 // Mutex functions
