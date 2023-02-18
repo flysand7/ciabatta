@@ -190,13 +190,14 @@ int tss_set(tss_t key, void *val) {
 // Call once
 
 static BOOL _call_once_trampoline(PINIT_ONCE init_once, PVOID param, PVOID *ctx) {
-    void (*user_func)(void) = *ctx;
+    void (*user_func)(void) = param;
     user_func();
     return TRUE;
 }
 
 void call_once(once_flag *flag, void (*func)(void)) {
-    InitOnceExecuteOnce((void *)flag, _call_once_trampoline, NULL, (void **)&func);
+    void *funcp = func;
+    InitOnceExecuteOnce((void *)flag, _call_once_trampoline, funcp, NULL);
 }
 
 // Mutex functions

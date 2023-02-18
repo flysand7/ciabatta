@@ -2,7 +2,7 @@
 #include <threads.h>
 #include <stdatomic.h>
 
-#define N_THREADS 1
+#define N_THREADS 5
 
 _Thread_local int counter;
 once_flag flag = ONCE_FLAG_INIT;
