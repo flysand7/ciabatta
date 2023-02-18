@@ -16,19 +16,19 @@ int f(void* thr_data) {
 int main(void)
 {
     tss_create(&key, NULL);
-    // thrd_t thread;
-    // int status = thrd_create(&thread, f, NULL);
-    // if(status == thrd_error) {
-    //     puts("Failed creating threads");
-    // }
-    // for(int n = 0; n < 10; ++n) {
-    //     counter++;
-    // }
+    thrd_t thread;
+    int status = thrd_create(&thread, f, NULL);
+    if(status == thrd_error) {
+        puts("Failed creating threads");
+    }
+    for(int n = 0; n < 10; ++n) {
+        counter++;
+    }
     tss_set(key, "Thread 1 finished");
-    // int res;
-    // if(thrd_join(thread, &res) == thrd_error) {
-    //     puts("Failed waiting on thread");
-    // }
+    int res;
+    if(thrd_join(thread, &res) == thrd_error) {
+        puts("Failed waiting on thread");
+    }
     puts(tss_get(key));
     tss_delete(key);
 }
