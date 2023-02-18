@@ -4,17 +4,17 @@
 
 #pragma once
 
-typedef struct cnd_t {
-    int idk_yet;
-} cnd_t;
-
 typedef struct thrd_t {
     void *handle;
 } thrd_t;
 
 typedef struct tss_t {
-    int idk_yet;
+    unsigned tls_index;
 } tss_t;
+
+typedef struct cnd_t {
+    int idk_yet;
+} cnd_t;
 
 typedef struct mtx_t {
     int type;
