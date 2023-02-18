@@ -131,6 +131,7 @@ static void _io_close() {
     while(_file_tracker != NULL) {
         FILE *stream = _file_tracker;
         fclose(stream);
+        _file_tracker = _file_tracker->next;
     }
 }
 
