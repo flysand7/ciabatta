@@ -83,11 +83,7 @@ int  cnd_broadcast(cnd_t *cond);
 void cnd_destroy  (cnd_t *cond);
 int  cnd_signal   (cnd_t *cond);
 int  cnd_wait     (cnd_t *cond, mtx_t *mtx);
-int  cnd_timedwait(
-    cnd_t *restrict cond,
-    mtx_t *restrict mtx,
-    const struct timespec *restrict ts
-);
+int  cnd_timedwait(cnd_t *restrict cond, mtx_t *restrict mtx, const struct timespec *restrict ts);
 
 // Call once
 void call_once(once_flag *flag, void (*func)(void));

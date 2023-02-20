@@ -200,6 +200,34 @@ void call_once(once_flag *flag, void (*func)(void)) {
     InitOnceExecuteOnce((void *)flag, _call_once_trampoline, funcp, NULL);
 }
 
+// Condition variables
+
+int cnd_init(cnd_t *cond) {
+    InitializeConditionVariable((void *)cond);
+}
+
+int cnd_broadcast(cnd_t *cond) {
+    WakeAllConditionVariable((void *)cond);
+    return thrd_success;
+}
+
+void cnd_destroy(cnd_t *cond) {
+    return; // Does nothing
+}
+
+int cnd_signal(cnd_t *cond) {
+    WakeConditionVariable((void *)cond);
+    return thrd_success;
+}
+
+int cnd_wait(cnd_t *cond, mtx_t *mtx) {
+    return thrd_error; // TODO after mutexes
+}
+
+int cnd_timedwait(cnd_t *restrict cond, mtx_t *restrict mtx, const struct timespec *restrict ts) {
+    return thrd_error; // TODO after mutexes
+}
+
 // Mutex functions
 
 void mtx_destroy(mtx_t *mtx) {

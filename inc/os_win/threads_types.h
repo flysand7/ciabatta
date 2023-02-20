@@ -1,6 +1,8 @@
 
 // Note(bumbread): this file is included into threads.h when compiled under
-// windows.
+// windows. Here we avoid including windows.h directly because it may be
+// undesireable to include a bunch of non-standard names and types into user's
+// files just to get a few of them.
 
 #pragma once
 
@@ -21,8 +23,9 @@ typedef union once_flag {
     void *ptr;
 } once_flag;
 
+// This mirrors CONDITION_VARIABLE type (aka _RTL_CONDITION_VARIABLE)
 typedef struct cnd_t {
-    int idk_yet;
+    void *ptr;
 } cnd_t;
 
 typedef struct mtx_t {
