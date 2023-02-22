@@ -204,6 +204,7 @@ void call_once(once_flag *flag, void (*func)(void)) {
 
 int cnd_init(cnd_t *cond) {
     InitializeConditionVariable((void *)cond);
+    return thrd_success;
 }
 
 int cnd_broadcast(cnd_t *cond) {
