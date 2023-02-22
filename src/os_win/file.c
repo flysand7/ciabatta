@@ -305,10 +305,13 @@ int fclose(FILE *stream) {
         return EOF;
     }
     if(stream->temp) {
-        BOOL err = DeleteFileA(stream->temp_name);
+        BOOL ok = DeleteFileA(stream->temp_name);
         free(stream->temp_name);
-        return err;
+        if(!ok) {
+            return EOF;
+        }
     }
+    _file_untrack(stream);
     return 0;
 }
 
