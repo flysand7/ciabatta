@@ -61,6 +61,7 @@ typedef struct UserClosure {
 static DWORD _thread_call_user(void* arg) {
     UserClosure info = *((UserClosure*) arg);
     int result = info.func(info.arg);
+    free(arg);
     return (DWORD) result;
 }
 
