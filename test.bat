@@ -1,2 +1,3 @@
 
-clang -g %1 -I inc utf8.obj -nostdlib -mfma -lciabatta.lib
+clang -g test\%1.c -I include utf8.obj -nostdlib -mfma -lciabatta.lib
+"./a.exe"

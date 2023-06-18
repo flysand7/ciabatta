@@ -42,14 +42,15 @@ Processor Architecture:
 - x86-64
 
 -------------------------------------------------------------------------------
-USAGE
+USING THE LIBRARY
 -------------------------------------------------------------------------------
 
 Using ciabatta with msvc is not supported. The only compiler that the library
 have been compiled and tested with is clang.
 
 Note that the library can only be used with clang
-1. Run bake.cmd to compile ciabatta
+1. Run ./build.cmd to compile ciabatta
+1.5. (Optionally) Run `./test crt_functions` to make sure there are no errors
 2. Grab the following files into your project's directory:
 - The ./include folder
 - The ./ciabatta.lib archive file
