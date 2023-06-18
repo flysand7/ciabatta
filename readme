@@ -51,11 +51,11 @@ have been compiled and tested with is clang.
 Note that the library can only be used with clang
 1. Run bake.cmd to compile ciabatta
 2. Grab the following files into your project's directory:
-- The inc folder
-- The ciabatta.lib archive file
-- The utf8.obj object file
+- The ./include folder
+- The ./ciabatta.lib archive file
+- The ./utf8.obj object file
 3. Add the following flags to your compilation command:
-  -I inc utf8.obj -nostdlib -mfma
+  -I ./include utf8.obj -nostdlib -mfma
 4. Don't forget to link to the following libraries:
   -lciabatta.lib
 
