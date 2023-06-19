@@ -12,11 +12,26 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdarg.h>
+#include <stdint.h>
 
 // Tested
 #include <stdint.h>
 #include <limits.h>
 #include <ctype.h>
+
+#define TEST_MEMORY_SIZE 8*1024*1024
+static uint8_t test_memory[TEST_MEMORY_SIZE];
+static uint64_t test_memory_head = TEST_MEMORY_SIZE;
+
+static void *mem_alloc(uint64_t size) {
+    if(test_memory_head < size) {
+        fputs("Out of memory. Can't continue testing!!", stderr);
+        return NULL;
+    }
+    test_memory_head -= size;
+    return &test_memory[test_memory_head];
+}
 
 static unsigned long random_seed = 0;
 
@@ -39,7 +54,7 @@ static void prints(char *str) {
     }
 }
 
-static void printd(int number) {
+static void printd(int32_t number) {
     if(number < 0) {
         putchar('-');
         number = -number;
@@ -51,6 +66,98 @@ static void printd(int number) {
         number /= 10;
     } while(number != 0);
     prints(str);
+}
+
+static void printu(uint32_t number) {
+    char buffer[20] = {0};
+    char *str = buffer + sizeof buffer;
+    do {
+        *--str = number%10+'0';
+        number /= 10;
+    } while(number != 0);
+    prints(str);
+}
+
+static void print_fmt(char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    while(*fmt != 0) {
+        if(*fmt != '%') {
+            printc(*fmt);
+        }
+        else {
+            ++fmt;
+            if(*fmt == 'c') {
+                int ch = va_arg(args, int);
+                printc(ch);
+            }
+            else if(*fmt == '%') {
+                printc('%');
+            }
+            else if(*fmt == 's') {
+                char *str = va_arg(args, char*);
+                prints(str);
+            }
+            else if(*fmt == 'd') {
+                int32_t i = va_arg(args, int32_t);
+                printd(i);
+            }
+            else if(*fmt == 'u') {
+                uint32_t u = va_arg(args, uint32_t);
+                printu(u);
+            }
+        }
+        ++fmt;
+    }
+    va_end(args);
+}
+
+static void sprint_fmt(char *dst, char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    while(*fmt != 0) {
+        if(*fmt != '%') {
+            *dst++ = *fmt;
+        }
+        else {
+            ++fmt;
+            if(*fmt == 'c') {
+                int ch = va_arg(args, int);
+                *dst++ = ch;
+            }
+            else if(*fmt == 's') {
+                char *str = va_arg(args, char*);
+                while((*dst++ = *str++));
+            }
+            else if(*fmt == 'd') {
+                int32_t i = va_arg(args, int32_t);
+                if(i < 0) {
+                    i = -i;
+                    *dst++ = '-';
+                }
+                char buffer[20] = {0};
+                char *str = buffer + sizeof buffer;
+                do {
+                    *--str = i%10+'0';
+                    i /= 10;
+                } while(i != 0);
+                while((*dst++ = *str++));
+            }
+            else if(*fmt == 'u') {
+                uint32_t u = va_arg(args, uint32_t);
+                char buffer[20] = {0};
+                char *str = buffer + sizeof buffer;
+                do {
+                    *--str = u%10+'0';
+                    u /= 10;
+                } while(u != 0);
+                while((*dst++ = *str++));                
+            }
+        }
+        ++fmt;
+    }
+    *dst = 0;
+    va_end(fmt);
 }
 
 static void term_color_green() {
@@ -69,6 +176,8 @@ static void term_color_reset() {
     prints("\x1b[0m");
 }
 
+// This stuff is for saving results of tests to be a bit more flexible with printing
+// test results
 struct Test typedef Test;
 struct Test_Feature typedef Test_Feature;
 
@@ -94,27 +203,17 @@ static void print_test_results(Test_Feature *features_head) {
         total_test_count += feature->test_count;
         total_success_count += feature->success_count;
         term_color_green();
-        prints("==> Feature ");
+        print_fmt("==> Feature ");
         term_color_reset();
-        prints(feature->name);
-        prints(": (");
-        printd(feature->success_count);
-        printc('/');
-        printd(feature->test_count);
-        prints(")\n");
+        print_fmt("%s: (%d/%d)\n", feature->name, feature->success_count, feature->test_count);
         if(feature->success_count < feature->test_count) {
             int test_index = 0;
             for(Test *test = feature->test_head; test != NULL; test = test->next) {
                 if(!test->is_succeeded) {
                     term_color_red();
-                    prints("  Test #");
-                    printd(1+test_index);
+                    print_fmt("  Test #%d", 1+test_index);
                     term_color_reset();
-                    // prints(" (");
-                    // prints(test->condition_str);
-                    prints(" failed: ");
-                    prints(test->error_msg);
-                    printc('\n');
+                    print_fmt(" failed: %s\n", test->error_msg);
                 }
                 test_index += 1;
             }
@@ -141,17 +240,18 @@ static void print_test_results(Test_Feature *features_head) {
 #define XSTR(expr) #expr
 #define STR(expr) XSTR(expr)
 
-#define TESTS_INIT() \
-    Test_Feature *current_feature = NULL
+Test_Feature *current_feature = NULL;
 
 #define FEATURE_START__(NAME, NUMBER) \
-    Test_Feature feature_ ## NUMBER; \
-    (feature_ ## NUMBER).next = current_feature; \
-    current_feature = &(feature_ ## NUMBER); \
-    current_feature->name = NAME; \
-    current_feature->test_head = NULL; \
-    current_feature->success_count = 0; \
-    current_feature->test_count = 0
+    { \
+        Test_Feature *feature = mem_alloc(sizeof(Test_Feature)); \
+        feature->next = current_feature; \
+        current_feature = feature; \
+        current_feature->name = NAME; \
+        current_feature->test_head = NULL; \
+        current_feature->success_count = 0; \
+        current_feature->test_count = 0; \
+    }
 
 #define FEATURE_START_(NAME, NUMBER) \
     FEATURE_START__(NAME, NUMBER)    
@@ -161,30 +261,33 @@ static void print_test_results(Test_Feature *features_head) {
 
 #define FEATURE_END()
 
-#define TEST__(EXPR, ERROR_MSG, NUMBER) \
-    Test test_ ## NUMBER; \
-    (test_ ## NUMBER).next = current_feature->test_head; \
-    current_feature->test_head = &test_ ## NUMBER; \
-    current_feature->test_head->condition_str = STR(EXPR); \
-    current_feature->test_head->error_msg = ERROR_MSG; \
-    current_feature->test_head->is_succeeded = EXPR; \
-    if(current_feature->test_head->is_succeeded) {\
-        current_feature->success_count += 1; \
-    }\
-    current_feature->test_count += 1
+#define TEST__(EXPR, ERROR_FMT, NUMBER, ...) \
+    { \
+        Test *test = mem_alloc(sizeof(Test)); \
+        test->next = current_feature->test_head; \
+        current_feature->test_head = test; \
+        current_feature->test_head->condition_str = STR(EXPR); \
+        current_feature->test_head->is_succeeded = EXPR; \
+        if(current_feature->test_head->is_succeeded) {\
+            current_feature->success_count += 1; \
+        }\
+        else { \
+            current_feature->test_head->error_msg = mem_alloc(256); \
+            sprint_fmt(current_feature->test_head->error_msg, ERROR_FMT, __VA_ARGS__); \
+        }\
+        current_feature->test_count += 1; \
+    }
 
-#define TEST_(EXPR, ERROR_MSG, NUMBER) \
-    TEST__(EXPR, ERROR_MSG, NUMBER)
+#define TEST_(EXPR, ERROR_MSG, NUMBER, ...) \
+    TEST__(EXPR, ERROR_MSG, NUMBER, __VA_ARGS__)
 
-#define TEST(EXPR, ERROR_MSG) \
-    TEST_(EXPR, ERROR_MSG, __COUNTER__)
+#define TEST(EXPR, ERROR_MSG, ...) \
+    TEST_(EXPR, ERROR_MSG, __COUNTER__, __VA_ARGS__)
 
 #define TESTS_PRINT_RESULT() \
     print_test_results(current_feature)
 
 int main(int argc, char **argv) {
-    TESTS_INIT();
-    
     FEATURE_START("limits.h");
     {
         // Check existing of macro definitions
@@ -425,13 +528,15 @@ int main(int argc, char **argv) {
     FEATURE_START("ctype.h");
         // Test letters
         for(int i = 0; i != 10; ++i) {
-            TEST(isalpha(random_between('a', 'z')) != 0, "isalpha(letter) returned false");
-            TEST(isdigit(random_between('a', 'z')) == 0, "isdigit(letter) returned true");
+            int letter = random_between('a', 'z');
+            TEST(isalpha(letter) != 0, "isalpha('%c') returned false", letter);
+            TEST(isdigit(letter) == 0, "isdigit('%c') returned true", letter);
         }
         // Test digits
         for(int i = 0; i != 10; ++i) {
-            TEST(isalpha(random_between('0', '9')) == 0, "isalpha(digit) returned true");
-            TEST(isdigit(random_between('0', '9')) != 0, "isdigit(digit) returned false");
+            int digit = random_between('0', '9');
+            TEST(isalpha(digit) == 0, "isalpha('%c') returned true", digit);
+            TEST(isdigit(digit) != 0, "isdigit('%c') returned false", digit);
         }
     FEATURE_END();
 
