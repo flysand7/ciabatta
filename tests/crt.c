@@ -14,12 +14,14 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <time.h>
 
 // Tested
 #include <stdint.h>
 #include <limits.h>
 #include <ctype.h>
-#include <time.h>
+
+// MEMORY
 
 #define TEST_MEMORY_SIZE 8*1024*1024
 static uint8_t test_memory[TEST_MEMORY_SIZE];
@@ -34,6 +36,8 @@ static void *mem_alloc(uint64_t size) {
     return &test_memory[test_memory_head];
 }
 
+// RANDOM NUMBER GENERATOR (RNG)
+
 static unsigned long random_seed = 0;
 
 unsigned long random(void) {
@@ -45,19 +49,21 @@ unsigned long random_between(int lo, int hi) {
     return (random() % (1+hi - lo)) + lo;
 }
 
-static void printc(char c) {
-    putchar(c);
+// IO
+
+static void fprintc(FILE *file, char c) {
+    fputc(c, file);
 }
 
-static void prints(char *str) {
+static void fprints(FILE *file, char *str) {
     while(*str != 0) {
-        printc(*str++);
+        fputc(*str++, file);
     }
 }
 
-static void printd(int32_t number, int width) {
+static void fprintd(FILE *file, int32_t number, int width) {
     if(number < 0) {
-        putchar('-');
+        fprintc(file, '-');
         number = -number;
     }
     char buffer[20] = {0};
@@ -69,12 +75,12 @@ static void printd(int32_t number, int width) {
     int num_digits = (int)((buffer + sizeof buffer - 1) - str);
     int pad_width = width - num_digits;
     while(pad_width-- > 0) {
-        printc('0');
+        fprintc(file, '0');
     }
-    prints(str);
+    fprints(file, str);
 }
 
-static void printu(uint32_t number, int width) {
+static void fprintu(FILE *file, uint32_t number, int width) {
     char buffer[20] = {0};
     char *str = buffer + sizeof buffer;
     do {
@@ -84,17 +90,15 @@ static void printu(uint32_t number, int width) {
     int num_digits = (int)((buffer + sizeof buffer - 1) - str);
     int pad_width = width - num_digits;
     while(pad_width-- > 0) {
-        printc('0');
+        fprintc(file, '0');
     }
-    prints(str);
+    fprints(file, str);
 }
 
-static void print_fmt(char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
+static void fvprint_fmt(FILE *file, char *fmt, va_list args) {
     while(*fmt != 0) {
         if(*fmt != '%') {
-            printc(*fmt);
+            fprintc(file, *fmt);
         }
         else {
             ++fmt;
@@ -105,26 +109,55 @@ static void print_fmt(char *fmt, ...) {
             }
             if(*fmt == 'c') {
                 int ch = va_arg(args, int);
-                printc(ch);
+                fprintc(file, ch);
             }
             else if(*fmt == '%') {
-                printc('%');
+                fprintc(file, '%');
             }
             else if(*fmt == 's') {
                 char *str = va_arg(args, char*);
-                prints(str);
+                fprints(file, str);
             }
             else if(*fmt == 'd') {
                 int32_t i = va_arg(args, int32_t);
-                printd(i, width);
+                fprintd(file, i, width);
             }
             else if(*fmt == 'u') {
                 uint32_t u = va_arg(args, uint32_t);
-                printu(u, width);
+                fprintu(file, u, width);
             }
         }
         ++fmt;
     }
+}
+
+static void fprint_fmt(FILE *file, char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    fvprint_fmt(file, fmt, args);
+    va_end(args);
+}
+
+static void printc(char c) {
+    fprintc(stdout, c);
+}
+
+static void prints(char *str) {
+    fprints(stdout, str);
+}
+
+static void printd(int32_t number, int width) {
+    fprintd(stdout, number, width);
+}
+
+static void printu(uint32_t number, int width) {
+    fprintu(stdout, number, width);
+}
+
+static void print_fmt(char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    fvprint_fmt(stdout, fmt, args);
     va_end(args);
 }
 
@@ -137,6 +170,11 @@ static void sprint_fmt(char *dst, char *fmt, ...) {
         }
         else {
             ++fmt;
+            int width = 0;
+            while('0' <= *fmt && *fmt <= '9') {
+                width = 10*width + *fmt-'0';
+                ++fmt;
+            }
             if(*fmt == 'c') {
                 int ch = va_arg(args, int);
                 *dst++ = ch;
@@ -157,6 +195,11 @@ static void sprint_fmt(char *dst, char *fmt, ...) {
                     *--str = i%10+'0';
                     i /= 10;
                 } while(i != 0);
+                int num_digits = (int)((buffer + sizeof buffer - 1) - str);
+                int pad_width = width - num_digits;
+                while(pad_width-- > 0) {
+                    *dst++ = '0';
+                }
                 while((*dst++ = *str++));
             }
             else if(*fmt == 'u') {
@@ -167,6 +210,11 @@ static void sprint_fmt(char *dst, char *fmt, ...) {
                     *--str = u%10+'0';
                     u /= 10;
                 } while(u != 0);
+                int num_digits = (int)((buffer + sizeof buffer - 1) - str);
+                int pad_width = width - num_digits;
+                while(pad_width-- > 0) {
+                    *dst++ = '0';
+                }
                 while((*dst++ = *str++));                
             }
         }
