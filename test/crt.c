@@ -197,20 +197,43 @@ struct Test {
     bool is_succeeded;
 };
 
-static void print_test_results(Test_Feature *features_head) {
+static void print_test_results(Test_Feature *features_reversed) {
     prints(":: Printing test results\n");
+    // Reverse the linked list of features
+    Test_Feature *new_head = NULL;
+    while(features_reversed != NULL) {
+        Test_Feature *reversed_next = features_reversed->next;
+        Test_Feature *new_prev = features_reversed;
+        new_prev->next = new_head;
+        new_head = new_prev;
+        features_reversed = reversed_next;
+    }
+    // Iterate features
     int total_test_count = 0;
     int total_success_count = 0;
-    for(Test_Feature *feature = features_head; feature != NULL; feature = feature->next) {
+    for(Test_Feature *feature = new_head; feature != NULL; feature = feature->next) {
+        // Update counters
         total_test_count += feature->test_count;
         total_success_count += feature->success_count;
+        // Print feature name
         term_color_green();
         print_fmt("==> Feature ");
         term_color_reset();
         print_fmt("%s: (%d/%d)\n", feature->name, feature->success_count, feature->test_count);
         if(feature->success_count < feature->test_count) {
+            // Reverse the linked list
+            Test *reversed_head = feature->test_head;
+            Test *head = NULL;
+            while(reversed_head != NULL) {
+                Test *reversed_next = reversed_head->next;
+                Test *head_prev = reversed_head;
+                head_prev->next = head;
+                head = head_prev;
+                reversed_head = reversed_next;
+            }
+            // Iterate tests
             int test_index = 0;
-            for(Test *test = feature->test_head; test != NULL; test = test->next) {
+            for(Test *test = head; test != NULL; test = test->next) {
                 if(!test->is_succeeded) {
                     term_color_red();
                     print_fmt("  Test #%d", 1+test_index);
