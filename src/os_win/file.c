@@ -275,6 +275,7 @@ FILE *freopen(const char *restrict name, const char *restrict mode, FILE *restri
     DWORD share = win_mode.share;
     DWORD disp = win_mode.disp;
     if(name == NULL) {
+        // This codepath doesn't work
         HANDLE handle = ReOpenFile(stream->handle, access, share, flags);
         if(handle == INVALID_HANDLE_VALUE) {
             return NULL;

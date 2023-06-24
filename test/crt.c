@@ -647,7 +647,7 @@ int main(int argc, char **argv) {
             TEST(fputs(str, file) >= 0, "fputs failed");
             TEST(fputc('!', file) == '!', "fputc failed");
             TEST(fflush(file) == 0, "fflush failed");
-            TEST(fclose(file) == 0, "fclose failed");
+            // TEST(fclose(file) == 0, "fclose failed");
             file = freopen("test_folder/getc", "rb", file);
             TEST(file != NULL, "Reopened file is NULL");
             TEST(fgets(str, sizeof str, file) == str, "fgets failed");
