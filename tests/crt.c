@@ -51,6 +51,8 @@ unsigned long random_between(int lo, int hi) {
 
 // FORMATTING AND IO
 
+bool fmt_xml_escapes = false;
+
 static void fprintc(FILE *file, char c) {
     fputc(c, file);
 }
@@ -58,6 +60,27 @@ static void fprintc(FILE *file, char c) {
 static void fprints(FILE *file, char *str) {
     while(*str != 0) {
         fputc(*str++, file);
+    }
+}
+
+static void fprintc_maybe_xml(FILE *file, char c) {
+    if(c == '"' && fmt_xml_escapes) {
+        fprints(file, "&quot;");
+    }
+    else if(c == '&' && fmt_xml_escapes) {
+        fprints(file, "&amp;");
+    }
+    else if(c == '<' && fmt_xml_escapes) {
+        fprints(file, "&lt;");
+    }
+    else if(c == '>' && fmt_xml_escapes) {
+        fprints(file, "&gt;");
+    }
+    else if(c == '\'' && fmt_xml_escapes) {
+        fprints(file, "&apos;");
+    }
+    else {
+        fprintc(file, c);
     }
 }
 
@@ -109,14 +132,17 @@ static void fvprint_fmt(FILE *file, char *fmt, va_list args) {
             }
             if(*fmt == 'c') {
                 int ch = va_arg(args, int);
-                fprintc(file, ch);
+                fprintc_maybe_xml(file, ch);
             }
             else if(*fmt == '%') {
                 fprintc(file, '%');
             }
             else if(*fmt == 's') {
                 char *str = va_arg(args, char*);
-                fprints(file, str);
+                while(*str != 0) {
+                    fprintc_maybe_xml(file, *str);
+                    ++str;
+                }
             }
             else if(*fmt == 'd') {
                 int32_t i = va_arg(args, int32_t);
@@ -338,6 +364,7 @@ static void print_test_results(Test_Feature *features) {
 // JUNIT OUTPUT
 
 static void junit_write(char *path, Test_Feature *features) {
+    fmt_xml_escapes = true;
     FILE *xml = fopen(path, "wb");
     // TODO: store tests and failures in an object instead of calculating it like that
     int total_test_count = 0;
@@ -371,6 +398,7 @@ static void junit_write(char *path, Test_Feature *features) {
     }
     fprint_fmt(xml, "</testsuites>\n");
     fclose(xml);
+    fmt_xml_escapes = false;
 }
 
 // TEST MACROS
