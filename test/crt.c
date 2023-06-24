@@ -610,6 +610,15 @@ int main(int argc, char **argv) {
             TEST(fread(&num, sizeof(int), 1, file) == 1, "fread didn't read the int");
             TEST(num == 9, "Wrong number read");
             TEST(fclose(file) == 0, "fclose didn't close the file");
+            file = fopen("test_folder/seek", "wb");
+            TEST(file != NULL, "Created file is NULL");
+            fpos_t nul_pos;
+            TEST(fgetpos(file, &nul_pos) == 0, "Couldn't get file position");
+            TEST(fseek(file, 0, SEEK_END) == 0, "Couldn't seek to the end of the file");
+            long file_size = ftell(file);
+            TEST(file_size != -1L, "ftell failed");
+            TEST(fsetpos(file, &nul_pos) == 0, "Couldn't reset file position");
+            TEST(ftell(file) == 0, "File position reset to wrong spot");
         }
         // Getchar, ungetchar
         {
@@ -619,11 +628,13 @@ int main(int argc, char **argv) {
             TEST(fputs(str, file) >= 0, "fputs failed");
             TEST(fputc('!', file) == '!', "fputc failed");
             TEST(fflush(file) == 0, "fflush failed");
-            fclose(file);
+            TEST(fclose(file) == 0, "fclose failed");
             file = freopen("test_folder/getc", "rb", file);
             TEST(file != NULL, "Reopened file is NULL");
             TEST(fgets(str, sizeof str, file) == str, "fgets failed");
             TEST(fgetc(file) == '!', "fgetc read the wrong thing");
+            TEST(ungetc('?', file) == '?', "ungetc failed to put a character");
+            TEST(fgetc(file) == '?', "Didn't get back the same character that we unget'ed");
             TEST(fclose(file) == 0, "fclose failed");
         }
     }
