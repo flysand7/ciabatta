@@ -578,8 +578,8 @@ int main(int argc, char **argv) {
             FILE *file = fopen("test_folder/seek", "wb");
             TEST(file != NULL, "Created file is NULL");
             TEST(fwrite(numbers, sizeof(int), 10, file) == 10, "fwrite didn't write all 10 objects");
+            TEST(fflush(file) == 0, "fflush failed");
             TEST(fseek(file, 4*sizeof(int), SEEK_SET) == 0, "fseek couldn't seek to offset 4");
-            // TEST(fflush(file) == 0, "fflush failed");
             int num;
             TEST(fread(&num, sizeof(int), 1, file) == 1, "fread didn't read the int");
             TEST(num == 4, "Wrong value read at offset 4");

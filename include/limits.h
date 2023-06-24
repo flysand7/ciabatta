@@ -67,6 +67,7 @@
 #define WINT_MIN         INT_MIN
 #define WINT_MAX         INT_MAX
 
+#define CHAR_WIDTH       8
 #define WCHAR_WIDTH      USHORT_WIDTH
 
 #if !defined(WCHAR_MIN)
