@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <ctype.h>
+#include <time.h>
 
 #define TEST_MEMORY_SIZE 8*1024*1024
 static uint8_t test_memory[TEST_MEMORY_SIZE];
@@ -54,27 +55,37 @@ static void prints(char *str) {
     }
 }
 
-static void printd(int32_t number) {
+static void printd(int32_t number, int width) {
     if(number < 0) {
         putchar('-');
         number = -number;
     }
     char buffer[20] = {0};
-    char *str = buffer + sizeof buffer;
+    char *str = buffer + sizeof buffer - 1;
     do {
         *--str = number%10+'0';
         number /= 10;
     } while(number != 0);
+    int num_digits = (int)((buffer + sizeof buffer - 1) - str);
+    int pad_width = width - num_digits;
+    while(pad_width-- > 0) {
+        printc('0');
+    }
     prints(str);
 }
 
-static void printu(uint32_t number) {
+static void printu(uint32_t number, int width) {
     char buffer[20] = {0};
     char *str = buffer + sizeof buffer;
     do {
         *--str = number%10+'0';
         number /= 10;
     } while(number != 0);
+    int num_digits = (int)((buffer + sizeof buffer - 1) - str);
+    int pad_width = width - num_digits;
+    while(pad_width-- > 0) {
+        printc('0');
+    }
     prints(str);
 }
 
@@ -87,6 +98,11 @@ static void print_fmt(char *fmt, ...) {
         }
         else {
             ++fmt;
+            int width = 0;
+            while('0' <= *fmt && *fmt <= '9') {
+                width = 10*width + *fmt-'0';
+                ++fmt;
+            }
             if(*fmt == 'c') {
                 int ch = va_arg(args, int);
                 printc(ch);
@@ -100,11 +116,11 @@ static void print_fmt(char *fmt, ...) {
             }
             else if(*fmt == 'd') {
                 int32_t i = va_arg(args, int32_t);
-                printd(i);
+                printd(i, width);
             }
             else if(*fmt == 'u') {
                 uint32_t u = va_arg(args, uint32_t);
-                printu(u);
+                printu(u, width);
             }
         }
         ++fmt;
@@ -243,21 +259,24 @@ static void print_test_results(Test_Feature *features_reversed) {
                 test_index += 1;
             }
         }
-        float success_percentage = (float) total_success_count / (float)total_test_count;
-        if(success_percentage < 0.5) {
-            term_color_red();
-        }
-        else if(success_percentage != 1.0) {
-            term_color_yellow();
-        }
-        else {
-            term_color_green();
-        }
     }
+    float success_percentage = (float) total_success_count / (float)total_test_count;
+    if(success_percentage < 0.5) {
+        term_color_red();
+    }
+    else if(success_percentage != 1.0) {
+        term_color_yellow();
+    }
+    else {
+        term_color_green();
+    }
+    time_t timestamp = time(NULL);
+    struct tm tm = *localtime(&timestamp);
+    print_fmt("[%4d-%2d-%2d %2d:%2d:%2d] ", 1900+tm.tm_year, 1+tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
     prints("TESTS COMPLETED: ");
-    printd(total_success_count);
+    printd(total_success_count, 0);
     printc('/');
-    printd(total_test_count);
+    printd(total_test_count, 0);
     term_color_reset();
     printc('\n');
 }
