@@ -1,7 +1,7 @@
 
 # Ciabatta
 
-![Build Status](https://github.com/github/docs/actions/workflows/build.yml/badge.svg?event=push)
+![Build Status](https://github.com/flysand7/ciabatta/actions/workflows/build.yml/badge.svg?event=push)
 
 Ciabatta - An implementation of cross-platform C standard library with the
 following goals:
