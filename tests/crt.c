@@ -49,7 +49,7 @@ unsigned long random_between(int lo, int hi) {
     return (random() % (1+hi - lo)) + lo;
 }
 
-// IO
+// FORMATTING AND IO
 
 static void fprintc(FILE *file, char c) {
     fputc(c, file);
@@ -240,6 +240,8 @@ static void term_color_reset() {
     prints("\x1b[0m");
 }
 
+// TEST SUITE FUNCTIONS
+
 // This stuff is for saving results of tests to be a bit more flexible with printing
 // test results
 struct Test typedef Test;
@@ -261,9 +263,7 @@ struct Test {
     bool is_succeeded;
 };
 
-static void print_test_results(Test_Feature *features_reversed) {
-    prints(":: Printing test results\n");
-    // Reverse the linked list of features
+static Test_Feature *reverse_test_lists(Test_Feature *features_reversed) {
     Test_Feature *new_head = NULL;
     while(features_reversed != NULL) {
         Test_Feature *reversed_next = features_reversed->next;
@@ -272,10 +272,27 @@ static void print_test_results(Test_Feature *features_reversed) {
         new_head = new_prev;
         features_reversed = reversed_next;
     }
+    for(Test_Feature *feature = new_head; feature != NULL; feature = feature->next) {
+        Test *reversed_head = feature->test_head;
+        Test *head = NULL;
+        while(reversed_head != NULL) {
+            Test *reversed_next = reversed_head->next;
+            Test *head_prev = reversed_head;
+            head_prev->next = head;
+            head = head_prev;
+            reversed_head = reversed_next;
+        }
+        feature->test_head = head;
+    }
+    return new_head;
+}
+
+static void print_test_results(Test_Feature *features) {
+    prints(":: Printing test results\n");
     // Iterate features
     int total_test_count = 0;
     int total_success_count = 0;
-    for(Test_Feature *feature = new_head; feature != NULL; feature = feature->next) {
+    for(Test_Feature *feature = features; feature != NULL; feature = feature->next) {
         // Update counters
         total_test_count += feature->test_count;
         total_success_count += feature->success_count;
@@ -285,19 +302,8 @@ static void print_test_results(Test_Feature *features_reversed) {
         term_color_reset();
         print_fmt("%s: (%d/%d)\n", feature->name, feature->success_count, feature->test_count);
         if(feature->success_count < feature->test_count) {
-            // Reverse the linked list
-            Test *reversed_head = feature->test_head;
-            Test *head = NULL;
-            while(reversed_head != NULL) {
-                Test *reversed_next = reversed_head->next;
-                Test *head_prev = reversed_head;
-                head_prev->next = head;
-                head = head_prev;
-                reversed_head = reversed_next;
-            }
-            // Iterate tests
             int test_index = 0;
-            for(Test *test = head; test != NULL; test = test->next) {
+            for(Test *test = feature->test_head; test != NULL; test = test->next) {
                 if(!test->is_succeeded) {
                     term_color_red();
                     print_fmt("  Test #%d", 1+test_index);
@@ -329,10 +335,61 @@ static void print_test_results(Test_Feature *features_reversed) {
     printc('\n');
 }
 
+// JUNIT OUTPUT
+
+static void junit_write(char *path, Test_Feature *features) {
+    FILE *xml = fopen(path, "wb");
+    // TODO: store tests and failures in an object instead of calculating it like that
+    int total_test_count = 0;
+    int total_success_count = 0;
+    for(Test_Feature *feature = features; feature != NULL; feature = feature->next) {
+        total_test_count += feature->test_count;
+        total_success_count += feature->success_count;
+    }
+    fprint_fmt(xml, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+    fprint_fmt(xml, "<testsuites id=\"0\" name=\"%s\" tests=\"%d\" failures=\"%d\" time=\"0\">\n",
+        "Ciabatta CRT functions test suite", total_test_count, total_test_count - total_success_count);
+    int feature_id = 0;
+    for(Test_Feature *feature = features; feature != NULL; feature = feature->next) {
+        fprint_fmt(xml, "  <testsuite id=\"%d\" name=\"%s\" tests=\"%d\" failures=\"%d\" time=\"0\">\n",
+            feature_id, feature->name, feature->test_count, feature->test_count - feature->success_count);
+        int test_id = 0;
+        for(Test *test = feature->test_head; test != NULL; test = test->next) {
+            fprint_fmt(xml, "    <testcase id=\"%d\" name=\"%s\" time=\"0\">\n",
+                test_id, test->condition_str);
+            if(!test->is_succeeded) {
+                fprint_fmt(xml, "      <failure message=\"crt.c(%d): %s\" type=\"ERROR\">\n",
+                    test->line, test->error_msg);
+                fprint_fmt(xml, "      Failure message\n");
+                fprint_fmt(xml, "      </failure>\n");
+            }
+            test_id += 1;
+            fprint_fmt(xml, "    </testcase>\n");
+        }
+        feature_id += 1;
+        fprint_fmt(xml, "  </testsuite>\n");
+    }
+    fprint_fmt(xml, "</testsuites>\n");
+    fclose(xml);
+}
+
+// TEST MACROS
+
 #define XSTR(expr) #expr
 #define STR(expr) XSTR(expr)
 
 Test_Feature *current_feature = NULL;
+bool junit_output = false;
+char *junit_output_path = NULL;
+
+#define JUNIT_START(XML_PATH) \
+    junit_output = true; \
+    junit_output_path = XML_PATH
+
+#define JUNIT_END() \
+    if(junit_output) { \
+        junit_write(junit_output_path, current_feature); \
+    }
 
 #define FEATURE_START__(NAME, NUMBER) \
     { \
@@ -378,10 +435,14 @@ Test_Feature *current_feature = NULL;
 #define TEST(EXPR, ERROR_MSG, ...) \
     TEST_(EXPR, ERROR_MSG, __COUNTER__, __LINE__, __VA_ARGS__)
 
+#define TESTS_PREPARE() \
+    current_feature = reverse_test_lists(current_feature)
+
 #define TESTS_PRINT_RESULT() \
     print_test_results(current_feature)
 
 int main(int argc, char **argv) {
+    JUNIT_START("test/junit.xml");
     FEATURE_START("limits.h");
     {
         // Check existing of macro definitions
@@ -705,7 +766,8 @@ int main(int argc, char **argv) {
             TEST(fclose(file) == 0, "fclose failed");
         }
     }
-
+    TESTS_PREPARE();
     TESTS_PRINT_RESULT();
+    JUNIT_END();
     return 0;
 }
