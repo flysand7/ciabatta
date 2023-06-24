@@ -193,6 +193,7 @@ struct Test {
     Test *next;
     char *condition_str;
     char *error_msg;
+    int line;
     bool is_succeeded;
 };
 
@@ -213,7 +214,7 @@ static void print_test_results(Test_Feature *features_head) {
                     term_color_red();
                     print_fmt("  Test #%d", 1+test_index);
                     term_color_reset();
-                    print_fmt(" failed: %s\n", test->error_msg);
+                    print_fmt(" failed (line %d): %s\n", test->line, test->error_msg);
                 }
                 test_index += 1;
             }
@@ -261,13 +262,14 @@ Test_Feature *current_feature = NULL;
 
 #define FEATURE_END()
 
-#define TEST__(EXPR, ERROR_FMT, NUMBER, ...) \
+#define TEST__(EXPR, ERROR_FMT, NUMBER, LINE, ...) \
     { \
         Test *test = mem_alloc(sizeof(Test)); \
         test->next = current_feature->test_head; \
         current_feature->test_head = test; \
         current_feature->test_head->condition_str = STR(EXPR); \
         current_feature->test_head->is_succeeded = EXPR; \
+        current_feature->test_head->line = LINE; \
         if(current_feature->test_head->is_succeeded) {\
             current_feature->success_count += 1; \
         }\
@@ -278,11 +280,11 @@ Test_Feature *current_feature = NULL;
         current_feature->test_count += 1; \
     }
 
-#define TEST_(EXPR, ERROR_MSG, NUMBER, ...) \
-    TEST__(EXPR, ERROR_MSG, NUMBER, __VA_ARGS__)
+#define TEST_(EXPR, ERROR_MSG, NUMBER, LINE, ...) \
+    TEST__(EXPR, ERROR_MSG, NUMBER, LINE, __VA_ARGS__)
 
 #define TEST(EXPR, ERROR_MSG, ...) \
-    TEST_(EXPR, ERROR_MSG, __COUNTER__, __VA_ARGS__)
+    TEST_(EXPR, ERROR_MSG, __COUNTER__, __LINE__, __VA_ARGS__)
 
 #define TESTS_PRINT_RESULT() \
     print_test_results(current_feature)
