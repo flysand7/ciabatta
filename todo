@@ -53,6 +53,9 @@ stdio.h:
 *   tmpnam_s
 *   Printing 8.98846567431157854073e+307
 *   Printing negative zero
+*   Add functions for testing a file path, creating directories
+*   Fix the bug where if a file wasn't closed the thing crashes when
+    trying to flush the buffer
 
 stdlib.h:
 *   Strtod base 16 must be correctly rounded

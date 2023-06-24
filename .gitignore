@@ -9,3 +9,4 @@ a.out
 *.o
 *.4coder
 *.rdbg
+test_folder/

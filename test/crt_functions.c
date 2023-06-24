@@ -526,6 +526,7 @@ int main(int argc, char **argv) {
     FEATURE_END();
 
     FEATURE_START("ctype.h");
+    {
         // Test letters
         for(int i = 0; i != 10; ++i) {
             int letter = random_between('a', 'z');
@@ -538,7 +539,66 @@ int main(int argc, char **argv) {
             TEST(isalpha(digit) == 0, "isalpha('%c') returned true", digit);
             TEST(isdigit(digit) != 0, "isdigit('%c') returned false", digit);
         }
+    }
     FEATURE_END();
+    
+    FEATURE_START("IO functions (stdio.h)");
+    {
+        static int numbers[10] = {0,1,2,3,4,5,6,7,8,9};
+        // fread/fwrite
+        {
+            FILE *file = fopen("test_folder/file", "wb");
+            TEST(file != NULL, "Created file is NULL");
+            int cnt_written = fwrite(numbers, sizeof(int), 10, file);
+            TEST(cnt_written == 10, "fwrite didn't write all 10 objects");
+            TEST(fclose(file) == 0, "fclose didn't close the file");
+            TEST(rename("test_folder/file", "test_folder/file2") == 0, "Rename returned 0");
+            file = fopen("test_folder/file2", "rb");
+            TEST(file != NULL, "Created file is NULL");
+            int read_numbers[10];
+            int cnt_read = fread(numbers, sizeof(int), 10, file);
+            TEST(cnt_read == 10, "fread didn't read 10 objects");
+            bool all_ok = true;
+            for(int i = 0; i != 10; ++i) {
+                if(read_numbers[i] != numbers[i]) {
+                    all_ok = false;
+                    break;
+                }
+            }
+            TEST(all_ok, "The elements read didn't match the elements written");
+            TEST(fclose(file) == 0, "fclose didn't close the file");
+            TEST(remove("test_folder/file2") == 0, "remove didn't remove the file");
+        }
+        // Seeking and stuff
+        {
+            FILE *file = fopen("test_folder/seek", "wb");
+            TEST(file != NULL, "Created file is NULL");
+            TEST(fwrite(numbers, sizeof(int), 10, file) == 10, "fwrite didn't write all 10 objects");
+            TEST(fseek(file, 4*sizeof(int), SEEK_SET) == 0, "fseek couldn't seek to offset 4");
+            int num;
+            TEST(fread(&num, sizeof(int), 1, file) == 1, "fread didn't read the int");
+            TEST(num == 4, "Wrong value read at offset 4");
+            TEST(fseek(file, -4, SEEK_END) == 0, "fseek coudn't seek to the end");
+            TEST(fread(&num, sizeof(int), 1, file) == 1, "fread didn't read the int");
+            TEST(num == 9, "Wrong number read");
+            TEST(fclose(file) == 0, "fclose didn't close the file");
+        }
+        // Getchar, ungetchar
+        {
+            char str[] = "Hello, world!";
+            FILE *file = fopen("test_folder/getc", "wb");
+            TEST(file != NULL, "Created file is NULL");
+            TEST(fputs(str, file) >= 0, "fputs failed");
+            TEST(fputc('!', file) == '!', "fputc failed");
+            TEST(fflush(file) == 0, "fflush failed");
+            fclose(file);
+            file = freopen("test_folder/getc", "rb", file);
+            TEST(file != NULL, "Reopened file is NULL");
+            TEST(fgets(str, sizeof str, file) == str, "fgets failed");
+            TEST(fgetc(file) == '!', "fgetc read the wrong thing");
+            TEST(fclose(file) == 0, "fclose failed");
+        }
+    }
 
     TESTS_PRINT_RESULT();
     return 0;
