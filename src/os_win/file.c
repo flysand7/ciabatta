@@ -594,8 +594,7 @@ int fgetpos(FILE *restrict stream, fpos_t *restrict pos) {
 int fseek(FILE *stream, long int offset, int whence) {
     // Note(bumbread): the SEEK_SET, SEEK_CUR and SEEK_END are defined to match
     // the Windows constants, so no conversion is requierd between them.
-    LONG pos_hi = 0;
-    DWORD pos_lo = SetFilePointer(stream->handle, offset, &pos_hi, whence);
+    DWORD pos_lo = SetFilePointer(stream->handle, offset, NULL, whence);
     if(pos_lo == INVALID_SET_FILE_POINTER) {
         return -1L;
     }
@@ -603,9 +602,8 @@ int fseek(FILE *stream, long int offset, int whence) {
 }
 
 int fsetpos(FILE *stream, const fpos_t *pos) {
-    LONG pos_hi = pos->offset >> 32;
     LONG pos_lo = (LONG)(pos->offset & 0xffffffff);
-    DWORD status = SetFilePointer(stream->handle, pos_lo, &pos_hi, FILE_BEGIN);
+    DWORD status = SetFilePointer(stream->handle, pos_lo, NULL, FILE_BEGIN);
     if(status == INVALID_SET_FILE_POINTER) {
         return 1;
     }

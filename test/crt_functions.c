@@ -198,6 +198,7 @@ struct Test {
 };
 
 static void print_test_results(Test_Feature *features_head) {
+    prints(":: Printing test results\n");
     int total_test_count = 0;
     int total_success_count = 0;
     for(Test_Feature *feature = features_head; feature != NULL; feature = feature->next) {
@@ -245,6 +246,7 @@ Test_Feature *current_feature = NULL;
 
 #define FEATURE_START__(NAME, NUMBER) \
     { \
+        print_fmt(":: Running tests for %s\n", NAME); \
         Test_Feature *feature = mem_alloc(sizeof(Test_Feature)); \
         feature->next = current_feature; \
         current_feature = feature; \
@@ -577,6 +579,7 @@ int main(int argc, char **argv) {
             TEST(file != NULL, "Created file is NULL");
             TEST(fwrite(numbers, sizeof(int), 10, file) == 10, "fwrite didn't write all 10 objects");
             TEST(fseek(file, 4*sizeof(int), SEEK_SET) == 0, "fseek couldn't seek to offset 4");
+            // TEST(fflush(file) == 0, "fflush failed");
             int num;
             TEST(fread(&num, sizeof(int), 1, file) == 1, "fread didn't read the int");
             TEST(num == 4, "Wrong value read at offset 4");
