@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  test:
     strategy:
       matrix:
         BUILD_CONFIGURATION: [CIA_DEBUG]
