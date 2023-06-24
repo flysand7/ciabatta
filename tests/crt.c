@@ -387,7 +387,7 @@ static void junit_write(char *path, Test_Feature *features) {
             if(!test->is_succeeded) {
                 fprint_fmt(xml, "      <failure message=\"crt.c(%d): %s\" type=\"ERROR\">\n",
                     test->line, test->error_msg);
-                fprint_fmt(xml, "      crt.c(%d):\n      %s\n", test->line, test->error_msg);
+                fprint_fmt(xml, "crt.c(%d):\n  %s\n", test->line, test->error_msg);
                 fprint_fmt(xml, "      </failure>\n");
             }
             test_id += 1;
