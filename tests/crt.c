@@ -739,7 +739,7 @@ int main(int argc, char **argv) {
             file = fopen("test_folder/file2", "rb");
             TEST(file != NULL, "Created file is NULL");
             int read_numbers[10];
-            int cnt_read = fread(numbers, sizeof(int), 10, file);
+            int cnt_read = fread(read_numbers, sizeof(int), 10, file);
             TEST(cnt_read == 10, "fread didn't read 10 objects");
             bool all_ok = true;
             for(int i = 0; i != 10; ++i) {
