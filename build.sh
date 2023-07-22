@@ -10,6 +10,7 @@ clang -fPIC -nostdlib -I "include" -g "src/ciabatta.c" -c -o "bin/ciabatta.o"
 rm "$LIB_FILE" 2> /dev/null
 
 if [ "$1" != "-shared" ]; then
+    [ -f "lib/ciabatta.a" ] && rm "lib/ciabatta.a"
     llvm-ar -q "lib/ciabatta.a" "bin/crt_ctors.o" "bin/crt_entry.o" "bin/ciabatta.o"
 else
     clang -fPIC -nostdlib -shared -o "lib/ciabatta.so" "bin/ciabatta.o"

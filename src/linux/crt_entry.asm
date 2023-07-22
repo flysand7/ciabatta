@@ -24,7 +24,7 @@ _start:
     pop rsi
     mov rdx, qword [rsp]
     ;; Align stack to 16, push junk and stack ptr
-    and rsi, ~0xf
+    and rsp, ~0xf
     push rax
     push rsp
     ;; Push fini and init sections
