@@ -38,23 +38,57 @@ This library is supposed to be extensible to other platforms, meaning that
 you can write an OS layer for another OS and use the rest of the CRT
 functionality.
 
-## Building & Usage
+## Building ciabatta
 
 Building ciabatta with MSVC is not supported. The only compiler that the
 library have been compiled and tested with is clang.
 
 Note that the library can only be used with clang
 
-1. Run ./build.cmd to compile ciabatta
-  - (Optionally) Run `./test crt` to make sure there are no errors
-2. Grab the following files into your project's directory:
-  - The `./include` folder
-  - The `./ciabatta.lib` archive file
-  - The `./utf8.obj` object file
-3. Add the following flags to your compilation command:
-  `-I ./include utf8.obj -nostdlib -mfma`
-4. Don't forget to link to the following libraries:
-  `-lciabatta.lib`
+### Building on windows
+
+Run ./build.ps1 to compile ciabatta
+- (Optionally) Run `./test crt` to make sure there are no errors
+  
+### Building and using on linux
+
+There are two options: Use ciabatta as a shared library or as a static
+library.
+
+Run ./build.sh to compile ciabatta
+- If you wish to use shared library instead add -shared option to the build script
+
+## Usage
+
+Grab the following files into your project's (or any other) directory:
+
+- The `./include` folder
+- The `.lib` folder
+- (Windows only) The `utf8` folder
+
+In order to compile your project with ciabatta see the following sections
+
+### Compiling with ciabatta on windows
+
+1. Add the following flags to your compilation command:
+  `-nostdlib -I ./include utf8.obj -mfma`
+2. Link to the following libraries:
+  `-l ./lib/ciabatta.lib`
+
+**Note:** The `include` folder refers to the folder you copied from ciabatta. Set the path to it accordingly.
+
+### Compiling with ciabatta on linux
+
+1. In case of static linking:
+  1. Add the following flags to your compilation command:
+    `-nostdlib -static -I ./include`
+  2. Link to the following libraries
+    `./lib/ciabatta.a`
+2. In case of dynamic linking:
+  1. Add the following flags to your compilation command:
+    `-nostdlib -no-pie -I ./include`
+  2. Link to the following libraries:
+    `./lib/ciabatta.so ./lib.ctors.o ./lib.entry.o`
 
 ## Contributing
 
@@ -62,4 +96,4 @@ Pull requests welcome and accepted in any form.
 
 ## License
 
-TBD
+See [the license file](license)

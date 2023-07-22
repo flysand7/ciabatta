@@ -1,6 +1,6 @@
 
 # Generate the resources for UTF8
-windres -o utf8.obj utf8.rc
+windres -o utf8/utf8.obj utf8/utf8.rc
 
 # Compile chkstk
 nasm src\os_win\chkstk.asm -o chkstk.o -fwin64
