@@ -1,8 +1,9 @@
 
 #pragma once
 
-// Pre-C23 keyword macros
+// Pre-C23 keyword macros and stddef
 #define static_assert _Static_assert
+#define NULL ((void *)0)
 
 // Platform macros
 #define CIA_LINUX 1

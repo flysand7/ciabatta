@@ -22,17 +22,26 @@ _start:
     mov r9, rdx
     ;; Get argc and argv from the stack
     pop rsi
-    mov rdx, qword [rsp]
+    mov rdx, rsp
     ;; Align stack to 16, push junk and stack ptr
     and rsp, ~0xf
     push rax
     push rsp
-    ;; Push fini and init sections
-    mov rcx, __libc_global_init wrt ..got
-    mov r8, __libc_global_fini wrt ..got
+    ;; Load fini and init initializers as function parameters
+    %ifdef CIA_SHARED
+        mov rcx, __libc_global_init wrt ..got
+        mov r8, __libc_global_fini wrt ..got
+    %else
+        mov rcx, __libc_global_init
+        mov r8, __libc_global_fini
+    %endif
     mov rdi, main
     ;; Call start main
-    call __libc_start_main wrt ..plt
+    %ifdef CIA_SHARED
+        call __libc_start_main wrt ..plt
+    %else
+        call __libc_start_main
+    %endif
     ;; No idea why halt it, I guess that's a funny
     ;; way to crash your application if the function we called
     ;; returns instead of calling the exit syscall
