@@ -29,7 +29,7 @@ time is discouraged.
 
 Operating System:
 - Windows
-- Linux (planned)
+- Linux
 
 Processor Architecture:
 - x86-64
@@ -40,14 +40,13 @@ functionality.
 
 ## Building ciabatta
 
-Building ciabatta with MSVC is not supported. The only compiler that the
-library have been compiled and tested with is clang.
-
-Note that the library can only be used with clang
+Before proceeding please note that ciabatta can only be compiled and used
+with `clang`. It may be able to work with `gcc` with some minor adjustments
+but I didn't test.
 
 ### Building on windows
 
-Run ./build.ps1 to compile ciabatta
+Run `./build.ps1` to compile ciabatta
 - (Optionally) Run `./test crt` to make sure there are no errors
   
 ### Building and using on linux
@@ -55,8 +54,8 @@ Run ./build.ps1 to compile ciabatta
 There are two options: Use ciabatta as a shared library or as a static
 library.
 
-Run ./build.sh to compile ciabatta
-- If you wish to use shared library instead add -shared option to the build script
+Run `./build.sh` to compile ciabatta
+- If you wish to use shared library instead add `-shared` option to the build script
 
 ## Usage
 
@@ -71,24 +70,24 @@ In order to compile your project with ciabatta see the following sections
 ### Compiling with ciabatta on windows
 
 1. Add the following flags to your compilation command:
-  `-nostdlib -I ./include utf8.obj -mfma`
+   `-nostdlib -I ./include utf8.obj -mfma`
 2. Link to the following libraries:
-  `-l ./lib/ciabatta.lib`
+   `-l ./lib/ciabatta.lib`
 
 **Note:** The `include` folder refers to the folder you copied from ciabatta. Set the path to it accordingly.
 
 ### Compiling with ciabatta on linux
 
-1. In case of static linking:
+- In case of static linking:
   1. Add the following flags to your compilation command:
-    `-nostdlib -static -I ./include`
+     - `-nostdlib -static -I ./include`
   2. Link to the following libraries
-    `./lib/ciabatta.a`
-2. In case of dynamic linking:
+     - `./lib/ciabatta.a`
+- In case of dynamic linking:
   1. Add the following flags to your compilation command:
-    `-nostdlib -no-pie -I ./include`
+     - `-nostdlib -no-pie -I ./include`
   2. Link to the following libraries:
-    `./lib/ciabatta.so ./lib.ctors.o ./lib.entry.o`
+     - `./lib/ciabatta.so ./lib.ctors.o ./lib.entry.o`
 
 ## Contributing
 
