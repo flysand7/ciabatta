@@ -23,6 +23,9 @@ local compiler_options = args.options or ''
 
 -- Clean the build files if needed
 function rmdir(p)
+    if not path.exists(p) then
+        return
+    end
     path.each(path.join(p,"*"), function(P) path.remove(P) end,
         {param = "f",delay = true,recurse = true,reverse = true})
     path.remove(p)
