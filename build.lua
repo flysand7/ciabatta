@@ -97,10 +97,43 @@ function prefix_quote(prefix)
     end
 end
 
+-- Generate TinyRT interface file for the platform
+print('==> Generating TinyRT interface definitions')
+local tinyrt_manifest_path = path.join('src', platform, 'tinyrt.mf')
+if not path.exists(tinyrt_manifest_path) then
+    print('ERROR: tinyrt manifest wasnt found: '..tinyrt_manifest_path)
+end
+tinyrt_iface_hdr = io.open(path.join('src', platform, 'tinyrt.iface.h'), 'wb')
+tinyrt_iface_hdr:write('\n')
+tinyrt_iface_hdr:write('// This file is AUTO-GENERATED\n')
+tinyrt_iface_hdr:write('// See tinyrt.mf\n')
+tinyrt_iface_hdr:write('\n')
+n = 1
+for line in io.lines(tinyrt_manifest_path) do
+    if line:len() ~= 0 and line:sub(1,1) ~= '#' and line:gsub('%s+', '') ~= '' then
+        local line_it = line:gmatch('[a-zA-Z0-9]+')
+        local api_name = line_it():upper()
+        local has_impl = line_it()
+        if has_impl == '0' or has_impl == '1' then
+            if has_impl == '1' then
+                local api_define = '#define RT_API_' .. api_name .. '\n'
+                tinyrt_iface_hdr:write(api_define)
+            end            
+        else
+            print('SYNTAX ERROR AT LINE '..i..': Expected 1 or 0 for the value')
+        end
+        
+    end
+    n = n+1
+end
+io.close(tinyrt_iface_hdr)
+
+-- Figure out compiler flags
 local cflags = table.concat(compiler_flags, ' ')..' '..
                table.concat(map(compiler_defines, prefix('-D ')), ' ')..' '..
                table.concat(map(includes, prefix_quote('-I ')), ' ')..' '
 
+print('==> Compiling ciabatta')
 print('Flags: ' .. cflags)
 
 -- Functions for compiling, linking and assembling individual files
@@ -130,6 +163,7 @@ function archive(srcs, out)
     os.execute(cmdline)
 end
 
+-- Build ciabatta
 path.mkdir('lib')
 path.mkdir('bin')
 

@@ -59,6 +59,11 @@ typedef unsigned int uint32_t;
     #error "Platform not implemented"
 #endif
     
+// stdbool.h
+typedef _Bool bool;
+#define true ((bool)1)
+#define false ((bool)0)
+    
 // Short type definitions
 typedef int8_t i8;
 typedef uint8_t u8;

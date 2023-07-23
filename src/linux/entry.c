@@ -24,6 +24,6 @@ void __libc_start_main(
     main(argc, argv, envp);
     fini();
     // glibc bug
-    dl_fini();
+    // dl_fini();
     syscall_exit(0);
 }

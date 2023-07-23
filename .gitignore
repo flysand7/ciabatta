@@ -12,5 +12,6 @@ a.out
 *.o
 *.4coder
 *.rdbg
+*.iface.h
 test/
 test_folder/

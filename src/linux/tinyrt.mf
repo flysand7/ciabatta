@@ -1,0 +1,13 @@
+
+# This file contains TinyRT API subsets that are exported
+# for this operating system, one name per line. This file
+# is used in a build script to generate tinyrt_macro file
+# and to resolve higher-level API dependencies
+
+# For example file = 1 means that the file API is
+# implemented on this operating system and during building
+# a header file will be generated containing definition of
+# the form
+#     #define RT_API_FILE
+
+file = 1
