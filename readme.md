@@ -44,18 +44,32 @@ Before proceeding please note that ciabatta can only be compiled and used
 with `clang`. It may be able to work with `gcc` with some minor adjustments
 but I didn't test.
 
-### Building on windows
+For executing the script you will need lua and some lua dependencies that
+you can install with luarocks:
 
-Run `./build.ps1` to compile ciabatta
-- (Optionally) Run `./test crt` to make sure there are no errors
-  
-### Building and using on linux
+```
+# luarocks install lua-path
+# luarocks install argparse
+```
 
-There are two options: Use ciabatta as a shared library or as a static
-library.
+### Building
 
-Run `./build.sh` to compile ciabatta
-- If you wish to use shared library instead add `-shared` option to the build script
+On linux you can simply run `./build.lua` script. On windows you have to run
+it like `lua build.lua`. Reference for command-line options:
+
+```
+Usage: build.lua [-h] [-c] [-o] [-r] [-p <platform>] [-l <library>]
+       [-t <test>] [--options <options>]
+Options:
+   -h, --help                Show this help message and exit.
+   -c, --clean               Remove all the binaries before recompiling
+   -o, --only                Do not compile ciabatta
+   -r, --release             Compile the release version (without it will compile everything in debug mode)
+   -p --platform <platform>  OS to compile for (linux, windows)
+   -l --library <library>    Type of library to compile (static, shared)
+   -t --test <test>          Compile a C file and link the library against it
+   --options <options>       Additional options to provide to the executable
+```
 
 ## Usage
 
