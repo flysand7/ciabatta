@@ -15,8 +15,8 @@ static inline i64 syscall_write(u32 fd, char const *buf, u64 count) {
     return __syscall3(SYS_write, (i64)fd, (i64)buf, (u64)count);
 }
 
-char string[] = "Hello, world!\n";
 int main(int argc, char **argv, char **envp) {
+    char string[] = "Hello, world!\n";
     syscall_write(STDOUT_FILENO, string, sizeof string);
     return 0;
 }

@@ -3,17 +3,12 @@
 [ ! -d "lib" ] && mkdir "lib"
 [ ! -d "bin" ] && mkdir "bin"
 
+[ "$1" != "-shared" ] && echo "static"
+
 nasm -f elf64 "src/linux/crt_entry.asm" -o "bin/crt_entry.o"
 clang -fPIC -nostdlib -I "include" -g "src/linux/crt_ctors.c" -c -o "bin/crt_ctors.o"
 clang -fPIC -nostdlib -I "include" -g "src/ciabatta.c" -c -o "bin/ciabatta.o"
 
-rm "$LIB_FILE" 2> /dev/null
-
-if [ "$1" != "-shared" ]; then
-    [ -f "lib/ciabatta.a" ] && rm "lib/ciabatta.a"
-    llvm-ar -q "lib/ciabatta.a" "bin/crt_ctors.o" "bin/crt_entry.o" "bin/ciabatta.o"
-else
-    clang -fPIC -nostdlib -shared -o "lib/ciabatta.so" "bin/ciabatta.o"
-    cp "bin/crt_ctors.o" "lib/ctors.o"
-    cp "bin/crt_entry.o" "lib/entry.o"
-fi
+# Create a test executable
+clang -pie -nostdlib -Iinclude \
+    tests/empty.c bin/ciabatta.o bin/crt_ctors.o bin/crt_entry.o

@@ -1,9 +1,34 @@
 
 #if os_is_linux()
 
+// Standard handles file descriptors
 #define STDIN_FILENO  0
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
+
+// arch_prctl syscall codes
+#define ARCH_SET_GS    0x1001
+#define ARCH_SET_FS    0x1002
+#define ARCH_GET_FS    0x1003
+#define ARCH_GET_GS    0x1004
+#define ARCH_GET_CPUID 0x1011
+#define ARCH_SET_CPUID 0x1012
+
+// open syscall modes
+#define O_ACCMODE   0003
+#define O_RDONLY    00
+#define O_WRONLY    01
+#define O_RDWR      02
+#define O_CREAT     0100     /* not fcntl */
+#define O_EXCL      0200     /* not fcntl */
+#define O_NOCTTY    0400     /* not fcntl */
+#define O_TRUNC     01000    /* not fcntl */
+#define O_APPEND    02000
+#define O_NONBLOCK  04000
+#define O_NDELAY    O_NONBLOCK
+#define O_SYNC      010000
+#define O_FSYNC     O_SYNC
+#define O_ASYNC     020000
 
 #define SYS_read           0
 #define SYS_write          1
@@ -66,6 +91,8 @@
 #define SYS_vfork          58
 #define SYS_execve         59
 #define SYS_exit           60
+
+#define SYS_arch_prctl     158
 
 // Syscall stubs
 
@@ -132,8 +159,24 @@ static inline i64 syscall_write(u32 fd, char const *buf, u64 count) {
     return __syscall3(SYS_write, (i64)fd, (i64)buf, (u64)count);
 }
 
+static inline i64 syscall_open(char const *filename, int flags, int mode) {
+    return __syscall3(SYS_open, (i64)filename, (i64)flags, (i64)mode);
+}
+
+static inline i64 syscall_close(u32 fd) {
+    return __syscall1(SYS_close, fd);
+}
+
 static inline i64 syscall_exit(int code) {
     return __syscall1(SYS_exit, (i64)code);
+}
+
+static inline i64 syscall_arch_prctl_set(int code, u64 value) {
+    return __syscall2(SYS_arch_prctl, code, (i64)value);
+}
+
+static inline i64 syscall_arch_prctl_get(int code, u64 *value) {
+    return __syscall2(SYS_arch_prctl, code, (i64)value);
 }
 
 #else

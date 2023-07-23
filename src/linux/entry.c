@@ -10,15 +10,15 @@ void __libc_start_main(
     int argc, char **argv,
     int (*init)(int, char**, char**),
     void (*fini)(void),
-    void (*runtime_ld_fini)(void),
+    void (*dl_fini)(void),
     void *stack_end
 ) {
+    // Get the envp
     char **envp = argv + (argc + 1);
     init(argc, argv, envp);
     main(argc, argv, envp);
     fini();
-    if(runtime_ld_fini != NULL) {
-        runtime_ld_fini();
-    }
+    // glibc bug
+    dl_fini();
     syscall_exit(0);
 }
