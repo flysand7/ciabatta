@@ -1,0 +1,29 @@
+name: Linux
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup NASM
+      uses: ilammy/setup-nasm@v1
+    - name: Set up Clang
+      uses: egor-tensin/setup-clang@v1
+      with:
+        version: latest
+        platform: x64
+    - name: Setup Lua
+      uses: leafo/gh-actions-lua@v10
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      shell: bash
+      run: ./build.lua --clean --release --platform linux -t tests/empty.c
