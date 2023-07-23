@@ -23,15 +23,9 @@ local compiler_options = args.options or ''
 
 -- Clean the build files if needed
 function rmdir(p)
-  path.each(path.join(p,"*"), function(P)
-    path.remove(P)
-  end,{
-    param = "f";   -- request full path
-    delay = true;   -- use snapshot of directory
-    recurse = true; -- include subdirs
-    reverse = true; -- subdirs at first 
-  })
-  path.remove(p)
+    path.each(path.join(p,"*"), function(P) path.remove(P) end,
+        {param = "f",delay = true,recurse = true,reverse = true})
+    path.remove(p)
 end
 if is_clean then
     print('Cleaning files..')

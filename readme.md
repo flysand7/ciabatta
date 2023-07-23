@@ -48,8 +48,9 @@ For executing the script you will need lua and some lua dependencies that
 you can install with luarocks:
 
 ```
-# luarocks install lua-path
-# luarocks install argparse
+$ luarocks install luafilesystem
+$ luarocks install lua-path
+$ luarocks install argparse
 ```
 
 ### Building
