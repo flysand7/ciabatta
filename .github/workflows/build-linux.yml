@@ -22,7 +22,12 @@ jobs:
         version: latest
         platform: x64
     - name: Setup Lua
-      uses: leafo/gh-actions-lua@v10
+      - uses: leafo/gh-actions-lua@v9
+      - uses: leafo/gh-actions-luarocks@v4
+    - name: Install lua dependencies
+      shell: bash
+      run: luarocks install argparse
+      run: luarocks install lua-path
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       shell: bash
