@@ -23,6 +23,7 @@ jobs:
       uses: ilammy/setup-nasm@v1
     - name: Setup Lua
       - uses: leafo/gh-actions-lua@v9
+    - name: Setup Luarocks
       - uses: leafo/gh-actions-luarocks@v4
     - name: Install argparse
       shell: bash
