@@ -41,6 +41,16 @@ static bool _rt_api_tmpfile;
 static RT_Status rt_init();
 static RT_Status rt_deinit();
 
+// Program API
+#if RT_API_PROGRAM == 1
+    static noreturn void rt_program_exit(int code);
+#endif
+
+#if RT_API_ENVIRONMENT == 1
+    static RT_Status rt_shell_exec(char const *cmd);
+    static RT_Status rt_env_get(char const *name);
+#endif
+
 // File API
 #if RT_API_FILE == 1
     struct RT_File typedef RT_File;

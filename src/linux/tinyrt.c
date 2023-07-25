@@ -55,3 +55,7 @@ static RT_Status rt_file_close(RT_File *file) {
     }
     return RT_STATUS_OK;
 }
+
+static noreturn void rt_program_exit(int code) {
+    syscall_exit(code);
+}

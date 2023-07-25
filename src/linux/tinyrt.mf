@@ -11,3 +11,5 @@
 #     #define RT_API_FILE
 
 file = 1
+program = 1
+shell = 0

@@ -3,6 +3,7 @@
 
 // Pre-C23 keyword macros and stddef
 #define static_assert _Static_assert
+#define noreturn _Noreturn
 #define NULL ((void *)0)
 
 // Platform macros

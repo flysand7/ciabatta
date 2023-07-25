@@ -167,8 +167,9 @@ static inline i64 syscall_close(u32 fd) {
     return __syscall1(SYS_close, fd);
 }
 
-static inline i64 syscall_exit(int code) {
-    return __syscall1(SYS_exit, (i64)code);
+static inline noreturn void syscall_exit(int code) {
+    __syscall1(SYS_exit, (i64)code);
+    __builtin_unreachable();
 }
 
 static inline i64 syscall_arch_prctl_set(int code, u64 value) {
