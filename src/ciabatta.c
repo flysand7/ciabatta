@@ -1,7 +1,7 @@
 
 #include <cia_definitions.h>
 
-#if os_is_linux()
+#if _CIA_OS_LINUX()
     #include "linux/syscall.c"
     #include "linux/errno.c"
     #include "linux/entry.c"
@@ -9,6 +9,6 @@
     #include "linux/tinyrt.iface.h"
     #include "tinyrt.h"
     #include "linux/tinyrt.c"
-#elif os_is_windows()
+#elif _CIA_OS_WINDOWS()
     #error "Not implemented yet"
 #endif

@@ -1,6 +1,4 @@
 
-#if os_is_linux()
-
 // Standard handles file descriptors
 #define STDIN_FILENO  0
 #define STDOUT_FILENO 1
@@ -179,7 +177,3 @@ static inline i64 syscall_arch_prctl_set(int code, u64 value) {
 static inline i64 syscall_arch_prctl_get(int code, u64 *value) {
     return __syscall2(SYS_arch_prctl, code, (i64)value);
 }
-
-#else
-#error "syscall.h should only be included in LINUX code"
-#endif
