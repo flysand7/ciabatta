@@ -10,6 +10,6 @@
 # the form
 #     #define RT_API_FILE
 
-file = 1
-program = 1
-shell = 0
+rt_api_file = 1
+rt_api_program = 1
+rt_api_shell = 0

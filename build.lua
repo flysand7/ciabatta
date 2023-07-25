@@ -111,14 +111,14 @@ tinyrt_iface_hdr:write('\n')
 n = 1
 for line in io.lines(tinyrt_manifest_path) do
     if line:len() ~= 0 and line:sub(1,1) ~= '#' and line:gsub('%s+', '') ~= '' then
-        local line_it = line:gmatch('[a-zA-Z0-9]+')
+        local line_it = line:gmatch('[_a-zA-Z0-9]+')
         local api_name = line_it():upper()
         local has_impl = line_it()
         if has_impl == '0' or has_impl == '1' then
-            local api_define = '#define RT_API_' .. api_name .. ' '..has_impl..'\n'
+            local api_define = '#define ' .. api_name .. ' '..has_impl..'\n'
             tinyrt_iface_hdr:write(api_define)
         else
-            print('SYNTAX ERROR AT LINE '..i..': Expected 1 or 0 for the value')
+            print('SYNTAX ERROR AT LINE '..n..': Expected 1 or 0 for the value')
         end
         
     end
