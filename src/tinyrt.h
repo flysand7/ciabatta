@@ -42,7 +42,7 @@ static RT_Status rt_init();
 static RT_Status rt_deinit();
 
 // File API
-#if defined(RT_API_FILE)
+#if RT_API_FILE == 1
     struct RT_File typedef RT_File;
     struct RT_File {
         union {

@@ -39,11 +39,12 @@ static RT_Status rt_file_read(u64 size, void *buffer, RT_File *from, u64 *out_by
 }
 
 static RT_Status rt_file_write(RT_File *to, u64 size, void *buffer, u64 *out_bytes_written) {
-    i64 bytes_written = syscall_write(to->fd, buffer, size);
-    if(bytes_written < 0) {
-        return RT_STATUS_FILE_IO_ERROR;
-    }
-    *out_bytes_written = bytes_written;
+    // Call the syscall
+    i64 status = syscall_write(to->fd, buffer, size);
+    if(-status == EBADF) return RT_ERROR_BAD_PARAM;
+    if(-status == EIO) return RT_STATUS_FILE_IO_ERROR;
+    if(-status > 0) return RT_STATUS_FILE_IO_ERROR;
+    *out_bytes_written = status;
     return RT_STATUS_OK;
 }
 

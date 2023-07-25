@@ -115,10 +115,8 @@ for line in io.lines(tinyrt_manifest_path) do
         local api_name = line_it():upper()
         local has_impl = line_it()
         if has_impl == '0' or has_impl == '1' then
-            if has_impl == '1' then
-                local api_define = '#define RT_API_' .. api_name .. '\n'
-                tinyrt_iface_hdr:write(api_define)
-            end            
+            local api_define = '#define RT_API_' .. api_name .. ' '..has_impl..'\n'
+            tinyrt_iface_hdr:write(api_define)
         else
             print('SYNTAX ERROR AT LINE '..i..': Expected 1 or 0 for the value')
         end
