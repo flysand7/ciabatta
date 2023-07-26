@@ -44,13 +44,10 @@ Before proceeding please note that ciabatta can only be compiled and used
 with `clang`. It may be able to work with `gcc` with some minor adjustments
 but I didn't test.
 
-For executing the script you will need lua and some lua dependencies that
-you can install with luarocks:
+For executing the script you will need at least python 3.3 and the pyjson5 package
 
 ```
-$ luarocks install luafilesystem
-$ luarocks install lua-path
-$ luarocks install argparse
+$ pip install pyjson5
 ```
 
 ### Building
@@ -59,17 +56,17 @@ On linux you can simply run `./build.lua` script. On windows you have to run
 it like `lua build.lua`. Reference for command-line options:
 
 ```
-Usage: build.lua [-h] [-c] [-o] [-r] [-p <platform>] [-l <library>]
-       [-t <test>] [--options <options>]
+Usage: build.py [-h] [--clean] [--test TEST]
+                [--mode {debug,release}] [--target TARGET]
+                [--compiler {clang,cuik}] [--cflags [CFLAGS ...]]
 Options:
-   -h, --help                Show this help message and exit.
-   -c, --clean               Remove all the binaries before recompiling
-   -o, --only                Do not compile ciabatta
-   -r, --release             Compile the release version (without it will compile everything in debug mode)
-   -p --platform <platform>  OS to compile for (linux, windows)
-   -l --library <library>    Type of library to compile (static, shared)
-   -t --test <test>          Compile a C file and link the library against it
-   --options <options>       Additional options to provide to the executable
+  -h, --help                  show this help message and exit
+  --clean                     Remove all object files and binaries
+  --test TEST                 Compile ciabatta executable with given file
+  --mode, -m {debug,release}  Select build configuration
+  --target, -t TARGET         Select target OS (default=host)
+  --compiler, -c {clang,cuik} Select compiler
+  --cflags [CFLAGS ...]       Pass additional compiler flags
 ```
 
 ## Usage

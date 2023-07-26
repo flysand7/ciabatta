@@ -1,4 +1,5 @@
-bin
+/bin
+/lib
 /a
 /src/ciabatta.c
 a.out
@@ -13,6 +14,7 @@ a.out
 *.o
 *.4coder
 *.rdbg
-*.iface.h
+/.venv
+tinyrt-iface.h
 test/
 test_folder/
