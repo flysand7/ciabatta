@@ -40,7 +40,7 @@ platform windows("/windows") {
     tinyrt {},
 }
 
-api c11_program("/impl/c11-program") {
+api stdlib_program("/impl/stdlib-program") {
     "program.c",
     tinyrt {
         rt_api_program,
