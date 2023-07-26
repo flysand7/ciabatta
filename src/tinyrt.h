@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <cia_definitions.h>
-
 // Common errors
 #define RT_STATUS_OK                     0  // No errors
 #define RT_ERROR_NOT_IMPLEMENTED        -1  // Function not implemented

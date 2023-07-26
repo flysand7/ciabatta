@@ -1,5 +1,5 @@
 
-#include <cia_definitions.h>
+#include <cia-def.h>
 
 // NOTE: These symbols are provided by the linker
 #define attribute_hidden __attribute__((__visibility__("hidden")))

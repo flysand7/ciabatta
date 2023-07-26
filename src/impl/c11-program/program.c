@@ -1,0 +1,54 @@
+
+#define MAX_ATEXIT_HANDLERS 32
+#define MAX_AT_QUICK_EXIT_HANDLERS 32
+
+static void (*atexit_handlers[MAX_ATEXIT_HANDLERS])(void);
+static void (*at_quick_exit_handlers[MAX_AT_QUICK_EXIT_HANDLERS])(void);
+static u64 n_atexit_handlers = 0;
+static u64 n_at_quick_exit_handlers = 0;
+
+int atexit(void (*func)(void)) {
+    if(n_atexit_handlers == MAX_ATEXIT_HANDLERS) {
+        return MAX_ATEXIT_HANDLERS;
+    }
+    atexit_handlers[n_atexit_handlers] = func;
+    n_atexit_handlers += 1;
+    return 0;
+}
+
+int at_quick_exit(void (*func)(void)) {
+    if(n_at_quick_exit_handlers == MAX_AT_QUICK_EXIT_HANDLERS) {
+        return MAX_AT_QUICK_EXIT_HANDLERS;
+    }
+    at_quick_exit_handlers[n_at_quick_exit_handlers] = func;
+    n_at_quick_exit_handlers += 1;
+    return 0;
+}
+
+noreturn void abort(void) {
+    // TODO: Ideally do a debug trap if the process is being debugged
+    _Exit(-1);
+}
+
+noreturn void exit(int code) {
+    for(u64 i = n_atexit_handlers-1; i-- != 0; ) {
+        void (*handler)(void) = atexit_handlers[i];
+        handler();
+    }
+    // TODO(bumbread): flush all the unflushed file streams
+    // TODO(bumbread): close all file streams and delete temporary files
+    rt_program_exit(code);
+}
+
+noreturn void _Exit(int code) {
+    rt_program_exit(code);
+}
+
+noreturn void quick_exit(int code) {
+    for(u64 i = n_at_quick_exit_handlers-1; i-- != 0; ) {
+        void (*handler)(void) = at_quick_exit_handlers[i];
+        handler();
+    }
+    rt_program_exit(code);
+}
+

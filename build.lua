@@ -2,6 +2,7 @@
 
 local path = require 'path'
 local argparse = require 'argparse'
+local mf_parser = require 'scripts.manifest-parser'
 
 -- Parse command line arguments
 local parser = argparse('build.lua', 'Ciabatta build script')
@@ -109,14 +110,16 @@ tinyrt_iface_hdr:write('// This file is AUTO-GENERATED\n')
 tinyrt_iface_hdr:write('// See tinyrt.mf\n')
 tinyrt_iface_hdr:write('\n')
 n = 1
+tinyrt_apis = {}
 for line in io.lines(tinyrt_manifest_path) do
     if line:len() ~= 0 and line:sub(1,1) ~= '#' and line:gsub('%s+', '') ~= '' then
         local line_it = line:gmatch('[_a-zA-Z0-9]+')
-        local api_name = line_it():upper()
+        local api_name = line_it()
         local has_impl = line_it()
         if has_impl == '0' or has_impl == '1' then
-            local api_define = '#define ' .. api_name .. ' '..has_impl..'\n'
+            local api_define = '#define ' .. (api_name:upper()) .. ' '..has_impl..'\n'
             tinyrt_iface_hdr:write(api_define)
+            table.insert(tinyrt_apis, api_name)
         else
             print('SYNTAX ERROR AT LINE '..n..': Expected 1 or 0 for the value')
         end
@@ -125,6 +128,50 @@ for line in io.lines(tinyrt_manifest_path) do
     n = n+1
 end
 io.close(tinyrt_iface_hdr)
+-- Parse manifest and generate ciabatta.c
+local function has_value(tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
+end
+print('==> Generating ciabatta.c')
+cia_h = io.open(path.join('src', 'ciabatta.c'), 'wb')
+mf = parse_mf(path.join('src', 'library.mf'))
+cia_h:write('\n')
+cia_h:write('// THIS FILE IS AUTO-GENERATED. SEE library.mf FOR DETAILS\n')
+cia_h:write('\n// global includes\n')
+for index,include in ipairs(mf.includes) do
+    cia_h:write('#include <'..include..'>\n')
+end
+for index,decl_platform in ipairs(mf.platforms) do
+    if decl_platform.name == platform then
+        cia_h:write(('\n// platform %s\n'):format(decl_platform.name))
+        for index,include in ipairs(decl_platform.includes) do
+            cia_h:write('#include "'..include..'"\n')
+        end
+    end
+end
+for index, api in ipairs(mf.apis) do
+    supported = true
+    for index, dep in ipairs(api.deps) do
+        if not has_value(tinyrt_apis, dep) then
+            supported = false
+        end
+    end
+    if supported then
+        cia_h:write(('\n// module %s\n'):format(api.name))
+        print('  - Exporting module: ' .. api.name)
+        for index, include in ipairs(api.includes) do
+            cia_h:write('#include "'..include..'"\n')
+        end
+    end
+end
+io.close(cia_h)
+
 
 -- Figure out compiler flags
 local cflags = table.concat(compiler_flags, ' ')..' '..
@@ -165,12 +212,12 @@ end
 path.mkdir('lib')
 path.mkdir('bin')
 
-assemble('src/linux/crt_entry.asm', 'bin/crt_entry.o')
-compile({'src/linux/crt_ctors.c'}, 'bin/crt_ctors.o', '-fpic -c')
+assemble('src/linux/crt-entry.asm', 'bin/crt-entry.o')
+compile({'src/linux/crt-ctors.c'}, 'bin/crt-ctors.o', '-fpic -c')
 compile({'src/ciabatta.c'}, 'bin/ciabatta.o', '-fpic -c')
 
 if library_type == 'static' then
-    archive({'bin/ciabatta.o', 'bin/crt_ctors.o', 'bin/crt_entry.o'}, 'lib/'..ciabatta_lib)
+    archive({'bin/ciabatta.o', 'bin/crt-ctors.o', 'bin/crt-entry.o'}, 'lib/'..ciabatta_lib)
 elseif library_type == 'shared' then
     print('SHARED OBJECTS NOT SUPPORTED YET')
     os.exit(1)
