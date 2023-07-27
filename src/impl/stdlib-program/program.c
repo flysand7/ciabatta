@@ -37,11 +37,11 @@ noreturn void exit(int code) {
     }
     // TODO(bumbread): flush all the unflushed file streams
     // TODO(bumbread): close all file streams and delete temporary files
-    rt_program_exit(code);
+    _rt_program_exit(code);
 }
 
 noreturn void _Exit(int code) {
-    rt_program_exit(code);
+    _rt_program_exit(code);
 }
 
 noreturn void quick_exit(int code) {
@@ -49,6 +49,6 @@ noreturn void quick_exit(int code) {
         void (*handler)(void) = at_quick_exit_handlers[i];
         handler();
     }
-    rt_program_exit(code);
+    _rt_program_exit(code);
 }
 

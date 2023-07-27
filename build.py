@@ -97,7 +97,7 @@ try:
             if is_defined:
                 tinyrt_apis.append(api_name)
             is_defined_int = 1 if is_defined else 0
-            tinyrt_header_file.write(f'#define {api_name.upper()} {is_defined_int}\n')
+            tinyrt_header_file.write(f'#define _{api_name.upper()} {is_defined_int}\n')
 except Exception as error:
     print(f"  -> [ERROR] writing to file '{tinyrt_header_path}'")
     print(f"  *  {error}")
@@ -206,7 +206,6 @@ def archive(srcs, out):
         sys.exit(code)
 
 
-
 # Ciabatta build spec
 if not os.path.exists('lib'):
     os.mkdir('lib')
@@ -218,7 +217,8 @@ p = os.path.join
 assemble(p('src', 'linux', 'crt-entry.asm'), p('bin', 'crt-entry.o'))
 compile([p('src', 'linux', 'crt-ctors.c')], p('bin', 'crt-ctors.o'), '-fpic -c')
 compile([p('src', 'ciabatta.c')], p('bin', 'ciabatta.o'), '-fpic -c')
-archive([p('bin', 'ciabatta.o'), p('bin', 'crt-ctors.o'), p('bin', 'crt-entry.o')], p('lib', lib_file))
+archive([p('bin', 'crt-ctors.o'), p('bin', 'crt-entry.o')], p('lib', crt_file))
+archive([p('bin', 'ciabatta.o'), ], p('lib', lib_file))
 
 if args.test:
-    compile([args.test, p('lib', lib_file)], 'a', '-pie')
+    compile([args.test, p('lib', lib_file), p('lib', crt_file)], 'a', '-pie')
