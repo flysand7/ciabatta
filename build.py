@@ -70,6 +70,7 @@ else: # 'debug'
     cc_flags.append('-g')
     cc_flags.append('-O0')
     cc_defines.append('DEBUG')
+cc_defines.append(f'_CIA_OS_{target.upper()}')
 
 # Generate TinyRT headers for the target platform
 print(f"==> Generating TinyRT header for {target}")
