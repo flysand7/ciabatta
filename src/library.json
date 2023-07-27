@@ -24,8 +24,8 @@
 //   this module will not be included in the final build
 
 includes: [
-    "cia-def.h",
-    "stdlib.h"
+    "stdlib.h",
+    "stdio.h",
 ],
 
 platforms: [
@@ -60,6 +60,16 @@ apis: [
             "rt_api_program",
         ]
     },
+    {
+        name: "stdlib_file",
+        path: "impl/stdlib-file",
+        includes: [
+            "file.c"
+        ],
+        reqs: [
+            "rt_api_file"
+        ]
+    }
 ]
 
 // END

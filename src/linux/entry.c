@@ -10,6 +10,8 @@ void __stack_chk_fail(void) {
     syscall_exit(1);
 }
 
+static void _fileapi_init();
+
 void __libc_start_main(
     int (*main)(int, char**, char**),
     int argc, char **argv,
@@ -21,6 +23,7 @@ void __libc_start_main(
     // Get the envp
     char **envp = argv + (argc + 1);
     init(argc, argv, envp);
+    _fileapi_init();
     main(argc, argv, envp);
     fini();
     // glibc bug

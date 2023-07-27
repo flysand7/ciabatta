@@ -50,16 +50,20 @@ static _RT_Status _rt_deinit();
 #endif
 
 // File API
-#if _RT_API_FILE == 1
-    struct _RT_File typedef _RT_File;
-    struct _RT_File {
-        union {
-            void *handle;
-            u64 fd;
-        };
-        i32 flags;
+struct _RT_File typedef _RT_File;
+struct _RT_File {
+    union {
+        void *handle;
+        u64 fd;
     };
-    static _RT_Status _rt_file_open(_RT_File *file, char *name, int flags);
+    i32 flags;
+};
+#if _RT_API_FILE == 1
+    static _RT_File _rt_file_stdin;
+    static _RT_File _rt_file_stdout;
+    static _RT_File _rt_file_stderr;
+    static _RT_Status _rt_file_std_handles_init();
+    static _RT_Status _rt_file_open(_RT_File *file, char const *name, int flags);
     static _RT_Status _rt_file_read(u64 size, void *buffer, _RT_File *from, u64 *out_bytes_read);
     static _RT_Status _rt_file_write(_RT_File *to, u64 size, void *buffer, u64 *out_bytes_written);
     static _RT_Status _rt_file_close(_RT_File *file);

@@ -1,7 +1,20 @@
 
 // See src/tinyrt.h file for the interface this file implements
 
-static _RT_Status _rt_file_open(_RT_File *file, char *name, int _rt_flags) {
+static _RT_File _rt_file_stdin;
+static _RT_File _rt_file_stderr;
+
+static _RT_Status _rt_file_std_handles_init() {
+    _rt_file_stdin.fd = 0;
+    _rt_file_stdin.flags = _RT_FILE_READ;
+    _rt_file_stdout.fd = 1;
+    _rt_file_stdout.flags = _RT_FILE_WRITE;
+    _rt_file_stderr.fd = 2;
+    _rt_file_stdout.flags = _RT_FILE_WRITE;
+    return _RT_STATUS_OK;
+}
+
+static _RT_Status _rt_file_open(_RT_File *file, char const *name, int _rt_flags) {
     if((_rt_flags & 0x3) == 0) {
         return _RT_ERROR_BAD_PARAM;
     }
