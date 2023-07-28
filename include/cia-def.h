@@ -42,9 +42,11 @@ typedef unsigned int uint32_t;
 #endif
 
 // stdbool.h
-typedef _Bool bool;
-#define true ((bool)1)
-#define false ((bool)0)
+#if !defined(__bool_true_false_are_defined)
+    typedef _Bool bool;
+    #define true ((bool)1)
+    #define false ((bool)0)
+#endif
     
 // Short type definitions
 typedef int8_t i8;

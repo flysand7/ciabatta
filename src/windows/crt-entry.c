@@ -60,3 +60,5 @@ void __security_check_cookie(u64 retrieved) {
         ExitProcess(1);
     }
 }
+
+

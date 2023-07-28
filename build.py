@@ -200,6 +200,8 @@ def assemble(src, out):
         sys.exit(code)
 
 def compile(srcs, out, extra_flags = ''):
+    if cc == 'cuik' and out.endswith('.o'):
+        out = out[:-2]
     flags = cc_flags_str + ' ' + extra_flags + ' '.join(args.cflags)
     inputs = ' '.join(map(quote, srcs))
     cmdline = f'{cc} {flags} {inputs} -o {quote(out)}'
