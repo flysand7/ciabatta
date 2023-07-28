@@ -2,6 +2,7 @@
 # Ciabatta
 
 ![Linux](https://github.com/flysand7/ciabatta/actions/workflows/build-linux.yml/badge.svg?event=push)
+![Windows](https://github.com/flysand7/ciabatta/actions/workflows/build-windows.yml/badge.svg?event=push)
 
 Ciabatta - An implementation of cross-platform C standard library with the
 following goals:

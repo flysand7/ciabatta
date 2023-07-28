@@ -1,0 +1,31 @@
+name: Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Clang
+      uses: egor-tensin/setup-clang@v1
+      with:
+        version: latest
+        platform: x64
+    - name: Setup NASM
+      uses: ilammy/setup-nasm@v1
+    - name: Set up Python
+      uses: actions/setup-python@v4
+    - name: Install python dependencies
+      run: python -m pip install pyjson5
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      shell: bash
+      run: ./build.py --mode release --target windows --test tests/hello.c
