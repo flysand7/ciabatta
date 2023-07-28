@@ -30,7 +30,7 @@ jobs:
     - name: Setup NASM
       uses: ilammy/setup-nasm@v1
       with:
-        from-source: false
+        from-source: true
     - name: Set up Python
       uses: actions/setup-python@v4
     - name: Install python dependencies
