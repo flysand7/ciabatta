@@ -21,11 +21,11 @@ jobs:
         path: |
           C:/Program Files/LLVM
           ./llvm
-        key: llvm-3.5
+        key: llvm-15
     - name: Install LLVM and Clang
       uses: KyleMayes/install-llvm-action@v1
       with:
-        version: latest
+        version: 15
         cached: ${{ steps.cache-llvm.outputs.cache-hit }}
     - name: Setup NASM
       uses: ilammy/setup-nasm@v1
