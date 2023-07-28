@@ -138,7 +138,9 @@ try:
         ciabatta_header.write('\n')
         # Write main include
         ciabatta_header.write('#include <cia-def.h>\n')
+        ciabatta_header.write('\n')
         # Write platform includes
+        ciabatta_header.write('// Platform-dependent sources\n')
         platform_config = None
         for platform in library_config['platforms']:
             if platform['name'] == target:
@@ -152,12 +154,13 @@ try:
         ciabatta_header.write(f'#include <tinyrt.h>\n')
         for tinyrt_source in platform_config['tinyrt']:
             ciabatta_header.write(f'#include "{target}/{tinyrt_source}"\n')
+        ciabatta_header.write('\n')
         # Write module includes
+        ciabatta_header.write('// Forward declarations')
         for include in library_config['includes']:
             ciabatta_header.write(f'#include <{include}>\n')
         ciabatta_header.write('\n')
         # Write module sources
-        ciabatta_header.write('\n')
         for api in library_config['apis']:
             api_name = api['name']
             api_path = api['path']

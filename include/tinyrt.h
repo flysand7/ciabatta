@@ -44,6 +44,7 @@ static _RT_Status _rt_deinit();
     [[noreturn]] static void _rt_program_exit(int code);
 #endif
 
+// Environment API
 #if _RT_API_ENVIRONMENT == 1
     static _RT_Status _rt_shell_exec(char const *cmd);
     static _RT_Status _rt_env_get(char const *name);
