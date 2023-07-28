@@ -240,7 +240,7 @@ if target == 'linux':
 elif target == 'windows':
     assemble(p('src/windows/chkstk.asm'), p('bin/chkstk.o'))
     compile([p('src/windows/crt-entry.c')], p('bin/crt-entry.o'), '-c')
-    archive([p('bin/crt-entry.o')], crt_lib)
+    archive([p('bin/crt-entry.o'), p('bin/chkstk.o')], crt_lib)
 compile([ciabatta_c], ciabatta_o, '-c')
 archive([ciabatta_o], cia_lib)
 
@@ -248,4 +248,4 @@ if args.test:
     if target == 'linux':
         compile([args.test, cia_lib, crt_lib], 'a', '-pie')
     elif target == 'windows':
-        compile([args.test, cia_lib, crt_lib], 'a.exe', '-lkernel32')
+        compile([args.test, cia_lib, crt_lib], 'a.exe', '-lkernel32.lib')
