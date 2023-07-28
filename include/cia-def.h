@@ -1,9 +1,16 @@
 
 #pragma once
 
+// Since we're re-defining noreturn below, this would mess
+// with __declspec(noreturn) in windows headers, which
+// is hidden behind a define. Good thing, because now we
+// can override that define over here.
+#if defined(_CIA_OS_WINDOWS)
+    #define DECLSPEC_NORETURN __declspec("noreturn")
+#endif
+
 // Pre-C23 keyword macros and stddef
 #define static_assert _Static_assert
-#define noreturn _Noreturn
 #define NULL ((void *)0)
 
 // Assert commonly-accepted platform-invariant sizes

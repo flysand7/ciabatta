@@ -25,12 +25,13 @@ int at_quick_exit(void (*func)(void)) {
     return 0;
 }
 
-noreturn void abort(void) {
+[[noreturn]] void abort(void) {
     // TODO: Ideally do a debug trap if the process is being debugged
-    _Exit(-1);
+    _rt_program_exit(1);
+    __builtin_unreachable();
 }
 
-noreturn void exit(int code) {
+[[noreturn]] void exit(int code) {
     for(u64 i = n_atexit_handlers-1; i-- != 0; ) {
         void (*handler)(void) = atexit_handlers[i];
         handler();
@@ -38,17 +39,20 @@ noreturn void exit(int code) {
     // TODO(bumbread): flush all the unflushed file streams
     // TODO(bumbread): close all file streams and delete temporary files
     _rt_program_exit(code);
+    __builtin_unreachable();
 }
 
-noreturn void _Exit(int code) {
+[[noreturn]] void _Exit(int code) {
     _rt_program_exit(code);
+    __builtin_unreachable();
 }
 
-noreturn void quick_exit(int code) {
+[[noreturn]] void quick_exit(int code) {
     for(u64 i = n_at_quick_exit_handlers-1; i-- != 0; ) {
         void (*handler)(void) = at_quick_exit_handlers[i];
         handler();
     }
     _rt_program_exit(code);
+    __builtin_unreachable();
 }
 

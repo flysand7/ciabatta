@@ -1,9 +1,6 @@
 
 // See src/tinyrt.h file for the interface this file implements
 
-static _RT_File _rt_file_stdin;
-static _RT_File _rt_file_stderr;
-
 static _RT_Status _rt_file_std_handles_init() {
     _rt_file_stdin.fd = 0;
     _rt_file_stdin.flags = _RT_FILE_READ;
@@ -68,6 +65,6 @@ static _RT_Status _rt_file_close(_RT_File *file) {
     return _RT_STATUS_OK;
 }
 
-static noreturn void _rt_program_exit(int code) {
+[[noreturn]] static void _rt_program_exit(int code) {
     syscall_exit(code);
 }

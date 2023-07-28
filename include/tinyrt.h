@@ -41,7 +41,7 @@ static _RT_Status _rt_deinit();
 
 // Program API
 #if _RT_API_PROGRAM == 1
-    static noreturn void _rt_program_exit(int code);
+    [[noreturn]] static void _rt_program_exit(int code);
 #endif
 
 #if _RT_API_ENVIRONMENT == 1

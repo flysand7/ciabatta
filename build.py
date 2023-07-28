@@ -7,10 +7,6 @@ import os
 import sys
 import pyjson5
 
-dependencies = [
-    'nasm',
-    'llvm-ar'
-]
 
 # Parse command line arguments
 arg_parser = argparse.ArgumentParser('build.py')
@@ -23,17 +19,25 @@ arg_parser.add_argument('--cflags', nargs='*', default=[], help='Pass additional
 args = arg_parser.parse_args()
 compiler = args.compiler
 
-print('==> Performing basic checks')
 
 # Perform cleaning if required
+def rm(path):
+    if os.path.exists(path):
+        os.remove(path)
 if args.clean:
-    shutil.rmtree('bin')
-    shutil.rmtree('lib')
-    os.remove(os.path.join('src', 'ciabatta.c'))
-    os.remove('a')
+    if os.path.exists('bin'):
+        shutil.rmtree('bin')
+    if os.path.exists('lib'):
+        shutil.rmtree('lib')
+    rm(os.path.join('src', 'ciabatta.c'))
+    rm('a')
+    rm('a.exe')
+    rm('a.ilk')
+    rm('a.pdb')
     sys.exit(0)
 
 # Check host OS
+print('==> Performing basic checks')
 target = args.target
 if target is None:
     host_os = platform.system().lower()
@@ -44,7 +48,30 @@ if target is None:
     target = host_os
 
 # Add compiler to dependencies
+dependencies = [
+    'nasm',
+    'llvm-ar'
+]
 dependencies.append(args.compiler)
+
+
+# Figure out the flags
+includes = ['include']
+cc = args.compiler
+cc_defines = []
+cc_flags = ['-nostdlib']
+crt_file = 'crt.lib'
+lib_file = 'cia.lib'
+if args.mode == 'release':
+    cc_flags.append('-O2')
+    cc_defines.append('NDEBUG')
+else: # 'debug'
+    cc_flags.append('-g')
+    cc_flags.append('-O0')
+    cc_defines.append('DEBUG')
+if target != 'windows':
+    cc_flags.append('-fpic')
+cc_defines.append(f'_CIA_OS_{target.upper()}')
 
 # Check dependencies
 print('==> Checking dependencies')
@@ -53,24 +80,6 @@ for dependency in dependencies:
         print(f"  -> [ERROR] Missing dependency: '{dependency}'")
         sys.exit(1)
 print('  -> Everything OK')
-
-# Figure out the flags
-includes = ['include']
-cc = ''
-cc_defines = []
-cc_flags = ['-nostdlib']
-crt_file = 'crt.lib'
-lib_file = 'cia.lib'
-
-cc = args.compiler
-if args.mode == 'release':
-    cc_flags.append('-O2')
-    cc_defines.append('NDEBUG')
-else: # 'debug'
-    cc_flags.append('-g')
-    cc_flags.append('-O0')
-    cc_defines.append('DEBUG')
-cc_defines.append(f'_CIA_OS_{target.upper()}')
 
 # Generate TinyRT headers for the target platform
 print(f"==> Generating TinyRT header for {target}")
@@ -133,8 +142,8 @@ try:
         if platform_config is None:
             print(f"  -> [ERROR] library config doesn't contain configuration for platform {target}")
         for include in platform_config['includes']:
-            include_path = os.path.join(platform_config['path'], include)
-            ciabatta_header.write(f'#include "{include_path}"\n')
+            include_path = platform_config['path']
+            ciabatta_header.write(f'#include "{include_path}/{include}"\n')
         ciabatta_header.write(f'#include "{target}/tinyrt-iface.h"\n')
         ciabatta_header.write(f'#include <tinyrt.h>\n')
         for tinyrt_source in platform_config['tinyrt']:
@@ -193,7 +202,7 @@ def assemble(src, out):
 def compile(srcs, out, extra_flags = ''):
     flags = cc_flags_str + ' ' + extra_flags + ' '.join(args.cflags)
     inputs = ' '.join(map(quote, srcs))
-    cmdline = f'{compiler} {flags} {inputs} -o {quote(out)}'
+    cmdline = f'{cc} {flags} {inputs} -o {quote(out)}'
     print('  >', cmdline)
     code = os.system(cmdline)
     if code != 0:
@@ -207,20 +216,34 @@ def archive(srcs, out):
     if code != 0:
         sys.exit(code)
 
-
 # Ciabatta build spec
 if not os.path.exists('lib'):
     os.mkdir('lib')
 if not os.path.exists('bin'):
     os.mkdir('bin')
 
-p = os.path.join
+def p(path):
+    l = path.split('/')
+    return os.path.join(*l)
 
-assemble(p('src', 'linux', 'crt-entry.asm'), p('bin', 'crt-entry.o'))
-compile([p('src', 'linux', 'crt-ctors.c')], p('bin', 'crt-ctors.o'), '-fpic -c')
-compile([p('src', 'ciabatta.c')], p('bin', 'ciabatta.o'), '-fpic -c')
-archive([p('bin', 'crt-ctors.o'), p('bin', 'crt-entry.o')], p('lib', crt_file))
-archive([p('bin', 'ciabatta.o'), ], p('lib', lib_file))
+cia_lib = p(f'lib/{lib_file}')
+crt_lib = p(f'lib/{crt_file}')
+ciabatta_c = p('src/ciabatta.c')
+ciabatta_o = p('bin/ciabatta.o')
+
+if target == 'linux':
+    assemble(p('src/linux/crt-entry.asm'), p('bin/crt-entry.o'))
+    compile([p('src/linux/crt-ctors.c')], p('bin/crt-ctors.o'), '-c')
+    archive([p('bin/crt-ctors.o'), p('bin/crt-entry.o')], p('lib', crt_file))
+elif target == 'windows':
+    assemble(p('src/windows/chkstk.asm'), p('bin/chkstk.o'))
+    compile([p('src/windows/crt-entry.c')], p('bin/crt-entry.o'), '-c')
+    archive([p('bin/crt-entry.o')], crt_lib)
+compile([ciabatta_c], ciabatta_o, '-c')
+archive([ciabatta_o], cia_lib)
 
 if args.test:
-    compile([args.test, p('lib', lib_file), p('lib', crt_file)], 'a', '-pie')
+    if target == 'linux':
+        compile([args.test, cia_lib, crt_lib], 'a', '-pie')
+    elif target == 'windows':
+        compile([args.test, cia_lib, crt_lib], 'a.exe', '-lkernel32')

@@ -44,8 +44,13 @@ platforms: [
     {
         name: "windows",
         path: "windows",
-        includes: [],
-        tinyrt: [],
+        includes: [
+            "windows.c"
+        ],
+        tinyrt: [
+            "tinyrt.c",
+            "cia-init.c"
+        ],
     },
 ],
 
