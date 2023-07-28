@@ -22,7 +22,7 @@ void *allocator_alloc(Cia_Allocator *alloc, u64 size, u64 alignment);
 void allocator_free_size(Cia_Allocator *alloc, void *region_ptr, u64 region_size);
 void allocator_free(Cia_Allocator *alloc, void *region_ptr);
 void allocator_free_all(Cia_Allocator *alloc);
-void *allocator_resize(Cia_Allocator *alloc, void *old_ptr, u64 old_size, u64 new_size);
+void *allocator_resize(Cia_Allocator *alloc, void *old_ptr, u64 old_size, u64 new_size, u64 alignment);
 
 struct Cia_Arena typedef Cia_Arena;
 struct Cia_Arena {
