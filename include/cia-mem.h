@@ -4,18 +4,25 @@
 void *cia_ptr_alignf(void *ptr, u64 alignment);
 void *cia_ptr_alignb(void *ptr, u64 alignment);
 
+#define CIA_MEM_OP_ALLOC     1
+#define CIA_MEM_OP_FREE      2
+#define CIA_MEM_OP_FREE_ALL  3
+#define CIA_MEM_OP_RESIZE    4
+
 struct Cia_Allocator typedef Cia_Allocator;
 struct Cia_Allocator {
     void *ctx;
-    void *(*alloc)(void *ctx, u64 size);
-    void *(*alloc_a)(void *ctx, u64 size, u64 alignment);
-    void (*free)(void *ctx, void *ptr);
-    void (*free_all)(void *ctx, void *ptr);
-    void *(*realloc)(void *ctx, void *ptr, u64 new_size);
+    void *(*proc)(void *ctx, int optype, void *old_ptr, u64 old_size, u64 size, u64 alignment);
 };
 
 Cia_Allocator cia_allocator_null();
 Cia_Allocator cia_allocator_pages();
+
+void *allocator_alloc(Cia_Allocator *alloc, u64 size, u64 alignment);
+void allocator_free_size(Cia_Allocator *alloc, void *region_ptr, u64 region_size);
+void allocator_free(Cia_Allocator *alloc, void *region_ptr);
+void allocator_free_all(Cia_Allocator *alloc);
+void *allocator_resize(Cia_Allocator *alloc, void *old_ptr, u64 old_size, u64 new_size);
 
 struct Cia_Arena typedef Cia_Arena;
 struct Cia_Arena {

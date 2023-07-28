@@ -3,7 +3,7 @@ void cia_arena_create(Cia_Arena *arena, Cia_Allocator backing_allocator, u64 buf
     arena->allocator = backing_allocator;
     arena->buffer_size = buffer_size;
     arena->used = 0;
-    arena->buffer = arena->allocator.alloc(arena->allocator.ctx, buffer_size);
+    arena->buffer = allocator_alloc(&arena->allocator, arena->buffer_size, 16);
 }
 
 void *cia_arena_alloc(Cia_Arena *arena, u64 size) {
@@ -31,5 +31,5 @@ void cia_arena_free_all(Cia_Arena *arena) {
 }
 
 void cia_arena_destroy(Cia_Arena *arena) {
-    arena->allocator.free(arena->allocator.ctx, arena->buffer);
+    allocator_free_size(&arena->allocator, arena->buffer, arena->buffer_size);
 }

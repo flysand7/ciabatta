@@ -168,12 +168,12 @@ try:
             reqs_satisfied = True
             # Check API dependencies
             for req in api['reqs']:
-                if not (req in tinyrt_apis):
-                    reqs_satisfied = False
-                    break
-                if not (req in mod_exports):
-                    reqs_satisfied = False
-                    break
+                if req in tinyrt_apis:
+                    continue
+                elif req in mod_exports:
+                    continue
+                reqs_satisfied = False
+                break
             if not reqs_satisfied:
                 print(f"  -> Not exporting API '{api_name}'")
             else:
