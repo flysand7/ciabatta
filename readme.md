@@ -9,18 +9,22 @@ following goals:
 
 - Providing C standard library that fully implements all C features. Some
   standard libraries lack many features of C11 and C23, like threads.h or
-  aligned_alloc in case of msvcrt.
+  aligned_alloc in case of MSVCRT.
 - Making standard library that is easy to port to other platforms, for example
   an embedded platform or a custom operating system.
 - Allowing applications to debug and step into standard library functions
-- Reasonably fast CRT compared to MSVCRT and glibc.
+  (Hello MSVCRT!)
+- Reasonably fast CRT compared to MSVCRT and glibc, e.g. making malloc use
+  a faster allocator, avoid runtime checks where possible, heavely rely on
+  inlining.
 - Extend the possibilities of C standard library with commonly used
-  functionality: implementing POSIX standard (including directories and
-  sockets), capability for unicode processing.
+  functionality: implementing POSIX standard, capability for unicode
+  processing, API to traverse directories, hash functions, better strings API,
+  crash handlers.
 
 Ciabatta is not binary-compatible with other CRT libraries. That means that any
 libraries that your project uses have to also be compiled with Ciabatta,
-otherwise you might run into issues.
+otherwise you will run into issues.
 
 Please note that as of today ciabatta is still during development and does not
 implement many of the features that need to be implemented. Using it at current
@@ -42,8 +46,10 @@ functionality.
 ## Building ciabatta
 
 Before proceeding please note that ciabatta can only be compiled and used
-with `clang`. It may be able to work with `gcc` with some minor adjustments
+with `clang` and `cuik`. It may be able to work with `gcc` with some minor adjustments
 but I didn't test.
+
+You can get `cuik` in [the GitHub repository](https://github.com/RealNeGate/Cuik)
 
 For executing the script you will need at least python 3.3 and the pyjson5 package
 
@@ -83,24 +89,18 @@ In order to compile your project with ciabatta see the following sections
 ### Compiling with ciabatta on windows
 
 1. Add the following flags to your compilation command:
-   `-nostdlib -I ./include utf8.obj -mfma`
-2. Link to the following libraries:
-   `-l ./lib/ciabatta.lib`
+   `-nostdlib -D _CIA_OS_WINDOWS -I /include utf8.obj -mfma`
+2. Add the following sources to the compile command:
+   `./lib/ciabatta.lib ./lib/cia.lib ./lib/crt.lib`
 
 **Note:** The `include` folder refers to the folder you copied from ciabatta. Set the path to it accordingly.
 
 ### Compiling with ciabatta on linux
 
-- In case of static linking:
-  1. Add the following flags to your compilation command:
-     - `-nostdlib -static -I ./include`
-  2. Link to the following libraries
-     - `./lib/ciabatta.a`
-- In case of dynamic linking:
-  1. Add the following flags to your compilation command:
-     - `-nostdlib -no-pie -I ./include`
-  2. Link to the following libraries:
-     - `./lib/ciabatta.so ./lib.ctors.o ./lib.entry.o`
+1. Add the following flags to your compilation command:
+   - `-nostdlib -D _CIA_OS_LINUX -I ./include -mfma`
+2. Link to the following libraries
+   - `./lib/ciabatta.a`
 
 ## Contributing
 
