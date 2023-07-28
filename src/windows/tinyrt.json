@@ -1,5 +1,3 @@
-{
-
 // This file contains TinyRT API subsets that are exported
 // for this operating system, one name per line. This file
 // is used in a build script to generate tinyrt_macro file
@@ -8,5 +6,3 @@
 rt_api_file: true,
 rt_api_program: true,
 rt_api_shell: false,
-
-}

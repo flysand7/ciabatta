@@ -88,7 +88,9 @@ tinyrt_apis = []
 try:
     print(f"  -> Reading file '{tinyrt_config_path}'")
     with open(tinyrt_config_path, 'r') as tinyrt_config_file:
-        tinyrt_config = pyjson5.load(tinyrt_config_file)
+        string = tinyrt_config_file.read()
+        json = '{' + string + '}'
+        tinyrt_config = pyjson5.loads(json)
 except Exception as error:
     print(f"  -> [ERROR] reading file '{tinyrt_config_path}'")
     print(f"  *  {error}")
@@ -119,7 +121,9 @@ library_config_path = os.path.join('src', 'library.json')
 try:
     print(f"  -> Reading file '{library_config_path}'")
     with open(library_config_path, 'r') as library_config_file:
-        library_config = pyjson5.load(library_config_file)
+        string = library_config_file.read()
+        json = '{' + string + '}'
+        library_config = pyjson5.loads(json)
 except Exception as error:
     print(f"  -> [ERROR] reading file '{library_config_path}'")
     print(f"  *  {error}")
@@ -248,4 +252,4 @@ if args.test:
     if target == 'linux':
         compile([args.test, cia_lib, crt_lib], 'a', '-pie')
     elif target == 'windows':
-        compile([args.test, cia_lib, crt_lib], 'a.exe', '-lkernel32.lib')
+        compile([args.test, cia_lib, crt_lib], 'a', '-lkernel32.lib')

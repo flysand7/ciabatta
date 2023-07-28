@@ -1,5 +1,3 @@
-{
-
 // Manifest file for the ciabatta build.
 
 // Platform sections describe available platforms and
@@ -76,6 +74,3 @@ apis: [
         ]
     }
 ]
-
-// END
-}
