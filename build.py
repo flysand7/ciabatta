@@ -249,7 +249,7 @@ ciabatta_o = p('bin/ciabatta.o')
 if target == 'linux':
     assemble(p('src/linux/crt-entry.asm'), p('bin/crt-entry.o'))
     compile([p('src/linux/crt-ctors.c')], p('bin/crt-ctors.o'), '-c')
-    archive([p('bin/crt-ctors.o'), p('bin/crt-entry.o')], p('lib', crt_file))
+    archive([p('bin/crt-ctors.o'), p('bin/crt-entry.o')], crt_lib)
 elif target == 'windows':
     assemble(p('src/windows/chkstk.asm'), p('bin/chkstk.o'))
     compile([p('src/windows/crt-entry.c')], p('bin/crt-entry.o'), '-c')
