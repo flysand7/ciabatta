@@ -24,6 +24,7 @@
 includes: [
     "stdlib.h",
     "stdio.h",
+    "cia-mem.h",
 ],
 
 platforms: [
@@ -53,6 +54,18 @@ platforms: [
 ],
 
 apis: [
+    {
+        name: "cia_memory",
+        path: "impl/cia-mem",
+        includes: [
+            "util.c",
+            "allocator.c",
+            "arena.c",
+        ],
+        reqs: [
+            "rt_api_memory"
+        ]
+    },
     {
         name: "stdlib_program",
         path: "impl/stdlib-program",

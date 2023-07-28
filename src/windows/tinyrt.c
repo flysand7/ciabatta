@@ -74,3 +74,20 @@ static _RT_Status _rt_file_close(_RT_File *file) {
     __builtin_unreachable();
 }
 
+static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 min_size, void **out_addr) {
+    void *addr = VirtualAlloc(optional_desired_addr, min_size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+    *out_addr = addr;
+    if(addr == NULL) {
+        return _RT_ERROR_GENERIC;
+    }
+    return _RT_STATUS_OK;
+}
+
+static _RT_Status _rt_mem_free(void *addr) {
+    BOOL ok = VirtualFree(addr, 0, MEM_RELEASE);
+    if(!ok) {
+        return _RT_ERROR_GENERIC;
+    }
+    return _RT_STATUS_OK;
+}
+

@@ -5,6 +5,7 @@
 #define _RT_STATUS_OK                     0  // No errors
 #define _RT_ERROR_NOT_IMPLEMENTED        -1  // Function not implemented
 #define _RT_ERROR_BAD_PARAM              -2  // One of the function parameters was wrong
+#define _RT_ERROR_GENERIC                -3  // Just any random error
 
 // File API errors
 #define _RT_STATUS_FILE_ACCESS            1  // No access to the file
@@ -68,4 +69,10 @@ struct _RT_File {
     static _RT_Status _rt_file_read(u64 size, void *buffer, _RT_File *from, u64 *out_bytes_read);
     static _RT_Status _rt_file_write(_RT_File *to, u64 size, void *buffer, u64 *out_bytes_written);
     static _RT_Status _rt_file_close(_RT_File *file);
+#endif
+
+// Memory API
+#if _RT_API_MEMORY == 1
+    static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 min_size, void **out_addr);
+    static _RT_Status _rt_mem_free(void *ptr);
 #endif

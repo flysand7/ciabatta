@@ -7,3 +7,4 @@
 rt_api_file: true,
 rt_api_program: true,
 rt_api_shell: false,
+rt_api_memory: false,
