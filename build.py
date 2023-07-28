@@ -161,19 +161,25 @@ try:
             ciabatta_header.write(f'#include <{include}>\n')
         ciabatta_header.write('\n')
         # Write module sources
+        mod_exports = []
         for api in library_config['apis']:
             api_name = api['name']
             api_path = api['path']
-            tinyrt_satisfied = True
+            reqs_satisfied = True
+            # Check API dependencies
             for req in api['reqs']:
                 if not (req in tinyrt_apis):
-                    tinyrt_satisfied = False
+                    reqs_satisfied = False
                     break
-            if not tinyrt_satisfied:
+                if not (req in mod_exports):
+                    reqs_satisfied = False
+                    break
+            if not reqs_satisfied:
                 print(f"  -> Not exporting API '{api_name}'")
             else:
                 print(f"  * Exporting API '{api_name}'")
                 ciabatta_header.write(f'// Module {api_name}\n')
+                mod_exports.append(api_name)
                 for include in api['includes']:
                     ciabatta_header.write(f'#include "{api_path}/{include}"\n')
 except Exception as error:

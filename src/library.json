@@ -74,6 +74,7 @@ apis: [
         ],
         reqs: [
             "rt_api_program",
+            "cia_memory",
         ]
     },
     {
