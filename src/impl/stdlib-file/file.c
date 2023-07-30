@@ -80,5 +80,6 @@ int fclose(FILE *file) {
     if(status != _RT_STATUS_OK) {
         return EOF;
     }
+    cia_pool_free(&_file_pool, file);
     return 0;
 }
