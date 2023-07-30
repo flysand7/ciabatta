@@ -6,8 +6,8 @@ static char stack_chk_fail_msg[] =
     "Sorry these guys didn't tell me where\n";
 
 void __stack_chk_fail(void) {
-    syscall_write(STDERR_FILENO, stack_chk_fail_msg, sizeof stack_chk_fail_msg);
-    syscall_exit(1);
+    _syscall_write(_SYS_STDERR_FILENO, stack_chk_fail_msg, sizeof stack_chk_fail_msg);
+    _syscall_exit(1);
 }
 
 static void _fileapi_init();
@@ -28,5 +28,5 @@ void __libc_start_main(
     fini();
     // glibc bug
     // dl_fini();
-    syscall_exit(0);
+    _syscall_exit(0);
 }
