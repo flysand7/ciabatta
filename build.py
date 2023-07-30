@@ -7,6 +7,13 @@ import os
 import sys
 import pyjson5
 
+# Colors
+class colors:
+    grey='\033[38;5;247m'
+    cyan='\033[38;5;80m'
+    red='\033[38;5;196m'
+    green='\033[32m'
+    reset='\033[0m'
 
 # Parse command line arguments
 arg_parser = argparse.ArgumentParser('build.py')
@@ -37,15 +44,14 @@ if args.clean:
     sys.exit(0)
 
 # Check host OS
-print('==> Performing basic checks')
+print(colors.grey, '==> Performing basic checks', colors.reset, sep='')
 target = args.target
 if target is None:
-    host_os = platform.system().lower()
-    print(f"  -> Compiling for host OS: '{host_os}'")
-    if not os.path.exists(os.path.join('src', host_os)):
-        print(f"  -> [ERROR] OS '{host_os}' isn't implemented.")
-        sys.exit(1)
-    target = host_os
+    target = platform.system().lower()
+print(f"  * Compiling for host OS: '{colors.cyan}{target}{colors.reset}'")
+if not os.path.exists(os.path.join('src', target)):
+    print(colors.red, f"  ERROR: OS '{colors.cyan}{target}{colors.red}' isn't implemented.", colors.reset)
+    sys.exit(1)
 
 # Add compiler to dependencies
 dependencies = [
@@ -74,30 +80,28 @@ if target != 'windows':
 cc_defines.append(f'_CIA_OS_{target.upper()}')
 
 # Check dependencies
-print('==> Checking dependencies')
+print(colors.grey, '==> Checking dependencies...', colors.reset, end='', sep='')
 for dependency in dependencies:
     if shutil.which(dependency) is None:
-        print(f"  -> [ERROR] Missing dependency: '{dependency}'")
+        print(colors.red, f"\n  -> [ERROR] Missing dependency: '{dependency}'", colors.reset)
         sys.exit(1)
-print('  -> Everything OK')
+print(colors.green, 'OK', colors.reset)
 
 # Generate TinyRT headers for the target platform
-print(f"==> Generating TinyRT header for {target}")
+print(colors.grey, f"==> Generating TinyRT header for {target}...", colors.reset, end='', sep='')
 tinyrt_config_path = os.path.join('src', target, 'tinyrt.json')
 tinyrt_apis = []
 try:
-    print(f"  -> Reading file '{tinyrt_config_path}'")
     with open(tinyrt_config_path, 'r') as tinyrt_config_file:
         string = tinyrt_config_file.read()
         json = '{' + string + '}'
         tinyrt_config = pyjson5.loads(json)
 except Exception as error:
-    print(f"  -> [ERROR] reading file '{tinyrt_config_path}'")
-    print(f"  *  {error}")
+    print(colors.red, f"\n  -> [ERROR] reading file '{tinyrt_config_path}'")
+    print(f"  *  {error}", colors.reset)
     sys.exit(1)
 tinyrt_header_path = os.path.join('src', target, 'tinyrt-iface.h')
 try:
-    print(f"  -> Writing to file '{tinyrt_header_path}'")
     with open(tinyrt_header_path, 'w') as tinyrt_header_file:
         tinyrt_header_file.write('\n')
         tinyrt_header_file.write(f'// This file is AUTO-GENERATED from {tinyrt_config_path}\n')
@@ -110,27 +114,25 @@ try:
             is_defined_int = 1 if is_defined else 0
             tinyrt_header_file.write(f'#define _{api_name.upper()} {is_defined_int}\n')
 except Exception as error:
-    print(f"  -> [ERROR] writing to file '{tinyrt_header_path}'")
-    print(f"  *  {error}")
+    print(colors.red, f"  -> [ERROR] writing to file '{tinyrt_header_path}'")
+    print(f"  *  {error}", colors.reset)
     sys.exit(1)
-print('  -> TinyRT header generated')
+print(colors.green, 'OK', colors.reset)
 
 # Generate ciabatta header for the target platform and configuration
-print(f"==> Generating ciabatta.c")
+print(colors.grey, f"==> Generating ciabatta.c", colors.reset, sep='')
 library_config_path = os.path.join('src', 'library.json')
 try:
-    print(f"  -> Reading file '{library_config_path}'")
     with open(library_config_path, 'r') as library_config_file:
         string = library_config_file.read()
         json = '{' + string + '}'
         library_config = pyjson5.loads(json)
 except Exception as error:
-    print(f"  -> [ERROR] reading file '{library_config_path}'")
-    print(f"  *  {error}")
+    print(colors.red, f"  ERROR when reading file '{library_config_path}':")
+    print(f"  {error}", colors.reset)
     sys.exit(1)
 ciabatta_header_path = os.path.join('src', 'ciabatta.c')
 try:
-    print(f"  -> Writing to file '{ciabatta_header_path}'")
     with open(ciabatta_header_path, 'w') as ciabatta_header:
         # Write heading
         ciabatta_header.write('\n')
@@ -146,7 +148,7 @@ try:
             if platform['name'] == target:
                 platform_config = platform
         if platform_config is None:
-            print(f"  -> [ERROR] library config doesn't contain configuration for platform {target}")
+            print(colors.red, f"  ERROR: library config doesn't contain configuration for platform {target}", colors.reset, sep='')
         for include in platform_config['includes']:
             include_path = platform_config['path']
             ciabatta_header.write(f'#include "{include_path}/{include}"\n')
@@ -175,16 +177,16 @@ try:
                 reqs_satisfied = False
                 break
             if not reqs_satisfied:
-                print(f"  -> Not exporting API '{api_name}'")
+                print(colors.red, f"  * Not exporting API '{api_name}'", colors.reset, sep='')
             else:
-                print(f"  * Exporting API '{api_name}'")
+                print(colors.green, f"  * Exporting API '{api_name}'", colors.reset, sep='')
                 ciabatta_header.write(f'// Module {api_name}\n')
                 mod_exports.append(api_name)
                 for include in api['includes']:
                     ciabatta_header.write(f'#include "{api_path}/{include}"\n')
 except Exception as error:
-    print(f"  -> [ERROR] writing file '{ciabatta_header_path}'")
-    print(f"  *  {error}")
+    print(colors.red, f"  ERROR writing file '{ciabatta_header_path}':", sep='')
+    print(f"  {error}", colors.reset)
     sys.exit(1)
 
 def quote(s):
@@ -199,15 +201,14 @@ cc_flags_str = ' '.join(
                list(map(prefix('-D '), cc_defines)) +
                list(map(prefix_quote('-I '), includes)))
 
-print(f"==> Compiling {lib_file}")
-print('  * Compiler flags:', cc_flags_str)
+print(colors.grey, f"==> Compiling {lib_file}", colors.reset, sep='')
 
 def assemble(src, out):
     format = 'elf64'
     if target == 'windows':
         format = 'win64'
     cmdline = f'nasm -f "{format}" "{src}" -o "{out}"'
-    print('  >', cmdline)
+    print('  $', cmdline)
     code = os.system(cmdline)
     if code != 0:
         sys.exit(code)
@@ -218,7 +219,7 @@ def compile(srcs, out, extra_flags = ''):
     flags = cc_flags_str + ' ' + extra_flags + ' '.join(args.cflags)
     inputs = ' '.join(map(quote, srcs))
     cmdline = f'{cc} {flags} {inputs} -o {quote(out)}'
-    print('  >', cmdline)
+    print('  $', cmdline)
     code = os.system(cmdline)
     if code != 0:
         sys.exit(code)
@@ -226,7 +227,7 @@ def compile(srcs, out, extra_flags = ''):
 def archive(srcs, out):
     inputs = ' '.join(map(quote, srcs))
     cmdline = f'llvm-ar -rcs {quote(out)} {inputs}'
-    print('  >', cmdline)
+    print('  $', cmdline)
     code = os.system(cmdline)
     if code != 0:
         sys.exit(code)
