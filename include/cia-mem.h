@@ -48,14 +48,13 @@ struct Cia_Pool_Bucket {
 struct Cia_Pool_Buffer_Header typedef Cia_Pool_Buffer_Header;
 struct Cia_Pool_Buffer_Header {
     Cia_Pool_Buffer_Header *next;
-    u64 free_buckets_count;
-    Cia_Pool_Bucket *free_head;
 };
 
 struct Cia_Pool typedef Cia_Pool;
 struct Cia_Pool {
     Cia_Allocator allocator;
     Cia_Pool_Buffer_Header *first;
+    Cia_Pool_Bucket *freelist_head;
     u64 buffer_size;
     u64 bucket_size;
     u64 alignment;
