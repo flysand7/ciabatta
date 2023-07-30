@@ -30,6 +30,45 @@ Please note that as of today ciabatta is still during development and does not
 implement many of the features that need to be implemented. Using it at current
 time is discouraged.
 
+## Current Status
+
+### C23 standard library
+
+| Header          | Description                          | Status      |
+| --------------- | ------------------------------------ | ----------- |
+| <assert.h>      | Diagnostics.                         | none        |
+| <complex.h>     | Complex arithmetic.                  | none        |
+| <ctype.h>       | Character handling.                  | none        |
+| <errno.h>       | Errors.                              | none        |
+| <fenv.h>        | Floating-point environment.          | none        |
+| <float.h>       | Characteristics of floating types.   | none        |
+| <inttypes.h>    | Format conversion of integer types.  | none        |
+| <iso646.h>      | Alternative spellings.               | none        |
+| <limits.h>      | Sizes of integer types.              | none        |
+| <locale.h>      | Localization.                        | none        |
+| <math.h>        | Mathematics.                         | none        |
+| <setjmp.h>      | Nonlocal jumps.                      | [1]         |
+| <signal.h>      | Signal handling.                     | none        |
+| <stdalign.h>    | Alignment.                           | none        |
+| <stdarg.h>      | Variable arguments.                  | none        |
+| <stdatomic.h>   | Atomics.                             | none        |
+| <stdbit.h>      | Bit and byte utilities               | none        |
+| <stdbool.h>     | Boolean type and values.             | none        |
+| <stddef.h>      | Common definitions.                  | none        |
+| <stdint.h>      | Integer types.                       | Implemented |
+| <stdio.h>       | Input/output.                        | WIP         |
+| <stdlib.h>      | General utilities.                   | none        |
+| <stdnoreturn.h> | `_Noreturn`.                         | none        |
+| <string.h>      | String handling.                     | none        |
+| <tgmath.h>      | Type-generic math.                   | none        |
+| <threads.h>     | Threads.                             | none        |
+| <time.h>        | Date and time.                       | none        |
+| <uchar.h>       | Unicode utilities.                   | none        |
+| <wchar.h>       | Wide character utilities.            | none        |
+| <wctype.h>      | Wide character utilities.            | none        |
+
+[1] Implemented by compilers
+
 ## Support
 
 Operating System:
