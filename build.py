@@ -261,4 +261,4 @@ if args.test:
     if target == 'linux':
         compile([args.test, cia_lib, crt_lib], 'a', '-pie')
     elif target == 'windows':
-        compile([args.test, cia_lib, crt_lib], 'a', '-lkernel32.lib')
+        compile([args.test, cia_lib, crt_lib], 'a.exe', '-lkernel32.lib')

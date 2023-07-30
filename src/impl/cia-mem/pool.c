@@ -1,12 +1,11 @@
 
-static void *_pool_buffer_freelist_add(Cia_Pool *pool, u8 *buffer) {
+static void _pool_buffer_freelist_add(Cia_Pool *pool, u8 *buffer) {
     Cia_Pool_Buffer_Header *header = (Cia_Pool_Buffer_Header *)buffer;
     u64 header_size = sizeof(Cia_Pool_Buffer_Header);
     u64 header_size_aligned = cia_size_alignf(header_size, pool->alignment);
     u8 *buckets = buffer + header_size_aligned;
     u64 remaining_size = pool->buffer_size - header_size_aligned;
     u64 buckets_count = remaining_size / pool->bucket_size;
-    header->free_buckets_count = buckets_count;
     u64 buckets_size = buckets_count * pool->bucket_size;
     // Initialize every bucket as free
     u64 bucket_offset = header_size_aligned + buckets_size;

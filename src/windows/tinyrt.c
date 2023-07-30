@@ -83,7 +83,7 @@ static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 min_size, void 
     return _RT_STATUS_OK;
 }
 
-static _RT_Status _rt_mem_free(void *addr) {
+static _RT_Status _rt_mem_free(void *addr, u64 size) {
     BOOL ok = VirtualFree(addr, 0, MEM_RELEASE);
     if(!ok) {
         return _RT_ERROR_GENERIC;
