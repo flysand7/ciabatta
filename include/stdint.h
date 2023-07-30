@@ -37,10 +37,10 @@ typedef uint32_t uint_fast32_t, uint_least32_t;
 typedef uint64_t uint_fast64_t, uint_least64_t;
 
 // TODO: verify what size it is (on windows and linux)
-typedef intmax_t int64_t;
-typedef intptr_t int64_t;
-typedef uintmax_t uint64_t;
-typedef uintptr_t uint64_t;
+typedef int64_t  intmax_t;
+typedef int64_t  intptr_t;
+typedef uint64_t uintmax_t;
+typedef uint64_t uintptr_t;
 
 // Constant expandors
 #define INT8_C(n)    (n)

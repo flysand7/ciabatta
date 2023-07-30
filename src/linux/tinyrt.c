@@ -65,6 +65,24 @@ static _RT_Status _rt_file_close(_RT_File *file) {
     return _RT_STATUS_OK;
 }
 
-[[noreturn]] static void _rt_program_exit(int code) {
+_Noreturn static void _rt_program_exit(int code) {
     syscall_exit(code);
 }
+
+static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 size, void **out_addr) {
+    void *addr = syscall_mmap((u64)optional_desired_addr, size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS, -1, 0);
+    if(addr == NULL) {
+        return _RT_ERROR_GENERIC;
+    }
+    *out_addr = addr;
+    return _RT_STATUS_OK;
+}
+
+static _RT_Status _rt_mem_free(void *ptr, u64 len) {
+    i64 result = syscall_munmap(ptr, len);
+    if(result == -1) {
+        return _RT_ERROR_GENERIC;
+    }
+    return _RT_STATUS_OK;
+}
+

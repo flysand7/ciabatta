@@ -25,13 +25,13 @@ int at_quick_exit(void (*func)(void)) {
     return 0;
 }
 
-[[noreturn]] void abort(void) {
+_Noreturn void abort(void) {
     // TODO: Ideally do a debug trap if the process is being debugged
     _rt_program_exit(1);
     __builtin_unreachable();
 }
 
-[[noreturn]] void exit(int code) {
+_Noreturn void exit(int code) {
     for(u64 i = n_atexit_handlers-1; i-- != 0; ) {
         void (*handler)(void) = atexit_handlers[i];
         handler();
@@ -42,12 +42,12 @@ int at_quick_exit(void (*func)(void)) {
     __builtin_unreachable();
 }
 
-[[noreturn]] void _Exit(int code) {
+_Noreturn void _Exit(int code) {
     _rt_program_exit(code);
     __builtin_unreachable();
 }
 
-[[noreturn]] void quick_exit(int code) {
+_Noreturn void quick_exit(int code) {
     for(u64 i = n_at_quick_exit_handlers-1; i-- != 0; ) {
         void (*handler)(void) = at_quick_exit_handlers[i];
         handler();

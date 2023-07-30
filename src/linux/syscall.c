@@ -4,7 +4,7 @@
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
 
-// arch_prctl syscall codes
+// arch_prctl() syscall codes
 #define ARCH_SET_GS    0x1001
 #define ARCH_SET_FS    0x1002
 #define ARCH_GET_FS    0x1003
@@ -12,7 +12,7 @@
 #define ARCH_GET_CPUID 0x1011
 #define ARCH_SET_CPUID 0x1012
 
-// open syscall modes
+// open() syscall modes
 #define O_ACCMODE   0003
 #define O_RDONLY    00
 #define O_WRONLY    01
@@ -27,6 +27,18 @@
 #define O_SYNC      010000
 #define O_FSYNC     O_SYNC
 #define O_ASYNC     020000
+
+// mmap() protection modes, flags and constants
+#define PROT_READ             0x1
+#define PROT_WRITE            0x2
+#define PROT_EXEC             0x4
+#define PROT_NONE             0x0
+#define PROT_GROWSDOWN 0x01000000
+#define PROT_GROWSUP   0x02000000
+#define MAP_FILE                0
+#define MAP_ANONYMOUS        0x20
+#define MAP_32BIT            0x40
+#define MAP_FAILED (void *)()
 
 #define SYS_read           0
 #define SYS_write          1
@@ -165,7 +177,15 @@ static inline i64 syscall_close(u32 fd) {
     return __syscall1(SYS_close, fd);
 }
 
-static inline noreturn void syscall_exit(int code) {
+static inline void *syscall_mmap(u64 addr, u64 len, u64 prot, u64 flags, u64 fd, u64 offset) {
+    return (void *)__syscall6(SYS_mmap, addr, len, prot, flags, fd, offset);
+}
+
+static inline i64 syscall_munmap(void *addr, u64 len) {
+    return __syscall2(SYS_munmap, (u64)addr, len);
+}
+
+_Noreturn static inline void syscall_exit(int code) {
     __syscall1(SYS_exit, (i64)code);
     __builtin_unreachable();
 }

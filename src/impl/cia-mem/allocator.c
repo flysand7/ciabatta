@@ -25,7 +25,7 @@ static void *page_allocator_proc(void *ctx, int optype, void *old_ptr, u64 old_s
             return addr;
         } break;
         case CIA_MEM_OP_FREE: {
-            _rt_mem_free(old_ptr);
+            _rt_mem_free(old_ptr, old_size);
         } break;
         case CIA_MEM_OP_FREE_ALL: {
             return NULL;

@@ -42,7 +42,7 @@ static _RT_Status _rt_deinit();
 
 // Program API
 #if _RT_API_PROGRAM == 1
-    [[noreturn]] static void _rt_program_exit(int code);
+    _Noreturn static void _rt_program_exit(int code);
 #endif
 
 // Environment API
@@ -73,6 +73,6 @@ struct _RT_File {
 
 // Memory API
 #if _RT_API_MEMORY == 1
-    static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 min_size, void **out_addr);
-    static _RT_Status _rt_mem_free(void *ptr);
+    static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 size, void **out_addr);
+    static _RT_Status _rt_mem_free(void *ptr, u64 size);
 #endif

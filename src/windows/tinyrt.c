@@ -69,7 +69,7 @@ static _RT_Status _rt_file_close(_RT_File *file) {
     return _RT_STATUS_OK;
 }
 
-[[noreturn]] static void _rt_program_exit(int code) {
+_Noreturn static void _rt_program_exit(int code) {
     ExitProcess(code);
     __builtin_unreachable();
 }
