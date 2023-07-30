@@ -3,6 +3,8 @@
 
 void *cia_ptr_alignf(void *ptr, u64 alignment);
 void *cia_ptr_alignb(void *ptr, u64 alignment);
+u64 cia_size_alignf(u64 size, u64 alignment);
+u64 cia_size_alignb(u64 size, u64 alignment);
 
 #define CIA_MEM_OP_ALLOC     1
 #define CIA_MEM_OP_FREE      2
@@ -37,3 +39,31 @@ void *cia_arena_alloc(Cia_Arena *arena, u64 size);
 void *cia_arena_alloc_aligned(Cia_Arena *arena, u64 size, u64 align);
 void cia_arena_free_all(Cia_Arena *arena);
 void cia_arena_destroy(Cia_Arena *arena);
+
+struct Cia_Pool_Bucket typedef Cia_Pool_Bucket;
+struct Cia_Pool_Bucket {
+    Cia_Pool_Bucket *next;
+};
+
+struct Cia_Pool_Buffer_Header typedef Cia_Pool_Buffer_Header;
+struct Cia_Pool_Buffer_Header {
+    Cia_Pool_Buffer_Header *next;
+    u64 free_buckets_count;
+    Cia_Pool_Bucket *free_head;
+};
+
+struct Cia_Pool typedef Cia_Pool;
+struct Cia_Pool {
+    Cia_Allocator allocator;
+    Cia_Pool_Buffer_Header *first;
+    u64 buffer_size;
+    u64 bucket_size;
+    u64 alignment;
+};
+
+void cia_pool_create(Cia_Pool *pool, Cia_Allocator backing_allocator, u64 buffer_size, u64 element_size, u64 alignment);
+void *cia_pool_alloc(Cia_Pool *pool);
+void cia_pool_free(Cia_Pool *pool, void *ptr);
+void cia_pool_free_all(Cia_Pool *pool);
+void cia_pool_destroy(Cia_Pool *pool);
+

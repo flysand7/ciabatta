@@ -61,6 +61,7 @@ apis: [
             "util.c",
             "allocator.c",
             "arena.c",
+            "pool.c",
         ],
         reqs: [
             "rt_api_memory"
@@ -84,7 +85,8 @@ apis: [
             "file.c"
         ],
         reqs: [
-            "rt_api_file"
+            "rt_api_file",
+            "cia_memory",
         ]
     }
 ]

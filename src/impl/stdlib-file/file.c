@@ -3,17 +3,17 @@ FILE *stdin;
 FILE *stdout;
 FILE *stderr;
 
-// TODO: memory allocation
-static FILE _files[64];
-static int _files_cnt = 0;
+static Cia_Pool _page_allocator;
+static Cia_Pool _file_pool;
 
 static void _fileapi_init() {
+    cia_pool_create(&_file_pool, cia_allocator_pages(), 0x1000, sizeof(FILE), 16);
+    FILE *stdin = cia_pool_alloc(&_file_pool);
+    FILE *stdout = cia_pool_alloc(&_file_pool);
+    FILE *stderr = cia_pool_alloc(&_file_pool);
     _rt_file_std_handles_init();
-    stdin = &_files[_files_cnt++];
     stdin->rt_file = _rt_file_stdin;
-    stdout = &_files[_files_cnt++];
     stdout->rt_file = _rt_file_stdout;
-    stderr = &_files[_files_cnt++];
     stderr->rt_file = _rt_file_stderr;
 }
 
@@ -30,8 +30,7 @@ FILE *fopen(char const *restrict filename, char const *restrict mode) {
     if(status != _RT_STATUS_OK) {
         return NULL;
     }
-    FILE *file = &_files[_files_cnt];
-    _files_cnt += 1;
+    FILE *file = cia_pool_alloc(&_file_pool);
     file->rt_file = rt_file;
     return file;
 }
