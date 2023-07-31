@@ -70,7 +70,7 @@ _Noreturn static void _rt_program_exit(int code) {
 }
 
 static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 size, void **out_addr) {
-    void *addr = _syscall_mmap((u64)optional_desired_addr, size, _SYS_PROT_READ|_SYS_PROT_WRITE, _SYS_MAP_ANONYMOUS, -1, 0);
+    void *addr = _syscall_mmap((u64)optional_desired_addr, size, _SYS_PROT_READ|_SYS_PROT_WRITE, _SYS_MAP_PRIVATE|_SYS_MAP_ANONYMOUS, -1, 0);
     if(addr == NULL) {
         return _RT_ERROR_GENERIC;
     }

@@ -35,10 +35,14 @@
 #define _SYS_PROT_NONE             0x0
 #define _SYS_PROT_GROWSDOWN 0x01000000
 #define _SYS_PROT_GROWSUP   0x02000000
+#define _SYS_MAP_SHARED           0x01
+#define _SYS_MAP_PRIVATE          0x02
+#define _SYS_MAP_SHARED_VALIDATE  0x03
 #define _SYS_MAP_FILE                0
 #define _SYS_MAP_ANONYMOUS        0x20
 #define _SYS_MAP_32BIT            0x40
 #define _SYS_MAP_FAILED (void *)()
+
 
 #define _SYSCALL_read           0
 #define _SYSCALL_write          1
