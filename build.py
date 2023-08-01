@@ -74,7 +74,7 @@ if args.mode == 'release':
 else: # 'debug'
     cc_flags.append('-g')
     cc_flags.append('-O0')
-    cc_defines.append('DEBUG')
+    cc_defines.append('_DEBUG')
 if target != 'windows':
     cc_flags.append('-fpic')
 cc_defines.append(f'_CIA_OS_{target.upper()}')
