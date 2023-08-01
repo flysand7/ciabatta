@@ -6,14 +6,20 @@ import shutil
 import os
 import sys
 import pyjson5
+import re
 
 # Colors
 class colors:
-    grey='\033[38;5;247m'
+    grey='\033[38;5;243m'
     cyan='\033[38;5;80m'
     red='\033[38;5;196m'
+    purple='\033[38;5;141m'
+    yellow='\033[38;5;220m'
     green='\033[32m'
     reset='\033[0m'
+
+def print_step(step):
+    print(f'{colors.green}==>{colors.reset} {step}', end='')
 
 # Parse command line arguments
 arg_parser = argparse.ArgumentParser('build.py')
@@ -44,11 +50,12 @@ if args.clean:
     sys.exit(0)
 
 # Check host OS
-print(colors.grey, '==> Performing basic checks', colors.reset, sep='')
+print_step('Performing basic checks\n')
 target = args.target
 if target is None:
     target = platform.system().lower()
-print(f"  * Compiling for host OS: '{colors.cyan}{target}{colors.reset}'")
+target_colored = f'{colors.cyan}{target}{colors.reset}'
+print(f"  * Compiling for host OS: '{target_colored}'")
 if not os.path.exists(os.path.join('src', target)):
     print(colors.red, f"  ERROR: OS '{colors.cyan}{target}{colors.red}' isn't implemented.", colors.reset)
     sys.exit(1)
@@ -79,7 +86,7 @@ if target != 'windows':
     cc_flags.append('-fpic')
 
 # Check dependencies
-print(colors.grey, '==> Checking dependencies...', colors.reset, end='', sep='')
+print_step('Checking dependencies... ')
 for dependency in dependencies:
     if shutil.which(dependency) is None:
         print(colors.red, f"\n  -> [ERROR] Missing dependency: '{dependency}'", colors.reset)
@@ -87,7 +94,7 @@ for dependency in dependencies:
 print(colors.green, 'OK', colors.reset)
 
 # Generate TinyRT headers for the target platform
-print(colors.grey, f"==> Generating TinyRT header for {target}...", colors.reset, end='', sep='')
+print_step(f'Generating TinyRT header for: {target_colored}... ')
 tinyrt_config_path = os.path.join('src', target, 'tinyrt.json')
 tinyrt_apis = []
 try:
@@ -119,7 +126,7 @@ except Exception as error:
 print(colors.green, 'OK', colors.reset)
 
 # Generate ciabatta header for the target platform and configuration
-print(colors.grey, f"==> Generating ciabatta.c", colors.reset, sep='')
+print_step('Generating ciabatta.c\n')
 library_config_path = os.path.join('src', 'library.json')
 try:
     with open(library_config_path, 'r') as library_config_file:
@@ -192,22 +199,21 @@ except Exception as error:
     print(colors.red, f"  ERROR writing file '{ciabatta_header_path}':", sep='')
     print(f"  {error}", colors.reset)
     sys.exit(1)
-print(colors.grey, f"==> Generating cia-conf.h", colors.reset, sep='')
+print_step('Generating cia-conf.h\n')
 
-
+def path(str):
+    l = str.split('/')
+    return os.path.join(*l)
 def quote(s):
     return '"' + s + '"'
 def prefix(prefix):
     return (lambda s: prefix + s)
-def prefix_quote(prefix):
-    return (lambda s: prefix + '"' + s + '"')
 
 cc_flags_str = ' '.join(
                cc_flags +
                list(map(prefix('-D '), cc_defines)) +
-               list(map(prefix_quote('-I '), includes)))
+               list(map(prefix('-I '), map(quote, includes))))
 
-print(colors.grey, f"==> Compiling {lib_file}", colors.reset, sep='')
 try:
     with open(os.path.join('src', 'include', 'cia-conf.h'), 'w') as conf_file:
         os_config = open(os.path.join('src', target, 'conf.h'))
@@ -221,34 +227,33 @@ except Exception as error:
     print(f"  {error}", colors.reset)
     sys.exit(1)
 
+def run(cmdline):
+    cmdline_colored = re.sub(r'"(.+?)"', f'{colors.grey}"\\1"{colors.reset}', cmdline)
+    cmdline_colored = re.sub(r'^([a-zA-Z0-9-_]*)', f'{colors.yellow}\\1{colors.reset}', cmdline_colored)
+    print('  $', cmdline_colored)
+    code = os.system(cmdline)
+    if code != 0:
+        sys.exit(code)
+
 def assemble(src, out):
     format = 'elf64'
     if target == 'windows':
         format = 'win64'
-    cmdline = f'nasm -f "{format}" "{src}" -o "{out}"'
-    print('  $', cmdline)
-    code = os.system(cmdline)
-    if code != 0:
-        sys.exit(code)
+    cmdline = f'nasm -f "{format}" "{path(src)}" -o "{path(out)}"'
+    run(cmdline)
 
 def compile(srcs, out, extra_flags = ''):
     if cc == 'cuik' and out.endswith('.o'):
         out = out[:-2]
     flags = cc_flags_str + ' ' + extra_flags + ' ' + ' '.join(args.cflags)
-    inputs = ' '.join(map(quote, srcs))
-    cmdline = f'{cc} {flags} {inputs} -o {quote(out)}'
-    print('  $', cmdline)
-    code = os.system(cmdline)
-    if code != 0:
-        sys.exit(code)
+    inputs = ' '.join(map(quote, map(path, srcs)))
+    cmdline = f'{cc} {flags} {inputs} -o {quote(path(out))}'
+    run(cmdline)
 
 def archive(srcs, out):
     inputs = ' '.join(map(quote, srcs))
     cmdline = f'llvm-ar -rcs {quote(out)} {inputs}'
-    print('  $', cmdline)
-    code = os.system(cmdline)
-    if code != 0:
-        sys.exit(code)
+    run(cmdline)
 
 # Ciabatta build spec
 if not os.path.exists('lib'):
@@ -256,25 +261,22 @@ if not os.path.exists('lib'):
 if not os.path.exists('bin'):
     os.mkdir('bin')
 
-def p(path):
-    l = path.split('/')
-    return os.path.join(*l)
+cia_lib = f'lib/{lib_file}'
+crt_lib = f'lib/{crt_file}'
 
-cia_lib = p(f'lib/{lib_file}')
-crt_lib = p(f'lib/{crt_file}')
-ciabatta_c = p('src/ciabatta.c')
-ciabatta_o = p('bin/ciabatta.o')
-
+print_step(f'Compiling {crt_file}\n')
 if target == 'linux':
-    assemble(p('src/linux/crt-entry.asm'), p('bin/crt-entry.o'))
-    compile([p('src/linux/crt-ctors.c')], p('bin/crt-ctors.o'), '-c')
-    archive([p('bin/crt-ctors.o'), p('bin/crt-entry.o')], crt_lib)
+    assemble('src/linux/crt-entry.asm', 'bin/crt-entry.o')
+    compile(['src/linux/crt-ctors.c'], 'bin/crt-ctors.o', '-c')
+    archive(['bin/crt-ctors.o', 'bin/crt-entry.o'], crt_lib)
 elif target == 'windows':
-    assemble(p('src/windows/chkstk.asm'), p('bin/chkstk.o'))
-    compile([p('src/windows/crt-entry.c')], p('bin/crt-entry.o'), '-c')
-    archive([p('bin/crt-entry.o'), p('bin/chkstk.o')], crt_lib)
-compile([ciabatta_c], ciabatta_o, '-c')
-archive([ciabatta_o], cia_lib)
+    assemble('src/windows/chkstk.asm', 'bin/chkstk.o')
+    compile(['src/windows/crt-entry.c'], 'bin/crt-entry.o', '-c')
+    archive(['bin/crt-entry.o', 'bin/chkstk.o'], crt_lib)
+
+print_step(f'Compiling {lib_file}\n')
+compile(['src/ciabatta.c'], 'bin/ciabatta.o', '-c')
+archive(['bin/ciabatta.o'], cia_lib)
 
 if args.test:
     if target == 'linux':
