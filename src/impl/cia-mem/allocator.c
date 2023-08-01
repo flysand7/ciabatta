@@ -1,17 +1,17 @@
 
-static void *null_allocator_proc(void *ctx, int optype, void *old_ptr, u64 old_size, u64 size, u64 alignment) {
+static void *_null_allocator_proc(void *ctx, int optype, void *old_ptr, u64 old_size, u64 size, u64 alignment) {
     return NULL;
 }
 
 Cia_Allocator cia_allocator_null() {
     Cia_Allocator allocator = {
         .ctx = NULL,
-        .proc = null_allocator_proc,
+        .proc = _null_allocator_proc,
     };
     return allocator;
 }
 
-static void *page_allocator_proc(void *ctx, int optype, void *old_ptr, u64 old_size, u64 size, u64 alignment) {
+static void *_page_allocator_proc(void *ctx, int optype, void *old_ptr, u64 old_size, u64 size, u64 alignment) {
     switch(optype) {
         case CIA_MEM_OP_ALLOC: {
             void *addr;
@@ -40,28 +40,28 @@ static void *page_allocator_proc(void *ctx, int optype, void *old_ptr, u64 old_s
 Cia_Allocator cia_allocator_pages() {
     Cia_Allocator allocator = {
         .ctx = NULL,
-        .proc = page_allocator_proc,
+        .proc = _page_allocator_proc,
     };
     return allocator;
 }
 
-void *allocator_alloc(Cia_Allocator *alloc, u64 size, u64 alignment) {
+void *cia_allocator_alloc(Cia_Allocator *alloc, u64 size, u64 alignment) {
     return alloc->proc(alloc->ctx, CIA_MEM_OP_ALLOC, NULL, 0, size, alignment);    
 }
 
-void allocator_free_size(Cia_Allocator *alloc, void *region_ptr, u64 region_size) {
+void cia_allocator_free_size(Cia_Allocator *alloc, void *region_ptr, u64 region_size) {
     alloc->proc(alloc->ctx, CIA_MEM_OP_FREE, region_ptr, region_size, 0, 1);
 }
 
-void allocator_free(Cia_Allocator *alloc, void *region_ptr) {
+void cia_allocator_free(Cia_Allocator *alloc, void *region_ptr) {
     alloc->proc(alloc->ctx, CIA_MEM_OP_FREE, region_ptr, 0, 0, 1);
 }
 
-void allocator_free_all(Cia_Allocator *alloc) {
+void cia_allocator_free_all(Cia_Allocator *alloc) {
     alloc->proc(alloc->ctx, CIA_MEM_OP_FREE_ALL, NULL, 0, 0, 1);
 }
 
-void *allocator_resize(Cia_Allocator *alloc, void *old_ptr, u64 old_size, u64 new_size, u64 alignment) {
+void *cia_allocator_resize(Cia_Allocator *alloc, void *old_ptr, u64 old_size, u64 new_size, u64 alignment) {
     return alloc->proc(alloc->ctx, CIA_MEM_OP_RESIZE, old_ptr, old_size, new_size, alignment);
 }
 

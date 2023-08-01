@@ -33,14 +33,14 @@ void cia_pool_create(Cia_Pool *pool, Cia_Allocator backing_allocator, u64 buffer
     pool->bucket_size = cia_size_alignf(pool->bucket_size, pool->alignment);
     // Allocate and initialize the first buffer
     pool->freelist_head = NULL;
-    pool->first = allocator_alloc(&pool->allocator, pool->buffer_size, pool->alignment);
+    pool->first = cia_allocator_alloc(&pool->allocator, pool->buffer_size, pool->alignment);
     _pool_buffer_freelist_add(pool, (u8 *)pool->first);
 }
 
 void *cia_pool_alloc(Cia_Pool *pool) {
     // If we don't have enough free buckets, create a new buffer
     if(pool->freelist_head == NULL) {
-        void *buffer = allocator_alloc(&pool->allocator, pool->buffer_size, pool->alignment);
+        void *buffer = cia_allocator_alloc(&pool->allocator, pool->buffer_size, pool->alignment);
         _pool_buffer_freelist_add(pool, buffer);
     }
     // Remove item from free list and return it
@@ -59,7 +59,7 @@ void cia_pool_free(Cia_Pool *pool, void *ptr) {
 void cia_pool_free_all(Cia_Pool *pool) {
     // Deallocate all buffers except the first one
     for(Cia_Pool_Buffer_Header *buffer = pool->first->next; buffer != NULL; buffer = buffer->next) {
-        allocator_free_size(&pool->allocator, buffer, pool->buffer_size);
+        cia_allocator_free_size(&pool->allocator, buffer, pool->buffer_size);
     }
     // Reinit the first buffer
     pool->freelist_head = NULL;
@@ -69,6 +69,6 @@ void cia_pool_free_all(Cia_Pool *pool) {
 void cia_pool_destroy(Cia_Pool *pool) {
     // Simply deallocate all the buffers
     for(Cia_Pool_Buffer_Header *buffer = pool->first; buffer != NULL; buffer = buffer->next) {
-        allocator_free_size(&pool->allocator, buffer, pool->buffer_size);
+        cia_allocator_free_size(&pool->allocator, buffer, pool->buffer_size);
     }
 }
