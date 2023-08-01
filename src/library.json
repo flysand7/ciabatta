@@ -33,7 +33,6 @@ platforms: [
         path: "linux",
         includes: [
             "syscall.c",
-            "errno.c",
             "entry.c"
         ],
         tinyrt: [

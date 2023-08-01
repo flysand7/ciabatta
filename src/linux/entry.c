@@ -6,7 +6,7 @@ static char stack_chk_fail_msg[] =
     "Sorry these guys didn't tell me where\n";
 
 void __stack_chk_fail(void) {
-    _syscall_write(_SYS_STDERR_FILENO, stack_chk_fail_msg, sizeof stack_chk_fail_msg);
+    _syscall_write(STDERR_FILENO, stack_chk_fail_msg, sizeof stack_chk_fail_msg);
     _syscall_exit(1);
 }
 

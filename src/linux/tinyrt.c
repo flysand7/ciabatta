@@ -17,12 +17,12 @@ static _RT_Status _rt_file_open(_RT_File *file, char const *name, int _rt_flags)
     }
     int mode = 0;
     int flags = 0;
-    if((_rt_flags & 0x03) == 0x03)     mode = _SYS_O_RDWR;
-    else if(_rt_flags & _RT_FILE_READ)  mode = _SYS_O_RDONLY;
-    else if(_rt_flags & _RT_FILE_WRITE) mode = _SYS_O_RDWR;
-    if(_rt_flags & _RT_FILE_CREATE)     flags |= _SYS_O_CREAT;
-    if(_rt_flags & _RT_FILE_EXCLUSIVE)  flags |= _SYS_O_EXCL;
-    if(_rt_flags & _RT_FILE_TRUNCATE)   flags |= _SYS_O_TRUNC;
+    if((_rt_flags & 0x03) == 0x03)     mode = O_RDWR;
+    else if(_rt_flags & _RT_FILE_READ)  mode = O_RDONLY;
+    else if(_rt_flags & _RT_FILE_WRITE) mode = O_RDWR;
+    if(_rt_flags & _RT_FILE_CREATE)     flags |= O_CREAT;
+    if(_rt_flags & _RT_FILE_EXCLUSIVE)  flags |= O_EXCL;
+    if(_rt_flags & _RT_FILE_TRUNCATE)   flags |= O_TRUNC;
     i64 fd = _syscall_open(name, flags, mode);
     if(-fd == EACCES)  return _RT_STATUS_FILE_ACCESS;
     if(-fd == EEXIST)  return _RT_STATUS_FILE_EXISTS;
@@ -70,7 +70,7 @@ _Noreturn static void _rt_program_exit(int code) {
 }
 
 static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 size, void **out_addr) {
-    void *addr = _syscall_mmap((u64)optional_desired_addr, size, _SYS_PROT_READ|_SYS_PROT_WRITE, _SYS_MAP_PRIVATE|_SYS_MAP_ANONYMOUS, -1, 0);
+    void *addr = _syscall_mmap((u64)optional_desired_addr, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     if(addr == NULL) {
         return _RT_ERROR_GENERIC;
     }

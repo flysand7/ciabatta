@@ -1,48 +1,42 @@
 
-// Standard handles file descriptors
-#define _SYS_STDIN_FILENO  0
-#define _SYS_STDOUT_FILENO 1
-#define _SYS_STDERR_FILENO 2
+#include <asm/unistd.h>
+#include <asm/signal.h>
+#include <asm/ioctls.h>
+#include <asm/mman.h>
+#include <linux/fs.h>
+#include <linux/loop.h>
+#include <linux/time.h>
+#include <errno.h>
 
-// arch_prctl() syscall codes
-#define _SYS_ARCH_SET_GS    0x1001
-#define _SYS_ARCH_SET_FS    0x1002
-#define _SYS_ARCH_GET_FS    0x1003
-#define _SYS_ARCH_GET_GS    0x1004
-#define _SYS_ARCH_GET_CPUID 0x1011
-#define _SYS_ARCH_SET_CPUID 0x1012
+#if !defined(STDIN_FILENO)
+    #define STDIN_FILENO  0
+    #define STDOUT_FILENO 1
+    #define STDERR_FILENO 2
+#endif
 
-// open() syscall modes
-#define _SYS_O_ACCMODE   0003
-#define _SYS_O_RDONLY    00
-#define _SYS_O_WRONLY    01
-#define _SYS_O_RDWR      02
-#define _SYS_O_CREAT     0100     /* not fcntl */
-#define _SYS_O_EXCL      0200     /* not fcntl */
-#define _SYS_O_NOCTTY    0400     /* not fcntl */
-#define _SYS_O_TRUNC     01000    /* not fcntl */
-#define _SYS_O_APPEND    02000
-#define _SYS_O_NONBLOCK  04000
-#define _SYS_O_NDELAY    O_NONBLOCK
-#define _SYS_O_SYNC      010000
-#define _SYS_O_FSYNC     O_SYNC
-#define _SYS_O_ASYNC     020000
+#if !defined(MAP_SHARED)
+    #define MAP_SHARED          0x01
+    #define MAP_PRIVATE         0x02
+    #define MAP_SHARED_VALIDATE 0x03
+#endif
 
-// mmap() protection modes, flags and constants
-#define _SYS_PROT_READ             0x1
-#define _SYS_PROT_WRITE            0x2
-#define _SYS_PROT_EXEC             0x4
-#define _SYS_PROT_NONE             0x0
-#define _SYS_PROT_GROWSDOWN 0x01000000
-#define _SYS_PROT_GROWSUP   0x02000000
-#define _SYS_MAP_SHARED           0x01
-#define _SYS_MAP_PRIVATE          0x02
-#define _SYS_MAP_SHARED_VALIDATE  0x03
-#define _SYS_MAP_FILE                0
-#define _SYS_MAP_ANONYMOUS        0x20
-#define _SYS_MAP_32BIT            0x40
-#define _SYS_MAP_FAILED (void *)()
+#if !defined(MAP_FAILED)
+    #define MAP_FAILED ((void *)-1)
+#endif
 
+// NOTE(bumbread): These are architecture-specific
+#if !defined(O_RDONLY)
+    #define O_RDONLY            0
+    #define O_WRONLY            1
+    #define O_RDWR              2
+    #define O_CREAT          0x40
+    #define O_EXCL           0x80
+    #define O_NOCTTY        0x100
+    #define O_TRUNC         0x200
+    #define O_APPEND        0x400
+    #define O_NONBLOCK      0x800
+    #define O_DIRECTORY   0x10000
+#endif
 
 #define _SYSCALL_read           0
 #define _SYSCALL_write          1
