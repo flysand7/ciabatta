@@ -19,3 +19,4 @@ a.out
 tinyrt-iface.h
 test/
 test_folder/
+vgcore.*
