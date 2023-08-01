@@ -62,7 +62,7 @@ dependencies.append(args.compiler)
 
 
 # Figure out the flags
-includes = ['include']
+includes = ['src/include']
 cc = args.compiler
 cc_defines = []
 cc_flags = ['-nostdlib']
@@ -77,7 +77,6 @@ else: # 'debug'
     cc_defines.append('_DEBUG')
 if target != 'windows':
     cc_flags.append('-fpic')
-cc_defines.append(f'_CIA_OS_{target.upper()}')
 
 # Check dependencies
 print(colors.grey, '==> Checking dependencies...', colors.reset, end='', sep='')
@@ -188,6 +187,8 @@ except Exception as error:
     print(colors.red, f"  ERROR writing file '{ciabatta_header_path}':", sep='')
     print(f"  {error}", colors.reset)
     sys.exit(1)
+print(colors.grey, f"==> Generating cia-conf.h", colors.reset, sep='')
+
 
 def quote(s):
     return '"' + s + '"'
@@ -202,6 +203,18 @@ cc_flags_str = ' '.join(
                list(map(prefix_quote('-I '), includes)))
 
 print(colors.grey, f"==> Compiling {lib_file}", colors.reset, sep='')
+try:
+    with open(os.path.join('src', 'include', 'cia-conf.h'), 'w') as conf_file:
+        os_config = open(os.path.join('src', target, 'conf.h'))
+        conf_file.write('\n')
+        conf_file.write('// This file is AUTO-GENERATED\n')
+        conf_file.write('// See os folder (e.g. src/linux) for conf.h file\n')
+        conf_file.write(os_config.read())
+        os_config.close()
+except Exception as error:
+    print(colors.red, f"  ERROR writing file '{ciabatta_header_path}':", sep='')
+    print(f"  {error}", colors.reset)
+    sys.exit(1)
 
 def assemble(src, out):
     format = 'elf64'

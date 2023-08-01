@@ -2,6 +2,7 @@
 /lib
 /a
 /src/ciabatta.c
+/src/include/conf.h
 a.out
 *.a
 *.so
