@@ -88,4 +88,14 @@ apis: [
             "cia_memory",
         ]
     }
+],
+
+// Edit this part for a particular build you want
+// this contains list of "name" properties for modules
+// in the "apis" section
+
+export: [
+    "cia_memory",
+    "stdlib_program",
+    "stdlib_file",
 ]

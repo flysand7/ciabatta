@@ -163,26 +163,31 @@ try:
         ciabatta_header.write('\n')
         # Write module sources
         mod_exports = []
+        requirements_satisfied = True
         for api in library_config['apis']:
             api_name = api['name']
             api_path = api['path']
-            reqs_satisfied = True
-            # Check API dependencies
-            for req in api['reqs']:
-                if req in tinyrt_apis:
-                    continue
-                elif req in mod_exports:
-                    continue
-                reqs_satisfied = False
-                break
-            if not reqs_satisfied:
-                print(colors.red, f"  * Not exporting API '{api_name}'", colors.reset, sep='')
-            else:
-                print(colors.green, f"  * Exporting API '{api_name}'", colors.reset, sep='')
-                ciabatta_header.write(f'// Module {api_name}\n')
-                mod_exports.append(api_name)
-                for include in api['includes']:
-                    ciabatta_header.write(f'#include "{api_path}/{include}"\n')
+            if api_name in library_config['export']:
+                reqs_satisfied = True
+                # Check API dependencies
+                for req in api['reqs']:
+                    if req in tinyrt_apis:
+                        continue
+                    elif req in mod_exports:
+                        continue
+                    reqs_satisfied = False
+                    break
+                if not reqs_satisfied:
+                    print(colors.red, f"  * Not exporting API '{api_name}'", colors.reset, sep='')
+                    requirements_satisfied = False
+                else:
+                    print(colors.green, f"  * Exporting API '{api_name}'", colors.reset, sep='')
+                    ciabatta_header.write(f'// Module {api_name}\n')
+                    mod_exports.append(api_name)
+                    for include in api['includes']:
+                        ciabatta_header.write(f'#include "{api_path}/{include}"\n')
+        if not requirements_satisfied:
+            sys.exit(1)
 except Exception as error:
     print(colors.red, f"  ERROR writing file '{ciabatta_header_path}':", sep='')
     print(f"  {error}", colors.reset)
