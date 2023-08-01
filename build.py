@@ -260,6 +260,6 @@ archive([ciabatta_o], cia_lib)
 
 if args.test:
     if target == 'linux':
-        compile([args.test, cia_lib, crt_lib], 'a', '-pie')
+        compile([args.test, crt_lib, cia_lib], 'a', '-pie')
     elif target == 'windows':
-        compile([args.test, cia_lib, crt_lib], 'a.exe', '-lkernel32.lib')
+        compile([args.test, crt_lib, cia_lib], 'a.exe', '-lkernel32.lib')
