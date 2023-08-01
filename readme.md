@@ -120,26 +120,27 @@ Options:
 Grab the following files into your project's (or any other) directory:
 
 - The `./include` folder
-- The `.lib` folder
-- (Windows only) The `utf8` folder
+- The `./lib` folder
+- (Windows only) The `./utf8` folder
 
-In order to compile your project with ciabatta see the following sections
+In order to compile your project with ciabatta see the following sections,
+assuming you put all files mentioned above in the `./ciabatta` folder
 
 ### Compiling with ciabatta on windows
 
 1. Add the following flags to your compilation command:
-   `-nostdlib -D _CIA_OS_WINDOWS -I /include utf8.obj -mfma`
+   `-nostdlib -I ./ciabatta/include utf8.obj -mfma`
 2. Add the following sources to the compile command:
-   `./lib/ciabatta.lib ./lib/cia.lib ./lib/crt.lib`
+   `./ciabatta/lib/ciabatta.lib ./ciabatta/lib/cia.lib ./ciabatta/lib/crt.lib`
 
 **Note:** The `include` folder refers to the folder you copied from ciabatta. Set the path to it accordingly.
 
 ### Compiling with ciabatta on linux
 
 1. Add the following flags to your compilation command:
-   - `-nostdlib -D _CIA_OS_LINUX -I ./include -mfma`
+   - `-nostdlib -I ./ciabatta/include -mfma`
 2. Link to the following libraries
-   - `./lib/ciabatta.a`
+   - `./ciabatta/lib/ciabatta.a`
 
 ## Contributing
 
