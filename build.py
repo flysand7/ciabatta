@@ -75,6 +75,7 @@ cc_defines = []
 cc_flags = ['-nostdlib']
 crt_file = 'crt.lib'
 lib_file = 'cia.lib'
+dl_file = 'ld-cia.so'
 if args.mode == 'release':
     cc_flags.append('-O2')
     cc_defines.append('NDEBUG')
@@ -263,6 +264,13 @@ if not os.path.exists('bin'):
 
 cia_lib = f'lib/{lib_file}'
 crt_lib = f'lib/{crt_file}'
+dl_lib = f'lib/{dl_file}'
+
+if target == 'linux':
+    print_step(f'Compiling {dl_lib}\n')
+    assemble('src/loader/loader-entry.asm', 'bin/loader-entry.o')
+    compile(['bin/loader-entry.o', 'src/loader/loader-entry.c'], dl_lib,
+        '-shared -nostdlib -Wl,-e,_dlstart -Wl,--sort-section,alignment -Wl,--sort-common -Wl,--gc-sections -Wl,--hash-style=both -Wl,--no-undefined -Wl,--exclude-libs=ALL -fno-stack-protector')
 
 print_step(f'Compiling {crt_file}\n')
 if target == 'linux':
@@ -280,6 +288,6 @@ archive(['bin/ciabatta.o'], cia_lib)
 
 if args.test:
     if target == 'linux':
-        compile([args.test, crt_lib, cia_lib], 'a', '-pie')
+        compile([args.test, crt_lib, cia_lib], 'a', f'-pie -Wl,-dynamic-linker,{dl_lib}')
     elif target == 'windows':
         compile([args.test, crt_lib, cia_lib], 'a.exe', '-lkernel32.lib')
