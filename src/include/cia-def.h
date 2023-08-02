@@ -4,14 +4,12 @@
 // Include platform stuff
 #include <cia-conf.h>
 
-// Pre-C23 keyword macros and stddef
+// Pre-C23 keyword macros
 #define static_assert _Static_assert
-#define NULL ((void *)0)
-
-// Assert commonly-accepted platform-invariant sizes
-#include <stdint.h>
-#include <stdbool.h>
     
+// Stdint and a layer on top
+#include <stdint.h>
+
 // Short type definitions
 typedef int8_t i8;
 typedef uint8_t u8;
@@ -21,3 +19,7 @@ typedef int32_t i32;
 typedef uint32_t u32;
 typedef int64_t i64;
 typedef uint64_t u64;
+
+// Other commonly-used standard includes
+#include <stdbool.h>
+#include <stddef.h>

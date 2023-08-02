@@ -4,8 +4,6 @@
 #include <cia-def.h>
 #include <tinyrt.h>
 
-typedef u64 size_t;
-
 typedef struct FILE FILE;
 struct FILE {
     _RT_File rt_file;
