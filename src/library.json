@@ -32,8 +32,10 @@ platforms: [
         name: "linux",
         path: "linux",
         includes: [
-            "syscall.c",
-            "entry.c"
+            "entry.c",
+            "errno.h",
+            "mman.h",
+            "fcntl.h"
         ],
         tinyrt: [
             "tinyrt.c"

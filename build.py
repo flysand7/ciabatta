@@ -86,6 +86,9 @@ else: # 'debug'
 if target != 'windows':
     cc_flags.append('-fpic')
 
+if target == 'linux':
+    includes.append('src/include/linux')
+
 # Check dependencies
 print_step('Checking dependencies... ')
 for dependency in dependencies:

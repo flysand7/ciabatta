@@ -1,25 +1,28 @@
 
+// Stage 2 of the dynamic loader
+// the purpose of this module is to relocate itself
+// and jump to the main body of the loader.
+
+// Note that loader-entry.asm doesn't "jump" into
+// the entry point of this module, but rather
+// "falls-through". Which means the sections
+// of this module and the module above must be
+// contiguous, which we do by doing linker magic
+
+// This also means that this module CANNOT have
+// any externally-defined functions (static functions
+// are fine with gcc and clang (I think))
+
 #include <cia-def.h>
-#include <stdarg.h>
 #include <bin/elf.h>
-#include "syscall.c"
+#include <sys/syscall.h>
 
 #define AUX_CNT 32
 #define DYN_CNT 37
 
-struct Elf_Image typedef Elf_Image;
-struct Elf_Image {
-    u8 *base;
-    u8 *phdr;
-    u64 ph_num;
-    u64 ph_ent;
-    char *name;
-};
-
-#define laddr(elf, off) (void *)((elf)->base + off)
-
+#include <stdarg.h>
 static void _dbg_print_char(char c) {
-    _syscall_write(STDOUT_FILENO, &c, 1);
+    sys_write(STDOUT_FILENO, &c, 1);
 }
 
 static void _dbg_print_string(char *str) {
@@ -27,11 +30,11 @@ static void _dbg_print_string(char *str) {
     while(str[str_len] != 0) {
         str_len += 1;
     }
-    _syscall_write(STDOUT_FILENO, str, str_len);
+    sys_write(STDOUT_FILENO, str, str_len);
 }
 
 static void _dbg_print_string_n(char *str, u64 len) {
-    _syscall_write(STDOUT_FILENO, str, len);
+    sys_write(STDOUT_FILENO, str, len);
 }
 
 static void _dbg_print_int(i64 number) {
@@ -267,6 +270,6 @@ void _dlstart_reloc_c(u64 *sp, Elf64_Dyn *dynv) {
     }
     _dbg_printf("Self-relocation finished. Entering the loader\n");
     loader_entry(sp, dyn, aux);
-    _syscall_exit(0);
+    sys_exit(0);
 }
 

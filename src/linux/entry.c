@@ -1,4 +1,5 @@
 
+#include <syscall.h>
 
 static char stack_chk_fail_msg[] =
     "Stack check failed. "
@@ -6,8 +7,8 @@ static char stack_chk_fail_msg[] =
     "Sorry these guys didn't tell me where\n";
 
 void __stack_chk_fail(void) {
-    _syscall_write(STDERR_FILENO, stack_chk_fail_msg, sizeof stack_chk_fail_msg);
-    _syscall_exit(1);
+    sys_write(STDERR_FILENO, stack_chk_fail_msg, sizeof stack_chk_fail_msg);
+    sys_exit(1);
 }
 
 static void _fileapi_init();
@@ -28,5 +29,5 @@ void __libc_start_main(
     fini();
     // glibc bug
     // dl_fini();
-    _syscall_exit(0);
+    sys_exit(0);
 }
