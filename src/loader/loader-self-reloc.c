@@ -116,7 +116,7 @@ static void printf(char *fmt, ...) {
     va_end(args);
 }
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) || 1
     #define _dbg_print_char(c)       print_char(c)
     #define _dbg_print_string(s)     print_string(s)
     #define _dbg_print_string_n(s,n) print_string_n(s,n)

@@ -269,11 +269,26 @@ cia_lib = f'lib/{lib_file}'
 crt_lib = f'lib/{crt_file}'
 dl_lib = f'lib/{dl_file}'
 
+dl_flags = [
+    '-shared',
+    '-nostdlib',
+    '-mno-sse',
+    '-ffreestanding',
+    '-fno-stack-protector',
+    '-Wl,-e,_dlstart',
+    '-Wl,--sort-section,alignment',
+    '-Wl,--sort-common',
+    '-Wl,--gc-sections',
+    '-Wl,--hash-style=both',
+    '-Wl,--no-undefined',
+    '-Wl,--exclude-libs=ALL',
+]
+
 if target == 'linux':
     print_step(f'Compiling {dl_lib}\n')
     assemble('src/loader/loader-entry.asm', 'bin/loader-entry.o')
     compile(['bin/loader-entry.o', 'src/loader/loader-self-reloc.c', 'src/loader/loader.c'], dl_lib,
-        '-ffreestanding -shared -nostdlib -Wl,-e,_dlstart -Wl,--sort-section,alignment -Wl,--sort-common -Wl,--gc-sections -Wl,--hash-style=both -Wl,--no-undefined -Wl,--exclude-libs=ALL -fno-stack-protector')
+        ' '.join(dl_flags))
 
 print_step(f'Compiling {crt_file}\n')
 if target == 'linux':
