@@ -119,7 +119,7 @@ static void _dbg_printf(char *fmt, ...) {
     va_end(args);
 }
 
-extern void loader_entry(u64 *sp, Elf64_Dyn *dynv, u64 *aux);
+extern void loader_entry(u64 *sp, u64 *dyn, u64 *aux);
 
 void _dlstart_reloc_c(u64 *sp, Elf64_Dyn *dynv) {
     _dbg_print_string("Entered dynamic loader\n");
@@ -266,7 +266,7 @@ void _dlstart_reloc_c(u64 *sp, Elf64_Dyn *dynv) {
         
     }
     _dbg_printf("Self-relocation finished. Entering the loader\n");
-    loader_entry(sp, dynv, aux);
+    loader_entry(sp, dyn, aux);
     _syscall_exit(0);
 }
 
