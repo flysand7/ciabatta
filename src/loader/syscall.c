@@ -3,6 +3,7 @@
 #include <asm/signal.h>
 #include <asm/ioctls.h>
 #include <asm/mman.h>
+#include <fcntl.h>
 #include <linux/fs.h>
 #include <linux/loop.h>
 #include <linux/time.h>

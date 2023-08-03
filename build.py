@@ -269,7 +269,7 @@ dl_lib = f'lib/{dl_file}'
 if target == 'linux':
     print_step(f'Compiling {dl_lib}\n')
     assemble('src/loader/loader-entry.asm', 'bin/loader-entry.o')
-    compile(['bin/loader-entry.o', 'src/loader/loader-entry.c'], dl_lib,
+    compile(['bin/loader-entry.o', 'src/loader/loader-self-reloc.c', 'src/loader/loader.c'], dl_lib,
         '-shared -nostdlib -Wl,-e,_dlstart -Wl,--sort-section,alignment -Wl,--sort-common -Wl,--gc-sections -Wl,--hash-style=both -Wl,--no-undefined -Wl,--exclude-libs=ALL -fno-stack-protector')
 
 print_step(f'Compiling {crt_file}\n')
