@@ -21,6 +21,8 @@
 #define AUX_CNT 32
 #define DYN_CNT 37
 
+#define _mfence() asm volatile("" ::: "memory")
+
 static void print_string_n(char *str, u64 len) {
     sys_write(STDOUT_FILENO, str, len);
 }
@@ -116,7 +118,7 @@ static void printf(char *fmt, ...) {
     va_end(args);
 }
 
-#if defined(_DEBUG) || 1
+#if defined(_DEBUG)
     #define _dbg_print_char(c)       print_char(c)
     #define _dbg_print_string(s)     print_string(s)
     #define _dbg_print_string_n(s,n) print_string_n(s,n)
@@ -203,6 +205,10 @@ void _dlstart_reloc_c(u64 *sp, Elf64_Dyn *dynv) {
     if(symtab == NULL) {
         _dbg_printf("ERROR: No .dynsym found\n");
     }
+    // Use memory fences, to MAKE SURE the compiler won't reorder code and
+    // accidentally use relocations when they are not ready. The code before
+    // this point is carefully written to avoid generating relocations.
+    _mfence();
     // Apply relocations
     if(dyn[DT_REL] != 0) {
         _dbg_printf("REL Relocations found. This part isn't implemented\n");
@@ -280,6 +286,7 @@ void _dlstart_reloc_c(u64 *sp, Elf64_Dyn *dynv) {
         }
         
     }
+    _mfence();
     _dbg_printf("Self-relocation finished. Entering the loader\n");
     loader_entry(sp, dyn, aux);
     sys_exit(0);
