@@ -286,6 +286,7 @@ typedef i64 Elf64_Sxword;
 #define SHT_GROUP                   17
 #define SHT_SYMTAB_SHNDX            18
 #define SHT_LOOS            0x60000000
+#define SHT_GNU_HASH        0x6ffffff6
 #define SHT_HIOS            0x6fffffff
 #define SHT_LOPROC          0x70000000
 #define SHT_X86_64_UNWIND   0x70000001

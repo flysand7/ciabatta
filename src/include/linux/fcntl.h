@@ -15,3 +15,4 @@
 #define O_SYNC        04010000
 #define O_FSYNC       O_SYNC
 #define O_ASYNC       020000
+#define O_CLOEXEC   02000000

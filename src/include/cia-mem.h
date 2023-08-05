@@ -1,6 +1,22 @@
 
 #pragma once
 
+#if !defined(KB)
+    #define KB ((i64)1024)
+#endif
+
+#if !defined(MB)
+    #define MB ((i64)1024*KB)
+#endif
+
+#if !defined(GB)
+    #define GB ((i64)1024*MB)
+#endif
+
+#if !defined(TB)
+    #define TB ((i64)1024*GB)
+#endif
+
 void *cia_ptr_alignf(void *ptr, u64 alignment);
 void *cia_ptr_alignb(void *ptr, u64 alignment);
 u64 cia_size_alignf(u64 size, u64 alignment);

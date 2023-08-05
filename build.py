@@ -72,7 +72,7 @@ dependencies.append(args.compiler)
 includes = ['src/include']
 cc = args.compiler
 cc_defines = []
-cc_flags = ['-nostdlib']
+cc_flags = ['-nostdlib', '-fno-stack-protector', '-mno-sse']
 crt_file = 'crt.lib'
 lib_file = 'cia.lib'
 dl_file = 'ld-cia.so'
@@ -292,9 +292,9 @@ if target == 'linux':
 
 print_step(f'Compiling {crt_file}\n')
 if target == 'linux':
-    assemble('src/linux/crt-entry.asm', 'bin/crt-entry.o')
+    # assemble('src/linux/crt-entry.asm', 'bin/crt-entry.o')
     compile(['src/linux/crt-ctors.c'], 'bin/crt-ctors.o', '-c')
-    archive(['bin/crt-ctors.o', 'bin/crt-entry.o'], crt_lib)
+    archive(['bin/crt-ctors.o'], crt_lib)
 elif target == 'windows':
     assemble('src/windows/chkstk.asm', 'bin/chkstk.o')
     compile(['src/windows/crt-entry.c'], 'bin/crt-entry.o', '-c')
@@ -306,6 +306,6 @@ archive(['bin/ciabatta.o'], cia_lib)
 
 if args.test:
     if target == 'linux':
-        compile([args.test, crt_lib, cia_lib], 'a', f'-pie -Wl,-dynamic-linker,{dl_lib}')
+        compile([args.test, crt_lib, cia_lib], 'a', f'-pie -Wl,-dynamic-linker,{dl_lib} -fno-stack-protector')
     elif target == 'windows':
         compile([args.test, crt_lib, cia_lib], 'a.exe', '-lkernel32.lib')
