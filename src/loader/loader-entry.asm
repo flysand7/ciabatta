@@ -11,3 +11,8 @@ _dlstart:
     mov rdi, rsp
     lea rsi, _DYNAMIC
     and rsp, -16
+    ; `call` pushes 8-byte value onto the stack
+    ; by pushing an 8-bit value ourselves we can make
+    ; sure the stack is aligned after rbp push in prologue
+    sub rsp, 8
+     

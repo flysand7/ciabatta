@@ -72,7 +72,7 @@ dependencies.append(args.compiler)
 includes = ['src/include']
 cc = args.compiler
 cc_defines = []
-cc_flags = ['-nostdlib', '-fno-stack-protector', '-mno-sse']
+cc_flags = ['-nostdlib', '-fno-stack-protector']
 crt_file = 'crt.lib'
 lib_file = 'cia.lib'
 dl_file = 'ld-cia.so'
@@ -272,7 +272,7 @@ dl_lib = f'lib/{dl_file}'
 dl_flags = [
     '-shared',
     '-nostdlib',
-    '-mno-sse',
+    # '-mno-sse',
     '-ffreestanding',
     '-fno-stack-protector',
     '-Wl,-e,_dlstart',
@@ -292,7 +292,6 @@ if target == 'linux':
 
 print_step(f'Compiling {crt_file}\n')
 if target == 'linux':
-    # assemble('src/linux/crt-entry.asm', 'bin/crt-entry.o')
     compile(['src/linux/crt-ctors.c'], 'bin/crt-ctors.o', '-c')
     archive(['bin/crt-ctors.o'], crt_lib)
 elif target == 'windows':

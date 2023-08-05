@@ -14,7 +14,7 @@ void __stack_chk_fail(void) {
 extern int main(int argc, char **argv, char **envp);
 static void _fileapi_init();
 
-void _start() {
+void _cia_start() {
     // Get the envp
     // char **envp = argv + (argc + 1);
     // init(argc, argv, envp);
