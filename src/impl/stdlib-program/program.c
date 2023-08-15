@@ -32,7 +32,7 @@ _Noreturn void abort(void) {
 }
 
 _Noreturn void exit(int code) {
-    for(u64 i = n_atexit_handlers-1; i-- != 0; ) {
+    for(i64 i = n_atexit_handlers-1; i-- > 0; ) {
         void (*handler)(void) = atexit_handlers[i];
         handler();
     }
@@ -48,7 +48,7 @@ _Noreturn void _Exit(int code) {
 }
 
 _Noreturn void quick_exit(int code) {
-    for(u64 i = n_at_quick_exit_handlers-1; i-- != 0; ) {
+    for(i64 i = n_at_quick_exit_handlers-1; i-- > 0; ) {
         void (*handler)(void) = at_quick_exit_handlers[i];
         handler();
     }

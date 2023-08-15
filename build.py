@@ -161,7 +161,10 @@ try:
             print(colors.red, f"  ERROR: library config doesn't contain configuration for platform {target}", colors.reset, sep='')
         for include in platform_config['includes']:
             include_path = platform_config['path']
-            ciabatta_header.write(f'#include "{include_path}/{include}"\n')
+            ciabatta_header.write(f'#include <{include}>\n')
+        for source in platform_config['sources']:
+            source_path = platform_config['path']
+            ciabatta_header.write(f'#include "{source_path}/{source}"\n')
         ciabatta_header.write(f'#include "{target}/tinyrt-iface.h"\n')
         ciabatta_header.write(f'#include <tinyrt.h>\n')
         for tinyrt_source in platform_config['tinyrt']:

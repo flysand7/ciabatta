@@ -24,6 +24,7 @@
 includes: [
     "stdlib.h",
     "stdio.h",
+    "threads.h",
     "cia-mem.h",
 ],
 
@@ -32,10 +33,13 @@ platforms: [
         name: "linux",
         path: "linux",
         includes: [
-            "entry.c",
+            "sys/mman.h",
             "errno.h",
-            "mman.h",
-            "fcntl.h"
+            "fcntl.h",
+            "sched.h",
+        ],
+        sources: [
+            "entry.c",
         ],
         tinyrt: [
             "tinyrt.c"
@@ -44,7 +48,7 @@ platforms: [
     {
         name: "windows",
         path: "windows",
-        includes: [
+        sources: [
             "windows.c"
         ],
         tinyrt: [
@@ -80,6 +84,16 @@ apis: [
         ]
     },
     {
+        name: "stdlib_threads",
+        path: "impl/stdlib-thread",
+        includes: [
+            "thread.c",
+        ],
+        reqs: [
+            "rt_api_thread"
+        ]
+    },
+    {
         name: "stdlib_file",
         path: "impl/stdlib-file",
         includes: [
@@ -100,4 +114,5 @@ export: [
     "cia_memory",
     "stdlib_program",
     "stdlib_file",
+    "stdlib_threads",
 ]

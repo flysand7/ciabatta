@@ -6,6 +6,7 @@
 #include "loader.h"
 
 #include <sys/mman.h>
+#include <sched.h>
 #include <errno.h>
 #include <fcntl.h>
 #include "../linux/tinyrt-iface.h"

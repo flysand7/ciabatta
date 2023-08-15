@@ -1,6 +1,68 @@
 
 // See src/tinyrt.h file for the interface this file implements
 
+_Noreturn static void _rt_program_exit(int code) {
+    sys_exit(code);
+}
+
+static _RT_Status _rt_thread_current(_RT_Thread *thread) {
+    return _RT_ERROR_NOT_IMPLEMENTED;
+}
+
+static _RT_Status _rt_thread_create(_RT_Thread *thread, void (*thread_fn)(void *ctx), void *ctx) {
+    // Create the memory for stack
+    u64 mmap_prot = PROT_READ|PROT_WRITE;
+    u64 mmap_flags = MAP_PRIVATE|MAP_ANONYMOUS;
+    u64 stack_size = 0x10000;
+    void *stack_base = sys_mmap(0, stack_size, mmap_prot, mmap_flags, -1, 0);
+    if((i64)stack_base < 0) {
+        return _RT_ERROR_GENERIC;
+    }
+    u64 *stack = (void *)((u8 *)stack_base + stack_size);
+    stack[-1] = (u64)&&thread_return;
+    stack[-2] = 0;
+    // Create the new thread
+    u64 flags = 0;
+    flags |= CLONE_CHILD_CLEARTID;
+    flags |= CLONE_PARENT_SETTID;
+    flags |= CLONE_FS;
+    flags |= CLONE_FILES;
+    flags |= CLONE_SIGHAND;
+    flags |= CLONE_THREAD;
+    flags |= CLONE_VM;
+    int parent_tid = 0;
+    int child_tid = 0;
+    i64 cur_tid = sys_clone(flags, &stack[-2], &parent_tid, &child_tid, 0);
+thread_return:
+    if(cur_tid < 0) {
+        return _RT_ERROR_GENERIC;
+    }
+    if(cur_tid == child_tid) {
+        thread_fn(ctx);
+    }
+    return _RT_STATUS_OK;
+}
+
+static _RT_Status _rt_thread_join(_RT_Thread *thread) {
+    return _RT_ERROR_NOT_IMPLEMENTED;
+}
+
+static _RT_Status _rt_thread_detach(_RT_Thread *thread) {
+    return _RT_ERROR_NOT_IMPLEMENTED;
+}
+
+static _RT_Status _rt_thread_terminate(_RT_Thread *thread) {
+    return _RT_ERROR_NOT_IMPLEMENTED;
+}
+
+static _RT_Status _rt_thread_sleep(u64 time) {
+    return _RT_ERROR_NOT_IMPLEMENTED;
+}
+
+static _RT_Status _rt_thread_get_timer_freq(u64 *freq) {
+    return _RT_ERROR_NOT_IMPLEMENTED;
+}
+
 static _RT_Status _rt_file_std_handles_init() {
     _rt_file_stdin.fd = 0;
     _rt_file_stdin.flags = _RT_FILE_READ;
@@ -65,10 +127,6 @@ static _RT_Status _rt_file_close(_RT_File *file) {
     return _RT_STATUS_OK;
 }
 
-_Noreturn static void _rt_program_exit(int code) {
-    sys_exit(code);
-}
-
 static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 size, void **out_addr) {
     void *addr = sys_mmap((u64)optional_desired_addr, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     if(addr == NULL) {
@@ -85,4 +143,3 @@ static _RT_Status _rt_mem_free(void *ptr, u64 len) {
     }
     return _RT_STATUS_OK;
 }
-
