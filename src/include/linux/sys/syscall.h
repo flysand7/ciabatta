@@ -24,36 +24,36 @@
 #define _SYSCALL_CONCAT_(a,b) a ## b
 
 // Creates an expression of the sort `_SYSCALL<number of params>(<params>)`
-#define syscall(n, ...) _SYSCALL_CONCAT(_SYSCALL, _SYSCALL_NARGS(__VA_ARGS__))(n, __VA_ARGS__)
+#define syscall(n, ...) _SYSCALL_CONCAT(_SYSCALL, _SYSCALL_NARGS(__VA_ARGS__))(n, ## __VA_ARGS__)
 
 static inline i64 _syscall0(i64 n) {
-    i64 ret;
+    i64 ret = 0;
     asm volatile("syscall" : "=a"(ret) : "a"(n) : "rcx", "r11", "memory");
     return ret;
 }
 
 static inline i64 _syscall1(i64 n, i64 a1) {
-    i64 ret;
+    i64 ret = 0;
     asm volatile("syscall" : "=a"(ret) : "a"(n), "D"(a1) : "rcx", "r11", "memory");
     return ret;
 }
 
 static inline i64 _syscall2(i64 n, i64 a1, i64 a2) {
-    i64 ret;
+    i64 ret = 0;
     asm volatile("syscall" : "=a"(ret) : "a"(n), "D"(a1), "S"(a2)
                           : "rcx", "r11", "memory");
     return ret;
 }
 
 static inline i64 _syscall3(i64 n, i64 a1, i64 a2, i64 a3) {
-    i64 ret;
+    i64 ret = 0;
     asm volatile("syscall" : "=a"(ret) : "a"(n), "D"(a1), "S"(a2),
                           "d"(a3) : "rcx", "r11", "memory");
     return ret;
 }
 
 static inline i64 _syscall4(i64 n, i64 a1, i64 a2, i64 a3, i64 a4) {
-    i64 ret;
+    i64 ret = 0;
     register i64 r10 asm("r10") = a4;
     asm volatile("syscall" : "=a"(ret) : "a"(n), "D"(a1), "S"(a2),
                           "d"(a3), "r"(r10): "rcx", "r11", "memory");
@@ -61,7 +61,7 @@ static inline i64 _syscall4(i64 n, i64 a1, i64 a2, i64 a3, i64 a4) {
 }
 
 static inline i64 _syscall5(i64 n, i64 a1, i64 a2, i64 a3, i64 a4, i64 a5) {
-    i64 ret;
+    i64 ret = 0;
     register i64 r10 asm("r10") = a4;
     register i64 r8 asm("r8") = a5;
     asm volatile("syscall" : "=a"(ret) : "a"(n), "D"(a1), "S"(a2),
@@ -70,7 +70,7 @@ static inline i64 _syscall5(i64 n, i64 a1, i64 a2, i64 a3, i64 a4, i64 a5) {
 }
 
 static inline i64 _syscall6(i64 n, i64 a1, i64 a2, i64 a3, i64 a4, i64 a5, i64 a6) {
-    i64 ret;
+    i64 ret = 0;
     register i64 r10 asm("r10") = a4;
     register i64 r8 asm("r8") = a5;
     register i64 r9 asm("r9") = a6;
@@ -404,6 +404,10 @@ static inline i64 sys_munmap(void *addr, u64 len) {
     return syscall(SYS_munmap, addr, len);
 }
 
+static inline i64 sys_clone(u64 flags, void *stack, int *parent_tid, int *child_tid, u64 tls) {
+    return syscall(SYS_clone, flags, stack, parent_tid, child_tid, tls);
+}
+
 _Noreturn static inline void sys_exit(int code) {
     syscall(SYS_exit, code);
     __builtin_unreachable();
@@ -415,4 +419,8 @@ static inline i64 sys_arch_prctl_set(int code, u64 value) {
 
 static inline i64 sys_arch_prctl_get(int code, u64 *value) {
     return syscall(SYS_arch_prctl, code, value);
+}
+
+static inline i64 sys_gettid() {
+    return syscall(SYS_gettid);
 }
