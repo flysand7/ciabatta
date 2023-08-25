@@ -5,9 +5,9 @@ static_assert(sizeof(char) == 1, "Char isn't 1 bytes long");
 static_assert(sizeof(short) == 2, "Short isn't 2 bytes long");
 static_assert(sizeof(int) == 4, "Int isn't 4 bytes long");
 static_assert(sizeof(long long int) == 8, "Long long isn't 8 bytes long");
-#if defined(_CIA_DATA_LP64)
+#if defined(CIA_DATA_LP64)
     static_assert(sizeof(long) == 8, "Long on linux isn't 8 bytes");
-#elif defined(_CIA_DATA_LLP64)
+#elif defined(CIA_DATA_LLP64)
     static_assert(sizeof(long) == 4, "Long on windows isn't 4 bytes");
 #endif
 
@@ -17,10 +17,10 @@ typedef signed short int16_t;
 typedef unsigned short uint16_t;
 typedef signed int int32_t;
 typedef unsigned int uint32_t;
-#if defined(_CIA_DATA_LP64)
+#if defined(CIA_DATA_LP64)
     typedef signed long int64_t;
     typedef unsigned long uint64_t;
-#elif defined(_CIA_DATA_LLP64)
+#elif defined(CIA_DATA_LLP64)
     typedef signed long long int64_t;
     typedef unsigned long long uint64_t;
 #else
@@ -50,12 +50,12 @@ typedef uint64_t uintptr_t;
 #define UINT16_C(n)  (n)
 #define UINT32_C(n)  (n)
 
-#if defined(_CIA_DATA_LP64)
+#if defined(CIA_DATA_LP64)
     #define INT64_C(n)   (n ## L)
     #define INTMAX_C(n)  (n ## L)
     #define UINT64_C(n)  (n ## UL)
     #define UINTMAX_C(n) (n ## UL)
-#elif defined(_CIA_DATA_LLP64)
+#elif defined(CIA_DATA_LLP64)
     #define INT64_C(n)   (n ## LL)
     #define INTMAX_C(n)  (n ## LL)
     #define UINT64_C(n)  (n ## ULL)

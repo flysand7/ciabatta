@@ -9,15 +9,14 @@
 #include <sched.h>
 #include <errno.h>
 #include <fcntl.h>
-#include "../linux/tinyrt-iface.h"
 #include <tinyrt.h>
-#include "../linux/tinyrt.c"
+#include "../os/linux/tinyrt.c"
 
 #include <cia-mem.h>
-#include "../impl/cia-mem/util.c"
-#include "../impl/cia-mem/allocator.c"
-#include "../impl/cia-mem/arena.c"
-#include "../impl/cia-mem/pool.c"
+#include "../src/cia-mem/util.c"
+#include "../src/cia-mem/allocator.c"
+#include "../src/cia-mem/arena.c"
+#include "../src/cia-mem/pool.c"
 
 struct Elf_Image typedef Elf_Image;
 struct Elf_Image {

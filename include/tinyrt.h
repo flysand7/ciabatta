@@ -41,9 +41,7 @@ static _RT_Status _rt_init();
 static _RT_Status _rt_deinit();
 
 // Program API
-#if _RT_API_PROGRAM == 1
-    _Noreturn static void _rt_program_exit(int code);
-#endif
+_Noreturn static void _rt_program_exit(int code);
 
 // Thread API
 struct _RT_Thread typedef _RT_Thread;
@@ -51,21 +49,17 @@ struct _RT_Thread {
     u64 tid;
     void *handle;
 };
-#if _RT_API_THREAD == 1
-    static _RT_Status _rt_thread_current(_RT_Thread *thread);
-    static _RT_Status _rt_thread_create(_RT_Thread *thread, void (*thread_fn)(void *ctx), void *ctx);
-    static _RT_Status _rt_thread_join(_RT_Thread *thread);
-    static _RT_Status _rt_thread_detach(_RT_Thread *thread);
-    static _RT_Status _rt_thread_terminate(_RT_Thread *thread);
-    static _RT_Status _rt_thread_sleep(u64 time);
-    static _RT_Status _rt_thread_get_timer_freq(u64 *freq);
-#endif
+static _RT_Status _rt_thread_current(_RT_Thread *thread);
+static _RT_Status _rt_thread_create(_RT_Thread *thread, void (*thread_fn)(void *ctx), void *ctx);
+static _RT_Status _rt_thread_join(_RT_Thread *thread);
+static _RT_Status _rt_thread_detach(_RT_Thread *thread);
+static _RT_Status _rt_thread_terminate(_RT_Thread *thread);
+static _RT_Status _rt_thread_sleep(u64 time);
+static _RT_Status _rt_thread_get_timer_freq(u64 *freq);
 
 // Environment API
-#if _RT_API_ENVIRONMENT == 1
-    static _RT_Status _rt_shell_exec(char const *cmd);
-    static _RT_Status _rt_env_get(char const *name);
-#endif
+static _RT_Status _rt_shell_exec(char const *cmd);
+static _RT_Status _rt_env_get(char const *name);
 
 // File API
 struct _RT_File typedef _RT_File;
@@ -76,19 +70,15 @@ struct _RT_File {
     };
     i32 flags;
 };
-#if _RT_API_FILE == 1
-    static _RT_File _rt_file_stdin;
-    static _RT_File _rt_file_stdout;
-    static _RT_File _rt_file_stderr;
-    static _RT_Status _rt_file_std_handles_init();
-    static _RT_Status _rt_file_open(_RT_File *file, char const *name, int flags);
-    static _RT_Status _rt_file_read(u64 size, void *buffer, _RT_File *from, u64 *out_bytes_read);
-    static _RT_Status _rt_file_write(_RT_File *to, u64 size, void *buffer, u64 *out_bytes_written);
-    static _RT_Status _rt_file_close(_RT_File *file);
-#endif
+static _RT_File _rt_file_stdin;
+static _RT_File _rt_file_stdout;
+static _RT_File _rt_file_stderr;
+static _RT_Status _rt_file_std_handles_init();
+static _RT_Status _rt_file_open(_RT_File *file, char const *name, int flags);
+static _RT_Status _rt_file_read(u64 size, void *buffer, _RT_File *from, u64 *out_bytes_read);
+static _RT_Status _rt_file_write(_RT_File *to, u64 size, void *buffer, u64 *out_bytes_written);
+static _RT_Status _rt_file_close(_RT_File *file);
 
 // Memory API
-#if _RT_API_MEMORY == 1
-    static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 size, void **out_addr);
-    static _RT_Status _rt_mem_free(void *ptr, u64 size);
-#endif
+static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 size, void **out_addr);
+static _RT_Status _rt_mem_free(void *ptr, u64 size);

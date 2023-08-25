@@ -1,8 +1,6 @@
 /bin
 /lib
 /a
-/src/ciabatta.c
-/src/include/conf.h
 a.out
 *.a
 *.so
@@ -16,7 +14,5 @@ a.out
 *.4coder
 *.rdbg
 /.venv
-tinyrt-iface.h
 test/
-test_folder/
 vgcore.*

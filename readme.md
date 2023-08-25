@@ -98,22 +98,8 @@ $ pip install pyjson5
 
 ### Building
 
-On linux you can simply run `./build.lua` script. On windows you have to run
-it like `lua build.lua`. Reference for command-line options:
-
-```
-Usage: build.py [-h] [--clean] [--test TEST]
-                [--mode {debug,release}] [--target TARGET]
-                [--compiler {clang,cuik}] [--cflags [CFLAGS ...]]
-Options:
-  -h, --help                  show this help message and exit
-  --clean                     Remove all object files and binaries
-  --test TEST                 Compile ciabatta executable with given file
-  --mode, -m {debug,release}  Select build configuration
-  --target, -t TARGET         Select target OS (default=host)
-  --compiler, -c {clang,cuik} Select compiler
-  --cflags [CFLAGS ...]       Pass additional compiler flags
-```
+On linux you can simply run `./build.py` script. On windows can run
+it with `py build.py` command.
 
 ## Usage
 
@@ -131,7 +117,7 @@ assuming you put all files mentioned above in the `./ciabatta` folder
 1. Add the following flags to your compilation command:
    `-nostdlib -I ./ciabatta/include utf8.obj -mfma`
 2. Add the following sources to the compile command:
-   `./ciabatta/lib/ciabatta.lib ./ciabatta/lib/cia.lib ./ciabatta/lib/crt.lib`
+   `./ciabatta/lib/cia.lib`
 
 **Note:** The `include` folder refers to the folder you copied from ciabatta. Set the path to it accordingly.
 
@@ -140,7 +126,9 @@ assuming you put all files mentioned above in the `./ciabatta` folder
 1. Add the following flags to your compilation command:
    - `-nostdlib -I ./ciabatta/include -mfma`
 2. Link to the following libraries
-   - `./ciabatta/lib/ciabatta.a`
+   - `./ciabatta/lib/cia.a`
+3. Specify the ciabatta dynamic loader in linker options
+   - `-Wl,-dynamic-linker,lib/ld-cia.so`
 
 ## Contributing
 
