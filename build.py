@@ -75,16 +75,7 @@ if not os.path.exists('lib'):
 if not os.path.exists('bin'):
     os.mkdir('bin')
 
-loader_flags = [
-    '-Wl,-e,_dlstart',
-    '-Wl,--sort-section,alignment',
-    '-Wl,--sort-common',
-    '-Wl,--gc-sections',
-    '-Wl,--hash-style=both',
-    '-Wl,--no-undefined',
-    '-Wl,--exclude-libs=ALL'
-]
-
+target_abi = 'sysv'
 target_arch = 'x86-64'
 target_os = 'linux'
 
@@ -97,13 +88,24 @@ cc_includes.append('include')
 cc_includes.append('include/linux')
 
 # Build the dynamic loader
+loader_flags = [
+    '-Wl,-e,_dlstart',
+    '-Wl,--sort-section,alignment',
+    '-Wl,--sort-common',
+    '-Wl,--gc-sections',
+    '-Wl,--hash-style=both',
+    '-Wl,--no-undefined',
+    '-Wl,--exclude-libs=ALL'
+]
 print_step("Building lib/ld-cia.so\n")
-assemble_obj('bin/loader-entry.o', [f'arch/{target_arch}/loader-entry.asm'], ['-f "elf64"'])
+assemble_obj('bin/loader-entry.o', [f'arch/{target_abi}_{target_arch}/loader-entry.asm'], ['-f "elf64"'])
 compile_shared('lib/ld-cia.so', ['bin/loader-entry.o','loader/loader-self-reloc.c','loader/loader.c'], loader_flags)
 
 # Build the ciabatta
+print_step("Building lib/cia.a\n")
+assemble_obj('bin/thread-entry.o', [f'arch/{target_abi}_{target_arch}/thread-entry.asm'], ['-f "elf64"'])
 compile_obj('bin/cia.o', ['cia.c'])
-archive('lib/cia.a', ['bin/cia.o'])
+archive('lib/cia.a', ['bin/cia.o', 'bin/thread-entry.o'])
 
 # Build the test
-compile_exe('a', ['tests/hello.c', 'lib/cia.a'], ['-Wl,-dynamic-linker,lib/ld-cia.so'])
+compile_exe('a', ['tests/threaded.c', 'lib/cia.a'], ['-Wl,-dynamic-linker,lib/ld-cia.so'])

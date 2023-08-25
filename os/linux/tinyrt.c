@@ -1,6 +1,15 @@
 
 // See src/tinyrt.h file for the interface this file implements
 
+extern i64 _cia_clone(
+    u64 flags,
+    void *stack_base,
+    int *parent_tid,
+    int *child_tid,
+    void *tls,
+    u64 stack_size
+);
+
 _Noreturn static void _rt_program_exit(int code) {
     sys_exit(code);
 }
@@ -18,26 +27,27 @@ static _RT_Status _rt_thread_create(_RT_Thread *thread, void (*thread_fn)(void *
     if((i64)stack_base < 0) {
         return _RT_ERROR_GENERIC;
     }
-    u64 *stack = (void *)((u8 *)stack_base + stack_size);
-    stack[-1] = (u64)&&thread_return;
-    stack[-2] = 0;
+    void *stack = (u8*)stack_base + stack_size;
     // Create the new thread
     u64 flags = 0;
-    flags |= CLONE_CHILD_CLEARTID;
-    flags |= CLONE_PARENT_SETTID;
+    // flags |= CLONE_CHILD_CLEARTID;
+    // flags |= CLONE_PARENT_SETTID;
     flags |= CLONE_FS;
     flags |= CLONE_FILES;
     flags |= CLONE_SIGHAND;
     flags |= CLONE_THREAD;
     flags |= CLONE_VM;
-    int parent_tid = 0;
-    int child_tid = 0;
-    i64 cur_tid = sys_clone(flags, &stack[-2], &parent_tid, &child_tid, 0);
-thread_return:
-    if(cur_tid < 0) {
+    flags |= CLONE_SYSVSEM;
+    int *temp_permanent_storage = stack_base;
+    int *child_tid = &temp_permanent_storage[0];
+    int *parent_tid = &temp_permanent_storage[1];
+    *child_tid = 1;
+    *parent_tid = 0;
+    i64 ret = _cia_clone(flags, stack, parent_tid, child_tid, 0, stack_size);
+    if(ret < 0) {
         return _RT_ERROR_GENERIC;
     }
-    if(cur_tid == child_tid) {
+    if(!ret) {
         thread_fn(ctx);
     }
     return _RT_STATUS_OK;

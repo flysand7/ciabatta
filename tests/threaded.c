@@ -12,11 +12,14 @@ int thrd_func(void *arg) {
 }
 
 int main() {
-    {char string[] = "main thred: before\n";
+    {char string[] = "main thread: before!\n";
     fwrite(string, 1, sizeof string-1, stdout);}
+    
     thrd_t thrd;
     thrd_create(&thrd, thrd_func, NULL);
+    
     {char string[] = "main thread: after!\n";
     fwrite(string, 1, sizeof string-1, stdout);}
+    for(;;);
     return 0;
 }
