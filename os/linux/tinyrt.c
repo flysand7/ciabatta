@@ -1,13 +1,14 @@
 
 // See src/tinyrt.h file for the interface this file implements
 
-extern i64 _cia_clone(
+extern i64 _cia_start_thread(
     u64 flags,
     void *stack_base,
     int *parent_tid,
     int *child_tid,
     void *tls,
-    u64 stack_size
+    void (*thread_fn)(void *ctx),
+    void *ctx
 );
 
 _Noreturn static void _rt_program_exit(int code) {
@@ -21,7 +22,7 @@ static _RT_Status _rt_thread_current(_RT_Thread *thread) {
 static _RT_Status _rt_thread_create(_RT_Thread *thread, void (*thread_fn)(void *ctx), void *ctx) {
     // Create the memory for stack
     u64 mmap_prot = PROT_READ|PROT_WRITE;
-    u64 mmap_flags = MAP_PRIVATE|MAP_ANONYMOUS;
+    u64 mmap_flags = MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE;
     u64 stack_size = 0x10000;
     void *stack_base = sys_mmap(0, stack_size, mmap_prot, mmap_flags, -1, 0);
     if((i64)stack_base < 0) {
@@ -43,12 +44,9 @@ static _RT_Status _rt_thread_create(_RT_Thread *thread, void (*thread_fn)(void *
     int *parent_tid = &temp_permanent_storage[1];
     *child_tid = 1;
     *parent_tid = 0;
-    i64 ret = _cia_clone(flags, stack, parent_tid, child_tid, 0, stack_size);
+    i64 ret = _cia_start_thread(flags, stack, parent_tid, child_tid, 0, thread_fn, ctx);
     if(ret < 0) {
         return _RT_ERROR_GENERIC;
-    }
-    if(!ret) {
-        thread_fn(ctx);
     }
     return _RT_STATUS_OK;
 }

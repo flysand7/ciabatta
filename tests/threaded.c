@@ -3,23 +3,24 @@
 #include <stdlib.h>
 #include <threads.h>
 
+static void print_str(char *str) {
+    int str_len = 0;
+    while(str[str_len] != 0) {
+        ++str_len;
+    }
+    fwrite(str, 1, str_len, stdout);
+}
+
 int thrd_func(void *arg) {
-    char string[] = "child thread: ok!\n";
-    fwrite(string, 1, sizeof string-1, stdout);
-    // exit(1);
+    print_str("child thread: ok!\n");
     for(;;);
     return 0;
 }
 
 int main() {
-    {char string[] = "main thread: before!\n";
-    fwrite(string, 1, sizeof string-1, stdout);}
-    
+    print_str("main thread: before\n");
     thrd_t thrd;
     thrd_create(&thrd, thrd_func, NULL);
-    
-    {char string[] = "main thread: after!\n";
-    fwrite(string, 1, sizeof string-1, stdout);}
-    for(;;);
+    print_str("main thread: after!\n");
     return 0;
 }
