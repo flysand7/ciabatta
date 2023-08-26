@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <threads.h>
+#include <stdatomic.h>
 
 static void print_string_n(char *str, u64 len) {
     fwrite(str, 1, len, stdout);
@@ -32,7 +33,7 @@ static void print_int(i64 number) {
     print_string(p);
 }
 
-volatile i64 counter = 0;
+volatile _Atomic i64 counter = 0;
 
 int thrd_func(void *arg) {
     print_string("child thread: ok!\n");

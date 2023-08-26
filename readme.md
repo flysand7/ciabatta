@@ -51,7 +51,7 @@ time is discouraged.
 | <signal.h>      | Signal handling.                     | none        |
 | <stdalign.h>    | Alignment.                           | none        |
 | <stdarg.h>      | Variable arguments.                  | none        |
-| <stdatomic.h>   | Atomics.                             | none        |
+| <stdatomic.h>   | Atomics.                             | [1]         |
 | <stdbit.h>      | Bit and byte utilities               | none        |
 | <stdbool.h>     | Boolean type and values.             | none        |
 | <stddef.h>      | Common definitions.                  | none        |
