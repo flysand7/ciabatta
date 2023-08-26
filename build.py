@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 
+import argparse
 import importlib
 import platform # Checking current OS
 import os
 import sys
 import re
+ 
+arg_parser = argparse.ArgumentParser(description="Build ciabatta", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+arg_parser.add_argument("-t", "--test", help="Specify a file to compile with ciabatta")
+args = vars(arg_parser.parse_args())
 
+test_file = args['test']
 
 class colors:
     grey='\033[38;5;243m'
@@ -108,4 +114,5 @@ compile_obj('bin/cia.o', ['cia.c'])
 archive('lib/cia.a', ['bin/cia.o', 'bin/thread-entry.o'])
 
 # Build the test
-compile_exe('a', ['tests/threaded.c', 'lib/cia.a'], ['-Wl,-dynamic-linker,lib/ld-cia.so'])
+if test_file != None:
+    compile_exe('a', [test_file, 'lib/cia.a'], ['-Wl,-dynamic-linker,lib/ld-cia.so'])
