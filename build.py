@@ -131,6 +131,7 @@ cc_includes.append('include/linux')
 cc_flags_push()
 cc_defines_push()
 cc_flags.extend([
+    '-fno-builtin',
     '-Wl,-e,_dlstart',
     '-Wl,--sort-section,alignment',
     '-Wl,--sort-common',
