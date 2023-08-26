@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <cia-def.h>
+#include <cia/def.h>
 
 // For now these definitions will live here
 #if !defined(STDIN_FILENO)

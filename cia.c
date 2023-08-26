@@ -1,5 +1,5 @@
 
-#include <cia-def.h>
+#include <cia/def.h>
 
 // Platform-dependent sources
 #include _CIA_OS_CONF
@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <threads.h>
-#include <cia-mem.h>
+#include <cia/mem.h>
 
 // Module cia_memory
 #include "src/cia-mem/util.c"

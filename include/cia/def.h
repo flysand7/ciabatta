@@ -1,9 +1,6 @@
 
 #pragma once
 
-// Include platform stuff
-#include <cia-conf.h>
-
 // Pre-C23 keyword macros
 #define static_assert _Static_assert
     

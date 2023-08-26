@@ -1,5 +1,5 @@
 
-#include <cia-def.h>
+#include <cia/def.h>
 #include <bin/elf.h>
 #include <sys/syscall.h>
 #include <stdarg.h>
@@ -12,7 +12,7 @@
 #include <tinyrt.h>
 #include "../os/linux/tinyrt.c"
 
-#include <cia-mem.h>
+#include <cia/mem.h>
 #include "../src/cia-mem/util.c"
 #include "../src/cia-mem/allocator.c"
 #include "../src/cia-mem/arena.c"

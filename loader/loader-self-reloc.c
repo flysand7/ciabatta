@@ -13,7 +13,7 @@
 // any externally-defined functions (static functions
 // are fine with gcc and clang (I think))
 
-#include <cia-def.h>
+#include <cia/def.h>
 #include <bin/elf.h>
 #include <sys/syscall.h>
 #include <stdarg.h>

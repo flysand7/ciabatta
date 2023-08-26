@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <cia/conf.h>
+
 static_assert(sizeof(char) == 1, "Char isn't 1 bytes long");
 static_assert(sizeof(short) == 2, "Short isn't 2 bytes long");
 static_assert(sizeof(int) == 4, "Int isn't 4 bytes long");
@@ -9,6 +11,8 @@ static_assert(sizeof(long long int) == 8, "Long long isn't 8 bytes long");
     static_assert(sizeof(long) == 8, "Long on linux isn't 8 bytes");
 #elif defined(CIA_DATA_LLP64)
     static_assert(sizeof(long) == 4, "Long on windows isn't 4 bytes");
+#else
+    #error "Data model not implemented"
 #endif
 
 typedef signed char int8_t;

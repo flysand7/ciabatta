@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <cia-def.h>
+#include <cia/def.h>
 
 int atexit(void (*func)(void));
 int at_quick_exit(void (*func)(void));

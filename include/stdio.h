@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <cia-def.h>
+#include <cia/def.h>
 #include <tinyrt.h>
 
 typedef struct FILE FILE;
