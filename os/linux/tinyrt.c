@@ -168,7 +168,9 @@ static _RT_Status _rt_sync_wake_one(u32 *addr, u32 *n_woken) {
     if(result < 0) {
         return _RT_ERROR_GENERIC;
     }
-    *n_woken = (u32)result;
+    if(n_woken != NULL) {
+        *n_woken = (u32)result;
+    }
     return _RT_STATUS_OK;
 }
 
@@ -177,6 +179,8 @@ static _RT_Status _rt_sync_wake_all(u32 *addr, u32 *n_woken) {
     if(result < 0) {
         return _RT_ERROR_GENERIC;
     }
-    *n_woken = (u32)result;
+    if(n_woken != NULL) {
+        *n_woken = (u32)result;
+    }
     return _RT_STATUS_OK;
 }
