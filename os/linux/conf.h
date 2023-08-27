@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <linux/futex.h>
 #include <sys/mman.h>
 #include <errno.h>
 #include <fcntl.h>

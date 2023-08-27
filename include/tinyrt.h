@@ -1,13 +1,15 @@
 
 #pragma once
 
-// Common errors
+#include <cia/def.h>
+
+// Common status
 #define _RT_STATUS_OK                     0  // No errors
 #define _RT_ERROR_NOT_IMPLEMENTED        -1  // Function not implemented
 #define _RT_ERROR_BAD_PARAM              -2  // One of the function parameters was wrong
 #define _RT_ERROR_GENERIC                -3  // Just any random error
 
-// File API errors
+// File API status
 #define _RT_STATUS_FILE_ACCESS            1  // No access to the file
 #define _RT_STATUS_FILE_NO_SPACE          2  // Storage device has no space for the file
 #define _RT_STATUS_FILE_EXISTS            3  // File exists when shouldn't
@@ -29,6 +31,9 @@
 #define _RT_FILE_CREATE    0x04
 #define _RT_FILE_EXCLUSIVE 0x08
 #define _RT_FILE_TRUNCATE  0x10
+
+// Sync API sleep constant
+#define _RT_SYNC_WAIT_INFINITE 0xffffffffffffffffULL
 
 typedef i32 _RT_Status;
 
@@ -82,3 +87,8 @@ static _RT_Status _rt_file_close(_RT_File *file);
 // Memory API
 static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 size, void **out_addr);
 static _RT_Status _rt_mem_free(void *ptr, u64 size);
+
+// Synchronization API
+static _RT_Status _rt_sync_wait(u32 *addr, u32 compare_with, u64 time);
+static _RT_Status _rt_sync_wake_one(u32 *addr, u32 *n_woken);
+static _RT_Status _rt_sync_wake_all(u32 *addr, u32 *n_woken);

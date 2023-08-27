@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <threads.h>
 #include <stdatomic.h>
+#include <cia/sync.h>
 
 static void print_string_n(char *str, u64 len) {
     fwrite(str, 1, len, stdout);
@@ -33,22 +34,39 @@ static void print_int(i64 number) {
     print_string(p);
 }
 
-volatile _Atomic i64 counter = 0;
+static Cia_Mutex g_print_mutex;
+static Cia_Mutex g_mutex;
+static volatile _Atomic i64 n_completed = 0;
+static volatile i64 counter = 0;
 
 int thrd_func(void *arg) {
     print_string("child thread: ok!\n");
     for(int i = 0; i < 100000; ++i) {
+        cia_mutex_lock(&g_mutex);
         counter += 1;
+        print_int(counter);
+        print_char('\n');
+        cia_mutex_unlock(&g_mutex);
     }
+    atomic_fetch_add(&n_completed, 1);
+    for(;;) {
+        if(n_completed == 2) {
+            break;
+        }
+    }
+    cia_mutex_lock(&g_print_mutex);
     print_string("child thread: counter = ");
     print_int(counter);
     print_char('\n');
-    for(;;);
+    cia_mutex_unlock(&g_print_mutex);
+    exit(1);
     return 0;
 }
 
 int main() {
     print_string("main thread: before\n");
+    cia_mutex_init(&g_mutex);
+    cia_mutex_init(&g_print_mutex);
     thrd_t thrd;
     int status = thrd_create(&thrd, thrd_func, NULL);
     if(status == thrd_error) {
@@ -57,10 +75,22 @@ int main() {
     }
     print_string("main thread: after!\n");
     for(int i = 0; i < 100000; ++i) {
+        cia_mutex_lock(&g_mutex);
         counter += 1;
+        print_int(counter);
+        print_char('\n');
+        cia_mutex_unlock(&g_mutex);
     }
+    atomic_fetch_add(&n_completed, 1);
+    for(;;) {
+        if(n_completed == 2) {
+            break;
+        }
+    }
+    cia_mutex_lock(&g_print_mutex);
     print_string("main thread: counter = ");
     print_int(counter);
     print_char('\n');
+    cia_mutex_unlock(&g_print_mutex);
     return 0;
 }

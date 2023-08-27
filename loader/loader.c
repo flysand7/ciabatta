@@ -1,10 +1,12 @@
 
 #include <cia/def.h>
+
 #include <bin/elf.h>
 #include <sys/syscall.h>
 #include <stdarg.h>
 #include "loader.h"
 
+#include <futex.h>
 #include <sys/mman.h>
 #include <sched.h>
 #include <errno.h>

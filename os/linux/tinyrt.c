@@ -151,3 +151,32 @@ static _RT_Status _rt_mem_free(void *ptr, u64 len) {
     }
     return _RT_STATUS_OK;
 }
+
+static _RT_Status _rt_sync_wait(u32 *addr, u32 compare_with, u64 sleep) {
+    i64 result = syscall(SYS_futex, addr, FUTEX_WAIT_PRIVATE, compare_with, NULL, 0, 0);
+    if(-result == EAGAIN) {
+        return _RT_STATUS_OK;
+    }
+    else if(-result > 0) {
+        return _RT_ERROR_GENERIC;
+    }
+    return _RT_STATUS_OK;
+}
+
+static _RT_Status _rt_sync_wake_one(u32 *addr, u32 *n_woken) {
+    i64 result = syscall(SYS_futex, addr, FUTEX_WAKE_PRIVATE, 1, NULL, 0, 0);
+    if(result < 0) {
+        return _RT_ERROR_GENERIC;
+    }
+    *n_woken = (u32)result;
+    return _RT_STATUS_OK;
+}
+
+static _RT_Status _rt_sync_wake_all(u32 *addr, u32 *n_woken) {
+    i64 result = syscall(SYS_futex, addr, FUTEX_WAKE_PRIVATE, 0x7fffffff, NULL, 0, 0);
+    if(result < 0) {
+        return _RT_ERROR_GENERIC;
+    }
+    *n_woken = (u32)result;
+    return _RT_STATUS_OK;
+}

@@ -9,12 +9,16 @@
 #include <stdio.h>
 #include <threads.h>
 #include <cia/mem.h>
+#include <cia/sync.h>
 
 // Module cia_memory
 #include "src/cia-mem/util.c"
 #include "src/cia-mem/allocator.c"
 #include "src/cia-mem/arena.c"
 #include "src/cia-mem/pool.c"
+
+// Module cia_sync
+#include "src/cia-sync/mutex.c"
 
 // Module stdlib_program
 #include "src/stdlib-program/program.c"
@@ -24,3 +28,4 @@
 
 // Module stdlib_file
 #include "src/stdlib-file/file.c"
+
