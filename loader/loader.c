@@ -20,6 +20,8 @@
 #include "../src/cia-mem/arena.c"
 #include "../src/cia-mem/pool.c"
 
+#include "stack.c"
+
 struct Elf_Image typedef Elf_Image;
 struct Elf_Image {
     Cia_Arena arena;
@@ -148,6 +150,14 @@ void loader_entry(Loader_Info *ld_info) {
     if(fd != 0) {
         sys_close(fd);
     }
+    // Get the information about the main thread stack
+    if(linux_read_stack_info()) {
+        printf("ERROR: failed to read /proc/self/maps to get the stack info\n");
+        sys_exit(1);
+    }
+    _dbg_printf("Received stack: %x-%x\n", stack_info.start_addr, stack_info.end_addr);
+    u64 *ptr = (void *)stack_info.start_addr;
+    // *ptr = 1245;
     // Find .dynamic section
     {
         u8 *phdr = (void *)aux[AT_PHDR];

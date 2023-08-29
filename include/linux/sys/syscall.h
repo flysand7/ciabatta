@@ -380,15 +380,15 @@ static inline i64 _syscall6(i64 n, i64 a1, i64 a2, i64 a3, i64 a4, i64 a5, i64 a
 #define SYS_rt_tgsigqueueinfo      297
 #define SYS_perf_event_open        298
 
-static inline i64 sys_read(u32 fd, char *buf, u64 count) {
+static inline i32 sys_read(u32 fd, char *buf, u64 count) {
     return syscall(SYS_read, fd, buf, count);
 }
 
-static inline i64 sys_write(u32 fd, char const *buf, u64 count) {
+static inline i32 sys_write(u32 fd, char const *buf, u64 count) {
     return syscall(SYS_write, fd, buf, count);
 }
 
-static inline i64 sys_open(char const *filename, int flags, int mode) {
+static inline i32 sys_open(char const *filename, int flags, int mode) {
     return syscall(SYS_open, filename, flags, mode);
 }
 

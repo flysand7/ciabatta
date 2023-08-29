@@ -15,9 +15,10 @@ void cia_mutex_lock(Cia_Mutex *mutex) {
         if(prev_tag == _CIA_MUTEX_FREE) {
             break;
         }
+#if 0
         // We should wait if:
         //   (1) the mutex is contested
-        //   (2) this thread locking the mutex makes it contested
+        //   (2) 
         bool should_wait = 0;
         should_wait |= (prev_tag == _CIA_MUTEX_CONT);
         should_wait |= (__sync_val_compare_and_swap(&mutex->tag, _CIA_MUTEX_LOCK, _CIA_MUTEX_CONT) != _CIA_MUTEX_FREE);
@@ -25,6 +26,9 @@ void cia_mutex_lock(Cia_Mutex *mutex) {
         if(should_wait) {
             _rt_sync_wait(&mutex->tag, _CIA_MUTEX_CONT, _RT_SYNC_WAIT_INFINITE);
         }
+#else
+        _rt_sync_wait(&mutex->tag, _CIA_MUTEX_LOCK, _RT_SYNC_WAIT_INFINITE);
+#endif
     }
 }
 

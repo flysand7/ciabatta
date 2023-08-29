@@ -44,8 +44,6 @@ int thrd_func(void *arg) {
     for(int i = 0; i < 100000; ++i) {
         cia_mutex_lock(&g_mutex);
         counter += 1;
-        print_int(counter);
-        print_char('\n');
         cia_mutex_unlock(&g_mutex);
     }
     atomic_fetch_add(&n_completed, 1);
@@ -77,8 +75,6 @@ int main() {
     for(int i = 0; i < 100000; ++i) {
         cia_mutex_lock(&g_mutex);
         counter += 1;
-        print_int(counter);
-        print_char('\n');
         cia_mutex_unlock(&g_mutex);
     }
     atomic_fetch_add(&n_completed, 1);
