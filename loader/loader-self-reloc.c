@@ -14,18 +14,27 @@
 // are fine with gcc and clang (I think))
 
 #include <cia/def.h>
+#include <stdarg.h>
 #include <bin/elf.h>
 #include <sys/syscall.h>
-#include <stdarg.h>
+#include <sys/mman.h>
+#include <sched.h>
+#include <errno.h>
+#include <fcntl.h>
+
 #include "loader.h"
 
-extern void loader_entry(Loader_Info *ld_info);
+extern void ld_stage2_entry(Loader_Info *ld_info);
 
-void _dlstart_reloc_c(u64 *sp, Elf64_Dyn *dynv) {
+void ld_stage1_entry(u64 *sp, Elf64_Dyn *dynv) {
     _dbg_print_string("Entered dynamic loader\n");
     // Find argc, argv in stack
     int argc = *sp;
     char **argv = (void *)(sp+1);
+    _dbg_printf("ARGV:\n");
+    for(int i = 0; i < argc; ++i) {
+        _dbg_printf("[%d]: %s\n", (i64)i, argv[i]);
+    }
     // Skip over environment
     char **envp = argv+argc+1;
     int envc = 0;
@@ -173,7 +182,6 @@ void _dlstart_reloc_c(u64 *sp, Elf64_Dyn *dynv) {
             }
             rela_offs += rela_ent;
         }
-        
     }
     _mfence();
     Loader_Info ld_info;
@@ -182,7 +190,7 @@ void _dlstart_reloc_c(u64 *sp, Elf64_Dyn *dynv) {
     ld_info.dyn = dyn;
     ld_info.aux = aux;
     _dbg_printf("Self-relocation finished. Entering the loader\n");
-    loader_entry(&ld_info);
+    ld_stage2_entry(&ld_info);
     sys_exit(0);
 }
 

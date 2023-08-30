@@ -39,6 +39,7 @@ struct Elf_Image {
 #define elf_addr(elf, off) (void *)((elf)->base + (u64)off)
 
 static Cia_Pool image_pool;
+static Cia_Arena tmp_arena;
 
 static u32 elf_sym_gnu_hash(char *name) {
     unsigned char *s = (void *)name;
@@ -91,7 +92,24 @@ static Elf64_Sym *elf_symbol_by_name(Elf_Image *image, char *name) {
     return NULL;
 }
 
-void loader_entry(Loader_Info *ld_info) {
+struct Stage3_Info_Struct typedef Stage3_Info_Struct;
+struct Stage3_Info_Struct {
+    Elf_Image *app;
+    Elf_Image *ldso;
+};
+
+static void ld_stage3_entry(u64 has_new_stack, void *ctx);
+
+void ld_stack_trampoline(
+    void *stack_base
+    , void *old_stack_base
+    , u64 stack_size
+    , u64 old_stack_size
+    , void (*fn)(u64 has_new_stack, void *ctx)
+    , void *ctx
+);
+
+void ld_stage2_entry(Loader_Info *ld_info) {
     _dbg_printf("Loader entry point reached!\n");
     // Get our loader data back
     u64 *sp = ld_info->sp;
@@ -101,7 +119,11 @@ void loader_entry(Loader_Info *ld_info) {
     cia_pool_create(&image_pool, cia_allocator_pages(), 1*KB, sizeof(Elf_Image), 0x10);
     Elf_Image *ldso = cia_pool_alloc(&image_pool);
     Elf_Image *app  = cia_pool_alloc(&image_pool);
-    cia_arena_create(&app->arena, cia_allocator_pages(), 1*MB);
+    // Save some stuff for stage3 to eat
+    cia_arena_create(&tmp_arena, cia_allocator_pages(), 1*MB);
+    Stage3_Info_Struct *stage3 = cia_arena_alloc(&tmp_arena, sizeof(Stage3_Info_Struct));
+    stage3->app = app;
+    stage3->ldso = ldso;
     ldso->base = ldso_base;
     ldso->dyn = dyn;
     // Read ldso elf header
@@ -150,14 +172,6 @@ void loader_entry(Loader_Info *ld_info) {
     if(fd != 0) {
         sys_close(fd);
     }
-    // Get the information about the main thread stack
-    if(linux_read_stack_info()) {
-        printf("ERROR: failed to read /proc/self/maps to get the stack info\n");
-        sys_exit(1);
-    }
-    _dbg_printf("Received stack: %x-%x\n", stack_info.start_addr, stack_info.end_addr);
-    u64 *ptr = (void *)stack_info.start_addr;
-    // *ptr = 1245;
     // Find .dynamic section
     {
         u8 *phdr = (void *)aux[AT_PHDR];
@@ -281,9 +295,32 @@ void loader_entry(Loader_Info *ld_info) {
         // Get the app main
         // Elf64_Sym *app_main = elf_symbol_by_name(app, "main");
         // _dbg_printf("app main: %x\n", app_main);
-        void (*crt_entry)() = elf_addr(app, eh->e_entry);
-        _dbg_printf("Exiting the dynamic loader, trying to enter the main app\n");
-        crt_entry();
+        // Get the information about the main thread stack
+        if(linux_read_stack_info()) {
+            printf("ERROR: failed to read /proc/self/maps to get the stack info\n");
+            sys_exit(1);
+        }
+        _dbg_printf("Found default stack at: %x-%x\n", stack_info.start_addr, stack_info.end_addr);
+        void *old_stack_base = (void *)stack_info.start_addr;
+        u64 old_stack_size = (u64)stack_info.end_addr - (u64)stack_info.start_addr;
+        u64 stack_size = 0x10000;
+        void *stack_base = sys_mmap(0, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+        _dbg_printf("stage3 info struct: %x\n", stage3);
+        // Will jump to ld_stage3_entry
+        ld_stack_trampoline(stack_base, old_stack_base, stack_size, old_stack_size, &ld_stage3_entry, stage3);
     }
     sys_exit(0);
+}
+
+static void ld_stage3_entry(u64 has_new_stack, void *ctx) {
+    if(!has_new_stack) {
+        printf("ERROR: failed to switch the stack\n");
+        sys_exit(1);
+    }
+    Stage3_Info_Struct *info = ctx;
+    _dbg_printf("Entered loader stage 3. Try entering main executable\n");
+    _dbg_printf("stage3 info struct: %x\n", info);
+    void (*crt_entry)() = elf_addr(info->app, ((Elf64_Ehdr *)info->app->base)->e_entry);
+    _dbg_printf("Entry at: %x\n", crt_entry);
+    crt_entry();
 }

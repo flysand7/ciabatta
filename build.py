@@ -144,7 +144,8 @@ if loader_debugging_enabled:
     cc_defines.append('_CIA_LD_DEBUG')
 print_step("Building lib/ld-cia.so\n")
 assemble_obj('bin/loader-entry.o', [f'arch/{target_abi}_{target_arch}/loader-entry.asm'], ['-f "elf64"'])
-compile_shared('lib/ld-cia.so', ['bin/loader-entry.o','loader/loader-self-reloc.c','loader/loader.c'])
+assemble_obj('bin/loader-trampoline.o', [f'arch/{target_abi}_{target_arch}/loader-trampoline.asm'], ['-f "elf64"'])
+compile_shared('lib/ld-cia.so', ['bin/loader-entry.o','loader/loader-self-reloc.c','loader/loader.c','bin/loader-trampoline.o'])
 cc_defines_pop()
 cc_flags_pop()
 
