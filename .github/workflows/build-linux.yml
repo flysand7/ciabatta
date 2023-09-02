@@ -39,4 +39,3 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       shell: bash
       run: ./build.py -m release -t tests/hello.c
-      run: ./a
