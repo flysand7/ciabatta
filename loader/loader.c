@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include "loader.h"
 
+#include <asm/prctl.h>
 #include <futex.h>
 #include <sys/mman.h>
 #include <sched.h>
@@ -21,6 +22,14 @@
 #include "../src/cia-mem/pool.c"
 
 #include "stack.c"
+
+struct Thread_Control_Block typedef Thread_Control_Block;
+struct Thread_Control_Block {
+    u64 thread_id;
+    u64 pad0[4];
+    u64 stack_canary;
+    u64 pad1[2];
+};
 
 struct Elf_Image typedef Elf_Image;
 struct Elf_Image {
@@ -96,6 +105,9 @@ struct Stage3_Info_Struct typedef Stage3_Info_Struct;
 struct Stage3_Info_Struct {
     Elf_Image *app;
     Elf_Image *ldso;
+    void *stack_base;
+    u64 stack_size;
+    u64 tls_size;
 };
 
 static void ld_stage3_entry(u64 has_new_stack, void *ctx);
@@ -209,9 +221,11 @@ void ld_stage2_entry(Loader_Info *ld_info) {
         _dbg_printf("Relocating app\n");
         Elf64_Ehdr *eh = (void *)app->base;
         // Resolve relocations
-        Elf64_Sym *symtab = (void *)app->dyn[DT_SYMTAB];
+        Elf64_Sym *symtab = elf_addr(app, (void *)app->dyn[DT_SYMTAB]);
+        char *strtab = elf_addr(app, app->dyn[DT_STRTAB]);
+        _dbg_printf("APP STRTAB: %x\n", strtab);
         if(app->dyn[DT_REL] != 0) {
-            _dbg_printf("REL Relocations found. This part isn't implemented\n");
+            printf("REL Relocations found. This part isn't implemented\n");
             u8 *rel_ents = elf_addr(app, app->dyn[DT_REL]);
             u64 rel_ent = app->dyn[DT_RELENT];
             u64 rel_size = app->dyn[DT_RELSZ];
@@ -222,6 +236,7 @@ void ld_stage2_entry(Loader_Info *ld_info) {
                 u32 sym = ELF64_R_SYM(rel->r_info);
                 u32 type = ELF64_R_TYPE(rel->r_info);
                 _dbg_printf("  %d @ %d (%d)\n", sym, offs, type);
+                sys_exit(0);
                 // TODO: if needed
                 rel_offs += rel_ent;
             }
@@ -236,26 +251,31 @@ void ld_stage2_entry(Loader_Info *ld_info) {
                 Elf64_Rela *rela = (void *)(rela_ents + rela_offs);
                 u64 reloc_offs = rela->r_offset;
                 u64 addend = rela->r_addend;
-                u32 sym_idx = ELF64_R_SYM(rela->r_info);
                 u32 type = ELF64_R_TYPE(rela->r_info);
-                _dbg_printf("  %x+%d, @%x (%d)\n", sym_idx, addend, reloc_offs, type);
+                Elf64_Sym *sym = &symtab[ELF64_R_SYM(rela->r_info)];
+                void *sym_addr = elf_addr(app, (u64)sym->st_value);
+                void **reloc_addr = elf_addr(app, reloc_offs);
+                {
+                    u32 sym_name_offset = sym->st_name;
+                    if(sym_name_offset == 0) {
+                        _dbg_printf("  %x+%d, @%x (%d)", sym_addr, addend, reloc_offs, type);
+                    }
+                    else {
+                        char *sym_name = &strtab[sym_name_offset];
+                        _dbg_printf("  %s+%d, @%x (%d)", sym_name, addend, reloc_offs, type);
+                    }
+                }
                 if(type == R_X86_64_GLOB_DAT) {
-                    Elf64_Sym *sym = &symtab[sym_idx];
-                    void *sym_addr = elf_addr(app, sym->st_value);
-                    void **reloc_addr = elf_addr(app, reloc_offs);
                     *reloc_addr = sym_addr;
-                    _dbg_printf("  -> %x\n", sym_addr);
                 }
                 else if(type == R_X86_64_RELATIVE) {
-                    void *addr = elf_addr(app, addend);
-                    void **reloc_addr = elf_addr(app, reloc_offs);
-                    *reloc_addr = addr;
-                    _dbg_printf("  -> %x\n", addr);
+                    *reloc_addr = elf_addr(app, addend);
                 }
                 else {
                     printf("ERROR: unhandled relocation type: %d\n", type);
                     sys_exit(1);
                 }
+                _dbg_printf("  -> %x\n", *reloc_addr);
                 rela_offs += rela_ent;
             }
         }
@@ -292,9 +312,22 @@ void ld_stage2_entry(Loader_Info *ld_info) {
             }
         }
         _dbg_printf("%x\n", 0);
-        // Get the app main
-        // Elf64_Sym *app_main = elf_symbol_by_name(app, "main");
-        // _dbg_printf("app main: %x\n", app_main);
+        // Get the size of the TLS initialization image for the main modules
+        u64 tls_size = 0;
+        {
+            Elf64_Phdr *ph_tls = NULL;
+            for(u64 i = 0; i < app->ph_num; ++i) {
+                Elf64_Phdr *ph = (void *)(app->phdr + i*app->ph_ent);
+                if(ph->p_type == PT_TLS) {
+                    ph_tls = ph;
+                    break;
+                }
+            }
+            if(ph_tls != NULL) {
+                tls_size += ph_tls->p_memsz;
+            }
+        }
+        _dbg_printf("TLS image size: %x\n", tls_size);
         // Get the information about the main thread stack
         if(linux_read_stack_info()) {
             printf("ERROR: failed to read /proc/self/maps to get the stack info\n");
@@ -303,8 +336,11 @@ void ld_stage2_entry(Loader_Info *ld_info) {
         _dbg_printf("Found default stack at: %x-%x\n", stack_info.start_addr, stack_info.end_addr);
         void *old_stack_base = (void *)stack_info.start_addr;
         u64 old_stack_size = (u64)stack_info.end_addr - (u64)stack_info.start_addr;
-        u64 stack_size = 0x10000;
+        u64 stack_size = 2*MB;
         void *stack_base = sys_mmap(0, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+        stage3->stack_size = stack_size;
+        stage3->stack_base = stack_base;
+        stage3->tls_size = tls_size;
         _dbg_printf("stage3 info struct: %x\n", stage3);
         // Will jump to ld_stage3_entry
         ld_stack_trampoline(stack_base, old_stack_base, stack_size, old_stack_size, &ld_stage3_entry, stage3);
@@ -318,9 +354,38 @@ static void ld_stage3_entry(u64 has_new_stack, void *ctx) {
         sys_exit(1);
     }
     Stage3_Info_Struct *info = ctx;
-    _dbg_printf("Entered loader stage 3. Try entering main executable\n");
-    _dbg_printf("stage3 info struct: %x\n", info);
+    _dbg_printf("Stack: %x-%x\n", info->stack_base, (u8 *)info->stack_base+info->stack_size);   
+    // Set up the thread control block
+    Thread_Control_Block *tcb = cia_ptr_alignf((u8*)info->stack_base + info->tls_size, 1*MB);
+    tcb->thread_id = 0;
+    tcb->stack_canary = 0x12345678fedcba98;
+    // Copy TLS initialization image below TCB
+    {
+        Elf_Image *app = info->app;
+        Elf64_Phdr *ph_tls = NULL;
+        for(u64 i = 0; i < app->ph_num; ++i) {
+            Elf64_Phdr *ph = (void *)(app->phdr + i*app->ph_ent);
+            if(ph->p_type == PT_TLS) {
+                ph_tls = ph;
+                break;
+            }
+        }
+        if(ph_tls != NULL) {
+            u8 *tls_image_base = elf_addr(app, ph_tls->p_vaddr);
+            u64 tls_image_size = ph_tls->p_memsz;
+            u8 *tls_image = (u8*)tcb - tls_image_size;
+            for(int i = 0; i < tls_image_size; ++i) {
+                tls_image[i] = tls_image_base[i];
+            }
+        }
+    }
+    // Set up the thread pointer
+    int err = sys_arch_prctl(ARCH_SET_FS, (u64)tcb);
+    if(err < 0) {
+        printf("ERROR: failed to set up the thread pointer\n");
+        sys_exit(1);
+    }
+    _dbg_printf("Entered loader stage 3. Entering main executable\n");
     void (*crt_entry)() = elf_addr(info->app, ((Elf64_Ehdr *)info->app->base)->e_entry);
-    _dbg_printf("Entry at: %x\n", crt_entry);
     crt_entry();
 }

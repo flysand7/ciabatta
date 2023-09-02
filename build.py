@@ -115,7 +115,7 @@ target_arch = 'x86-64'
 target_os = 'linux'
 
 cc_defines.append(f'_CIA_OS_CONF=\\"os/{target_os}/conf.h\\"')
-cc_flags.extend(['-nostdlib', '-fno-stack-protector'])
+cc_flags.extend(['-nostdlib'])
 
 if build_mode == 'debug':
     cc_flags.extend(['-g', '-O0'])
@@ -131,6 +131,7 @@ cc_includes.append('include/linux')
 cc_flags_push()
 cc_defines_push()
 cc_flags.extend([
+    '-fno-stack-protector',
     '-fno-builtin',
     '-Wl,-e,_dlstart',
     '-Wl,--sort-section,alignment',

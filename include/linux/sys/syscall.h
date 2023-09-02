@@ -413,11 +413,7 @@ _Noreturn static inline void sys_exit(int code) {
     __builtin_unreachable();
 }
 
-static inline i64 sys_arch_prctl_set(int code, u64 value) {
-    return syscall(SYS_arch_prctl, code, value);
-}
-
-static inline i64 sys_arch_prctl_get(int code, u64 *value) {
+static inline i64 sys_arch_prctl(int code, u64 value) {
     return syscall(SYS_arch_prctl, code, value);
 }
 

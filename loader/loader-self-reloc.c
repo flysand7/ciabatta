@@ -97,6 +97,11 @@ void ld_stage1_entry(u64 *sp, Elf64_Dyn *dynv) {
     if(symtab == NULL) {
         _dbg_printf("ERROR: No .dynsym found\n");
     }
+    // Find the string table
+    char *strtab = (void *)(base + dyn[DT_STRTAB]);
+    if(dyn[DT_STRTAB] == 0) {
+        strtab = NULL;
+    }
     // Use memory fences, to MAKE SURE the compiler won't reorder code and
     // accidentally use relocations when they are not ready. The code before
     // this point is carefully written to avoid generating relocations.
@@ -128,26 +133,31 @@ void ld_stage1_entry(u64 *sp, Elf64_Dyn *dynv) {
             Elf64_Rela *rela = (void *)(rela_ents + rela_offs);
             u64 reloc_offs = rela->r_offset;
             u64 addend = rela->r_addend;
-            u32 sym_idx = ELF64_R_SYM(rela->r_info);
+            Elf64_Sym *sym = &symtab[ELF64_R_SYM(rela->r_info)];
             u32 type = ELF64_R_TYPE(rela->r_info);
-            _dbg_printf("  %x+%d, @%x (%d)\n", sym_idx, addend, reloc_offs, type);
+            void *sym_addr = (void *)(base + sym->st_value);
+            void **reloc_addr = (void *)(base + reloc_offs);
+            {
+                u32 sym_name_offset = sym->st_name;
+                if(sym_name_offset == 0) {
+                    _dbg_printf("  %x+%d, @%x (%d)", sym_addr, addend, reloc_offs, type);
+                }
+                else {
+                    char *sym_name = &strtab[sym_name_offset];
+                    _dbg_printf("  %s+%d, @%x (%d)", sym_name, addend, reloc_offs, type);
+                }
+            }
             if(type == R_X86_64_GLOB_DAT) {
-                Elf64_Sym *sym = &symtab[sym_idx];
-                void *sym_addr = (void *)(base + sym->st_value);
-                void **reloc_addr = (void *)(base + reloc_offs);
-                _dbg_printf("  -> %x\n", sym_addr);
                 *reloc_addr = sym_addr;
             }
             else if(type == R_X86_64_RELATIVE) {
-                void *addr = (void *)(base + addend);
-                void **reloc_addr = (void *)(base + reloc_offs);
-                *reloc_addr = addr;
-                _dbg_printf("  -> %x\n", addr);
+                *reloc_addr = (void *)(base + addend);
             }
             else {
                 printf("ERROR: unhandled relocation type: %d\n", type);
                 sys_exit(1);
             }
+            _dbg_printf("  -> %x\n", *reloc_addr);
             rela_offs += rela_ent;
         }
     }
