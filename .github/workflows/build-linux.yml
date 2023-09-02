@@ -38,4 +38,5 @@ jobs:
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       shell: bash
-      run: ./build.py --mode release --target linux --test tests/hello.c
+      run: ./build.py -m release -t tests/hello.c
+      run: ./a

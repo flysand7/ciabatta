@@ -110,6 +110,9 @@ if not os.path.exists('lib'):
 if not os.path.exists('bin'):
     os.mkdir('bin')
 
+if platform.system().lower() == 'windows':
+    sys.exit(1);
+
 target_abi = 'sysv'
 target_arch = 'x86-64'
 target_os = 'linux'
