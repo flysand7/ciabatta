@@ -1,6 +1,8 @@
 
 #pragma once
 
+extern _Thread_local int errno;
+
 // errno-base.h
 #define EPERM     1
 #define ENOENT    2

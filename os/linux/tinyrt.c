@@ -1,74 +1,8 @@
 
 // See src/tinyrt.h file for the interface this file implements
 
-extern i64 _cia_start_thread(
-    u64 flags,
-    void *stack_base,
-    int *parent_tid,
-    int *child_tid,
-    void *tls,
-    void (*thread_fn)(void *ctx),
-    void *ctx
-);
-
 _Noreturn static void _rt_program_exit(int code) {
     sys_exit(code);
-}
-
-static _RT_Status _rt_thread_current(_RT_Thread *thread) {
-    return _RT_ERROR_NOT_IMPLEMENTED;
-}
-
-static _RT_Status _rt_thread_create(_RT_Thread *thread, void (*thread_fn)(void *ctx), void *ctx) {
-    // Create the memory for stack
-    u64 mmap_prot = PROT_READ|PROT_WRITE;
-    u64 mmap_flags = MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE;
-    u64 stack_size = 0x10000;
-    void *stack_base = sys_mmap(0, stack_size, mmap_prot, mmap_flags, -1, 0);
-    if((i64)stack_base < 0) {
-        return _RT_ERROR_GENERIC;
-    }
-    void *stack = (u8*)stack_base + stack_size;
-    // Create the new thread
-    u64 flags = 0;
-    // flags |= CLONE_CHILD_CLEARTID;
-    // flags |= CLONE_PARENT_SETTID;
-    flags |= CLONE_FS;
-    flags |= CLONE_FILES;
-    flags |= CLONE_SIGHAND;
-    flags |= CLONE_THREAD;
-    flags |= CLONE_VM;
-    flags |= CLONE_SYSVSEM;
-    int *temp_permanent_storage = stack_base;
-    int *child_tid = &temp_permanent_storage[0];
-    int *parent_tid = &temp_permanent_storage[1];
-    *child_tid = 1;
-    *parent_tid = 0;
-    i64 ret = _cia_start_thread(flags, stack, parent_tid, child_tid, 0, thread_fn, ctx);
-    if(ret < 0) {
-        return _RT_ERROR_GENERIC;
-    }
-    return _RT_STATUS_OK;
-}
-
-static _RT_Status _rt_thread_join(_RT_Thread *thread) {
-    return _RT_ERROR_NOT_IMPLEMENTED;
-}
-
-static _RT_Status _rt_thread_detach(_RT_Thread *thread) {
-    return _RT_ERROR_NOT_IMPLEMENTED;
-}
-
-static _RT_Status _rt_thread_terminate(_RT_Thread *thread) {
-    return _RT_ERROR_NOT_IMPLEMENTED;
-}
-
-static _RT_Status _rt_thread_sleep(u64 time) {
-    return _RT_ERROR_NOT_IMPLEMENTED;
-}
-
-static _RT_Status _rt_thread_get_timer_freq(u64 *freq) {
-    return _RT_ERROR_NOT_IMPLEMENTED;
 }
 
 static _RT_Status _rt_file_std_handles_init() {

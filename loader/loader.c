@@ -15,6 +15,8 @@
 #include <tinyrt.h>
 #include "../os/linux/tinyrt.c"
 
+#include <cia/internal.h>
+
 #include <cia/mem.h>
 #include "../src/cia-mem/util.c"
 #include "../src/cia-mem/allocator.c"
@@ -22,14 +24,6 @@
 #include "../src/cia-mem/pool.c"
 
 #include "stack.c"
-
-struct Thread_Control_Block typedef Thread_Control_Block;
-struct Thread_Control_Block {
-    u64 thread_id;
-    u64 pad0[4];
-    u64 stack_canary;
-    u64 pad1[2];
-};
 
 struct Elf_Image typedef Elf_Image;
 struct Elf_Image {
@@ -107,6 +101,7 @@ struct Stage3_Info_Struct {
     Elf_Image *ldso;
     void *stack_base;
     u64 stack_size;
+    void *tls_image;
     u64 tls_size;
 };
 
@@ -356,7 +351,7 @@ static void ld_stage3_entry(u64 has_new_stack, void *ctx) {
     Stage3_Info_Struct *info = ctx;
     _dbg_printf("Stack: %x-%x\n", info->stack_base, (u8 *)info->stack_base+info->stack_size);   
     // Set up the thread control block
-    Thread_Control_Block *tcb = cia_ptr_alignf((u8*)info->stack_base + info->tls_size, 1*MB);
+    Cia_TCB *tcb = cia_ptr_alignf((u8*)info->stack_base + info->tls_size, info->stack_size/2);
     tcb->thread_id = 0;
     tcb->stack_canary = 0x12345678fedcba98;
     // Copy TLS initialization image below TCB
@@ -377,6 +372,7 @@ static void ld_stage3_entry(u64 has_new_stack, void *ctx) {
             for(int i = 0; i < tls_image_size; ++i) {
                 tls_image[i] = tls_image_base[i];
             }
+            info->tls_image = tls_image_base;
         }
     }
     // Set up the thread pointer
@@ -386,6 +382,10 @@ static void ld_stage3_entry(u64 has_new_stack, void *ctx) {
         sys_exit(1);
     }
     _dbg_printf("Entered loader stage 3. Entering main executable\n");
-    void (*crt_entry)() = elf_addr(info->app, ((Elf64_Ehdr *)info->app->base)->e_entry);
-    crt_entry();
+    Cia_CRT_Params params;
+    params.stack_size = info->stack_size/2;
+    params.tls_image_size = info->tls_size;
+    params.tls_image_base = info->tls_image;
+    void (*crt_entry)(Cia_CRT_Params *params) = elf_addr(info->app, ((Elf64_Ehdr *)info->app->base)->e_entry);
+    crt_entry(&params);
 }

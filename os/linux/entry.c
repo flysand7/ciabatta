@@ -14,7 +14,10 @@ void __stack_chk_fail(void) {
 extern int main(int argc, char **argv, char **envp);
 static void _fileapi_init();
 
-void _start() {
+void _start(Cia_CRT_Params *params) {
+    cia_stack_size = params->stack_size;
+    cia_tls_image_size = params->tls_image_size;
+    cia_tls_image_base = params->tls_image_base;
     // Get the envp
     // char **envp = argv + (argc + 1);
     // init(argc, argv, envp);

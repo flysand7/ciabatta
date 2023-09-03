@@ -55,7 +55,7 @@ struct _RT_Thread {
     void *handle;
 };
 static _RT_Status _rt_thread_current(_RT_Thread *thread);
-static _RT_Status _rt_thread_create(_RT_Thread *thread, void (*thread_fn)(void *ctx), void *ctx);
+static _RT_Status _rt_thread_create(_RT_Thread *thread, int (*thread_fn)(void *ctx), void *ctx);
 static _RT_Status _rt_thread_join(_RT_Thread *thread);
 static _RT_Status _rt_thread_detach(_RT_Thread *thread);
 static _RT_Status _rt_thread_terminate(_RT_Thread *thread);

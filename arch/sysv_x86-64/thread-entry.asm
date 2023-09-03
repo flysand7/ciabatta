@@ -43,6 +43,11 @@ _cia_start_thread:
     pop rax ; thread_fn
     pop rdi ; ctx
     call rax
+    ; Make return value the first arg and call exit syscall
+    mov rdi, rax
+    mov rax, 60
+    syscall
+    ; Just to be sure...    
     hlt
 .exit:
     ret

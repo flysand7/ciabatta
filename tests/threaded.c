@@ -57,7 +57,6 @@ int thrd_func(void *arg) {
     print_int(counter);
     print_char('\n');
     cia_mutex_unlock(&g_print_mutex);
-    exit(1);
     return 0;
 }
 
