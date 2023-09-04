@@ -88,7 +88,7 @@ def compile_obj(output, inputs, additional_flags=[]):
     compile(output, inputs, ['-c -fpic'] + additional_flags)
 
 def compile_exe(output, inputs, additional_flags=[]):
-    compile(output, inputs, ['-pie'] + additional_flags)
+    compile(output, inputs, ['-pie', '-fPIE'] + additional_flags)
 
 def compile_shared(output, inputs, additional_flags=[]):
     compile(output, inputs, ['-shared'] + additional_flags)
@@ -134,6 +134,7 @@ cc_includes.append('include/linux')
 cc_flags_push()
 cc_defines_push()
 cc_flags.extend([
+    '-fPIC',
     '-fno-stack-protector',
     '-fno-builtin',
     '-Wl,-e,_dlstart',
