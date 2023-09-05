@@ -10,7 +10,8 @@ extern i64 _cia_start_thread(
 );
 
 static _RT_Status _rt_thread_current(_RT_Thread *thread) {
-    return _RT_ERROR_NOT_IMPLEMENTED;
+    thread->handle = (void *)((u64)__builtin_frame_address(0) & ~(cia_stack_size - 1));
+    return _RT_STATUS_OK;
 }
 
 static _RT_Status _rt_thread_create(_RT_Thread *thread, int (*thread_fn)(void *ctx), void *ctx) {
@@ -29,6 +30,9 @@ static _RT_Status _rt_thread_create(_RT_Thread *thread, int (*thread_fn)(void *c
     for(int i = 0; i < cia_tls_image_size; ++i) {
         tls_base[i] = ((u8 *)cia_tls_image_base)[i];
     }
+    // Initialize the _RT_Thread handle, which would point to
+    // the TCB
+    thread->handle = tcb;
     // Create the new thread
     u64 flags = 0;
     // flags |= CLONE_CHILD_CLEARTID;

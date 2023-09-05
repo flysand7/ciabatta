@@ -51,7 +51,6 @@ _Noreturn static void _rt_program_exit(int code);
 // Thread API
 struct _RT_Thread typedef _RT_Thread;
 struct _RT_Thread {
-    u64 tid;
     void *handle;
 };
 static _RT_Status _rt_thread_current(_RT_Thread *thread);

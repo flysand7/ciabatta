@@ -15,3 +15,4 @@ struct Cia_Mutex {
 void cia_mutex_init(Cia_Mutex *mutex);
 void cia_mutex_lock(Cia_Mutex *mutex);
 void cia_mutex_unlock(Cia_Mutex *mutex);
+
