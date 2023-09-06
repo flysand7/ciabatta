@@ -33,7 +33,7 @@ jobs:
         from-source: false
     - name: Set up Python
       with:
-      python-version: '3.x'
+        python-version: '3.x'
       uses: actions/setup-python@v4
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
