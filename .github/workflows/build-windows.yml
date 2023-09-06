@@ -37,5 +37,5 @@ jobs:
       run: python -m pip install pyjson5
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      shell: bash
-      run: ./build.py -m release -t tests/hello.c
+      shell: cmd
+      run: python build.py -m release -t tests/hello.c
