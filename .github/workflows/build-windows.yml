@@ -35,4 +35,4 @@ jobs:
       uses: actions/setup-python@v4
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: python build.py -m release -t tests/hello.c
+      run: python3 build.py -m release -t tests/hello.c
