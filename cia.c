@@ -3,7 +3,6 @@
 
 // Base includes
 #include <cia/def.h>
-#include <cia/internal.h>
 
 // Platform-dependent sources
 #include _CIA_OS_CONF

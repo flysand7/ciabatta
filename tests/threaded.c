@@ -36,7 +36,6 @@ static void print_int(i64 number) {
 
 static Cia_Mutex g_print_mutex;
 static Cia_Mutex g_mutex;
-static volatile _Atomic i64 n_completed = 0;
 static volatile i64 counter = 0;
 
 int thrd_func(void *arg) {
@@ -45,12 +44,6 @@ int thrd_func(void *arg) {
         cia_mutex_lock(&g_mutex);
         counter += 1;
         cia_mutex_unlock(&g_mutex);
-    }
-    atomic_fetch_add(&n_completed, 1);
-    for(;;) {
-        if(n_completed == 2) {
-            break;
-        }
     }
     cia_mutex_lock(&g_print_mutex);
     print_string("child thread: counter = ");
@@ -76,12 +69,8 @@ int main() {
         counter += 1;
         cia_mutex_unlock(&g_mutex);
     }
-    atomic_fetch_add(&n_completed, 1);
-    for(;;) {
-        if(n_completed == 2) {
-            break;
-        }
-    }
+    int exit_code;
+    thrd_join(thrd, &exit_code);
     cia_mutex_lock(&g_print_mutex);
     print_string("main thread: counter = ");
     print_int(counter);

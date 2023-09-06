@@ -2,7 +2,9 @@
 bits 64
 
 section .text
-global _cia_start_thread
+global _rt_thread_start
+
+extern _rt_thread_finish
 
 ; flags, &stack[-2], &parent_tid, &child_tid, 0
 
@@ -23,7 +25,7 @@ global _cia_start_thread
 ;     0 if returning as a parent
 ;     1 if returning as a child
 ;     negative value if there was an error making the thread
-_cia_start_thread:
+_rt_thread_start:
     mov r10, rcx
     ; Setup child stack
     sub rsi, 24
@@ -43,10 +45,9 @@ _cia_start_thread:
     pop rax ; thread_fn
     pop rdi ; ctx
     call rax
-    ; Make return value the first arg and call exit syscall
+    ; Make return value the first arg and call thread finish routine
     mov rdi, rax
-    mov rax, 60
-    syscall
+    call _rt_thread_finish
     ; Just to be sure...    
     hlt
 .exit:
