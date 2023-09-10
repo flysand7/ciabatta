@@ -2,11 +2,13 @@
 #pragma once
 
 #include <cia/def.h>
+#include <cia/sync.h>
 #include <tinyrt.h>
 
 typedef struct FILE FILE;
 struct FILE {
     _RT_File rt_file;
+    Cia_Mutex mutex;
 };
 
 #define EOF (-1)
