@@ -65,7 +65,7 @@ void _rt_thread_finish(int exit_code) {
     }
     // If main thread set this thread to be joined, we signal it that we're done here
     if(thread_behaviour == _LD_THREAD_BEHAVIOUR_JOIN) {
-        tcb->exit_code = exit_code;
+        atomic_store_explicit(&tcb->exit_code, exit_code, memory_order_relaxed);
         atomic_store_explicit(&tcb->thread_finished, 1, memory_order_release);
         syscall(SYS_futex, &tcb->thread_finished, FUTEX_WAKE, 0, NULL, 0, 0);
         sys_exit(exit_code);
@@ -86,7 +86,7 @@ static _RT_Status _rt_thread_join(_RT_Thread *thread, int *out_exit_code) {
         syscall(SYS_futex, &tcb->thread_finished, FUTEX_WAIT, 0, NULL, 0, 0);
     }
     // Set the exit code
-    *out_exit_code = tcb->exit_code;
+    *out_exit_code = atomic_load_explicit(&tcb->exit_code, memory_order_acquire);
     return _RT_STATUS_OK;
 }
 

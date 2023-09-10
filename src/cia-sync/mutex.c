@@ -10,20 +10,21 @@ void cia_mutex_init(Cia_Mutex *mutex) {
 void cia_mutex_lock(Cia_Mutex *mutex) {
     u32 p_tag;
     for(;;) {
-        //p_tag = __sync_val_compare_and_swap(&mutex->tag, _CIA_MUTEX_FREE, _CIA_MUTEX_LOCK);
         p_tag = _CIA_MUTEX_FREE;
         atomic_compare_exchange_strong_explicit(
             &mutex->tag
             , &p_tag
             , _CIA_MUTEX_LOCK
-            , memory_order_relaxed
+            , memory_order_acquire
             , memory_order_relaxed
         );
         // We got the mutex, lets bail
         if(p_tag == _CIA_MUTEX_FREE) {
             break;
         }
-#if 0
+#if 1
+        _rt_sync_wait(&mutex->tag, _CIA_MUTEX_LOCK, _RT_SYNC_WAIT_INFINITE);
+#else
         // We should wait if:
         //   (1) the mutex is contested
         //   (2) 
@@ -34,8 +35,6 @@ void cia_mutex_lock(Cia_Mutex *mutex) {
         if(should_wait) {
             _rt_sync_wait(&mutex->tag, _CIA_MUTEX_CONT, _RT_SYNC_WAIT_INFINITE);
         }
-#else
-        _rt_sync_wait(&mutex->tag, _CIA_MUTEX_LOCK, _RT_SYNC_WAIT_INFINITE);
 #endif
     }
 }
@@ -43,6 +42,6 @@ void cia_mutex_lock(Cia_Mutex *mutex) {
 void cia_mutex_unlock(Cia_Mutex *mutex) {
     // TODO: add error when we unlock a free mutex
     // TODO: support recursive muteces
-    atomic_store_explicit(&mutex->tag, _CIA_MUTEX_FREE, memory_order_relaxed);
+    atomic_store_explicit(&mutex->tag, _CIA_MUTEX_FREE, memory_order_release);
     _rt_sync_wake_one(&mutex->tag, NULL);
 }
