@@ -1,11 +1,11 @@
 
+
 #pragma once
 
 #include <cia/def.h>
-#include <stdint.h>
 
-struct Cia_CRT_Params typedef Cia_CRT_Params;
-struct Cia_CRT_Params {
+struct _LD_CRT_Params typedef _LD_CRT_Params;
+struct _LD_CRT_Params {
     u64 stack_size;
     u64 tls_image_size;
     void *tls_image_base;
@@ -18,13 +18,13 @@ struct Cia_CRT_Params {
 // would signal main thread that it has finished and exit without
 // cleaning up the resources (thrd_join does that for us)
 // If the thread is detached, it would clear it's resources and exit
-#define _CIA_THREAD_BEHAVIOUR_NOT_SET 0x0
-#define _CIA_THREAD_BEHAVIOUR_JOIN    0x1
-#define _CIA_THREAD_BEHAVIOUR_DETACH  0x2
-#define _CIA_THREAD_BEHAVIOUR_FINISH  0x3
+#define _LD_THREAD_BEHAVIOUR_NOT_SET 0x0
+#define _LD_THREAD_BEHAVIOUR_JOIN    0x1
+#define _LD_THREAD_BEHAVIOUR_DETACH  0x2
+#define _LD_THREAD_BEHAVIOUR_FINISH  0x3
 
-struct Cia_TCB typedef Cia_TCB;
-struct Cia_TCB {
+struct _LD_Thread_Block typedef _LD_Thread_Block;
+struct _LD_Thread_Block {
     /* +0x00 */ u64 thread_id;
     /* +0x08 */ u64 parent_id;
     /* +0x10 */ u32 thread_behaviour; /* One of the CIA_THREAD_BEHAVIOR_* constants */
@@ -34,5 +34,4 @@ struct Cia_TCB {
     /* +0x20 */ u64 pad1;
     /* +0x28 */ u64 stack_canary;
 };
-
 

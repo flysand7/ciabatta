@@ -24,7 +24,7 @@ static _RT_Status _rt_thread_create(_RT_Thread *thread, int (*thread_fn)(void *c
     }
     void *stack = (u8*)stack_base + 2*cia_stack_size;
     // Find the TLS base and initialize the tls
-    Cia_TCB *tcb = (void *)((u64)((u8 *)stack - 1) & ~(cia_stack_size - 1));
+    _LD_Thread_Block *tcb = (void *)((u64)((u8 *)stack - 1) & ~(cia_stack_size - 1));
     tcb->stack_canary = 0x12345678deadbeef;
     u8 *tls_base = (u8 *)tcb - cia_tls_image_size;
     for(int i = 0; i < cia_tls_image_size; ++i) {
@@ -56,12 +56,12 @@ static _RT_Status _rt_thread_create(_RT_Thread *thread, int (*thread_fn)(void *c
 }
 
 void _rt_thread_finish(int exit_code) {
-    Cia_TCB *tcb = (void *)((u64)__builtin_frame_address(0) & ~(cia_stack_size - 1));
+    _LD_Thread_Block *tcb = (void *)((u64)__builtin_frame_address(0) & ~(cia_stack_size - 1));
     // Wait until the main thread decides what to do with the child thread
-    while(tcb->thread_behaviour == _CIA_THREAD_BEHAVIOUR_NOT_SET) {
-        syscall(SYS_futex, &tcb->thread_behaviour, FUTEX_WAIT, _CIA_THREAD_BEHAVIOUR_NOT_SET, NULL, 0, 0);
+    while(tcb->thread_behaviour == _LD_THREAD_BEHAVIOUR_NOT_SET) {
+        syscall(SYS_futex, &tcb->thread_behaviour, FUTEX_WAIT, _LD_THREAD_BEHAVIOUR_NOT_SET, NULL, 0, 0);
     }
-    if(tcb->thread_behaviour == _CIA_THREAD_BEHAVIOUR_JOIN) {
+    if(tcb->thread_behaviour == _LD_THREAD_BEHAVIOUR_JOIN) {
         tcb->exit_code = exit_code;
         // Idk if a memory barrier should be here, because we don't want the compiler
         // to reorder these two lines. If that happens, and we get a spurious wake up
@@ -71,16 +71,17 @@ void _rt_thread_finish(int exit_code) {
         syscall(SYS_futex, &tcb->thread_finished, FUTEX_WAKE, 0, NULL, 0, 0);
         sys_exit(exit_code);
     }
-    else if(tcb->thread_behaviour == _CIA_THREAD_BEHAVIOUR_DETACH) {
+    else if(tcb->thread_behaviour == _LD_THREAD_BEHAVIOUR_DETACH) {
         // TODO: clean up the thread resources
         sys_exit(exit_code);
     }
 }
 
 static _RT_Status _rt_thread_join(_RT_Thread *thread, int *out_exit_code) {
-    Cia_TCB *tcb = thread->handle;
+    _LD_Thread_Block *tcb = thread->handle;
     // Signal the thread that we want it to be joined
-    tcb->thread_behaviour = _CIA_THREAD_BEHAVIOUR_JOIN;
+    tcb->thread_behaviour = _LD_THREAD_BEHAVIOUR_JOIN;
+    syscall(SYS_futex, &tcb->thread_behaviour, FUTEX_WAKE, 0, NULL, 0, 0);
     // Wait until the thread signals that it has completed the execution
     while(tcb->thread_finished != 1) {
         syscall(SYS_futex, &tcb->thread_finished, FUTEX_WAIT, 0, NULL, 0, 0);
@@ -91,8 +92,8 @@ static _RT_Status _rt_thread_join(_RT_Thread *thread, int *out_exit_code) {
 }
 
 static _RT_Status _rt_thread_detach(_RT_Thread *thread) {
-    Cia_TCB *tcb = thread->handle;
-    tcb->thread_behaviour = _CIA_THREAD_BEHAVIOUR_DETACH;
+    _LD_Thread_Block *tcb = thread->handle;
+    tcb->thread_behaviour = _LD_THREAD_BEHAVIOUR_DETACH;
     return _RT_STATUS_OK;
 }
 
