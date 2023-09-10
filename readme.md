@@ -39,12 +39,12 @@ time is discouraged.
 | <assert.h>      | Diagnostics.                         | none        |
 | <complex.h>     | Complex arithmetic.                  | none        |
 | <ctype.h>       | Character handling.                  | none        |
-| <errno.h>       | Errors.                              | none        |
+| <errno.h>       | Errors.                              | Implemented |
 | <fenv.h>        | Floating-point environment.          | none        |
 | <float.h>       | Characteristics of floating types.   | none        |
 | <inttypes.h>    | Format conversion of integer types.  | none        |
 | <iso646.h>      | Alternative spellings.               | none        |
-| <limits.h>      | Sizes of integer types.              | none        |
+| <limits.h>      | Sizes of integer types.              | Implemented |
 | <locale.h>      | Localization.                        | none        |
 | <math.h>        | Mathematics.                         | none        |
 | <setjmp.h>      | Nonlocal jumps.                      | [1]         |
@@ -56,12 +56,12 @@ time is discouraged.
 | <stdbool.h>     | Boolean type and values.             | none        |
 | <stddef.h>      | Common definitions.                  | none        |
 | <stdint.h>      | Integer types.                       | Implemented |
-| <stdio.h>       | Input/output.                        | WIP         |
+| <stdio.h>       | Input/output.                        | Partial     |
 | <stdlib.h>      | General utilities.                   | none        |
 | <stdnoreturn.h> | `_Noreturn`.                         | none        |
 | <string.h>      | String handling.                     | none        |
 | <tgmath.h>      | Type-generic math.                   | none        |
-| <threads.h>     | Threads.                             | none        |
+| <threads.h>     | Threads.                             | Partial     |
 | <time.h>        | Date and time.                       | none        |
 | <uchar.h>       | Unicode utilities.                   | none        |
 | <wchar.h>       | Wide character utilities.            | none        |
@@ -86,20 +86,18 @@ functionality.
 
 Before proceeding please note that ciabatta can only be compiled and used
 with `clang` and `cuik`. It may be able to work with `gcc` with some minor adjustments
-but I didn't test.
+but I never tested it.
 
 You can get `cuik` in [the GitHub repository](https://github.com/RealNeGate/Cuik)
 
-For executing the script you will need at least python 3.3 and the pyjson5 package
-
-```
-$ pip install pyjson5
-```
-
-### Building
-
 On linux you can simply run `./build.py` script. On windows can run
 it with `py build.py` command.
+
+The script accepts some command-line arguments, which you can check by running
+
+```
+$ ./build.py -h
+```
 
 ## Usage
 
