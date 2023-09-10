@@ -33,7 +33,7 @@ static _RT_Status _rt_thread_create(_RT_Thread *thread, int (*thread_fn)(void *c
     // Initialize the _RT_Thread handle, which would point to
     // the TCB
     thread->handle = tcb;
-    tcb->thread_finished = 0;
+    atomic_store_explicit(&tcb->thread_finished, 0, memory_order_relaxed);
     // Create the new thread
     u64 flags = 0;
     // flags |= CLONE_CHILD_CLEARTID;
@@ -58,20 +58,19 @@ static _RT_Status _rt_thread_create(_RT_Thread *thread, int (*thread_fn)(void *c
 void _rt_thread_finish(int exit_code) {
     _LD_Thread_Block *tcb = (void *)((u64)__builtin_frame_address(0) & ~(cia_stack_size - 1));
     // Wait until the main thread decides what to do with the child thread
-    while(tcb->thread_behaviour == _LD_THREAD_BEHAVIOUR_NOT_SET) {
+    u32 thread_behaviour = atomic_load_explicit(&tcb->thread_behaviour, memory_order_relaxed);
+    while(thread_behaviour == _LD_THREAD_BEHAVIOUR_NOT_SET) {
         syscall(SYS_futex, &tcb->thread_behaviour, FUTEX_WAIT, _LD_THREAD_BEHAVIOUR_NOT_SET, NULL, 0, 0);
+        thread_behaviour = atomic_load_explicit(&tcb->thread_behaviour, memory_order_relaxed);
     }
-    if(tcb->thread_behaviour == _LD_THREAD_BEHAVIOUR_JOIN) {
+    // If main thread set this thread to be joined, we signal it that we're done here
+    if(thread_behaviour == _LD_THREAD_BEHAVIOUR_JOIN) {
         tcb->exit_code = exit_code;
-        // Idk if a memory barrier should be here, because we don't want the compiler
-        // to reorder these two lines. If that happens, and we get a spurious wake up
-        // after the thread_finished is set and before exit_code is set, the main thread
-        // will proceed to fetch an invalid exit code from the thread.
-        tcb->thread_finished = 1;
+        atomic_store_explicit(&tcb->thread_finished, 1, memory_order_release);
         syscall(SYS_futex, &tcb->thread_finished, FUTEX_WAKE, 0, NULL, 0, 0);
         sys_exit(exit_code);
     }
-    else if(tcb->thread_behaviour == _LD_THREAD_BEHAVIOUR_DETACH) {
+    else if(thread_behaviour == _LD_THREAD_BEHAVIOUR_DETACH) {
         // TODO: clean up the thread resources
         sys_exit(exit_code);
     }
@@ -80,10 +79,10 @@ void _rt_thread_finish(int exit_code) {
 static _RT_Status _rt_thread_join(_RT_Thread *thread, int *out_exit_code) {
     _LD_Thread_Block *tcb = thread->handle;
     // Signal the thread that we want it to be joined
-    tcb->thread_behaviour = _LD_THREAD_BEHAVIOUR_JOIN;
+    atomic_store_explicit(&tcb->thread_behaviour, _LD_THREAD_BEHAVIOUR_JOIN, memory_order_relaxed);
     syscall(SYS_futex, &tcb->thread_behaviour, FUTEX_WAKE, 0, NULL, 0, 0);
     // Wait until the thread signals that it has completed the execution
-    while(tcb->thread_finished != 1) {
+    while(atomic_load_explicit(&tcb->thread_finished, memory_order_acquire) != 1) {
         syscall(SYS_futex, &tcb->thread_finished, FUTEX_WAIT, 0, NULL, 0, 0);
     }
     // Set the exit code
@@ -93,7 +92,7 @@ static _RT_Status _rt_thread_join(_RT_Thread *thread, int *out_exit_code) {
 
 static _RT_Status _rt_thread_detach(_RT_Thread *thread) {
     _LD_Thread_Block *tcb = thread->handle;
-    tcb->thread_behaviour = _LD_THREAD_BEHAVIOUR_DETACH;
+    atomic_store_explicit(&tcb->thread_behaviour, _LD_THREAD_BEHAVIOUR_DETACH, memory_order_relaxed);
     return _RT_STATUS_OK;
 }
 

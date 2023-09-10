@@ -88,6 +88,6 @@ static _RT_Status _rt_mem_alloc(void *optional_desired_addr, u64 size, void **ou
 static _RT_Status _rt_mem_free(void *ptr, u64 size);
 
 // Synchronization API
-static _RT_Status _rt_sync_wait(u32 *addr, u32 compare_with, u64 time);
-static _RT_Status _rt_sync_wake_one(u32 *addr, u32 *n_woken);
-static _RT_Status _rt_sync_wake_all(u32 *addr, u32 *n_woken);
+static _RT_Status _rt_sync_wait(void *addr, u32 compare_with, u64 time);
+static _RT_Status _rt_sync_wake_one(void *addr, u32 *n_woken);
+static _RT_Status _rt_sync_wake_all(void *addr, u32 *n_woken);

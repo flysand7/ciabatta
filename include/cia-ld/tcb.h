@@ -27,8 +27,8 @@ struct _LD_Thread_Block typedef _LD_Thread_Block;
 struct _LD_Thread_Block {
     /* +0x00 */ u64 thread_id;
     /* +0x08 */ u64 parent_id;
-    /* +0x10 */ u32 thread_behaviour; /* One of the CIA_THREAD_BEHAVIOR_* constants */
-    /* +0x14 */ u32 thread_finished;
+    /* +0x10 */ _Atomic(u32) thread_behaviour; /* One of the CIA_THREAD_BEHAVIOR_* constants */
+    /* +0x14 */ _Atomic(i32) thread_finished;
     /* +0x18 */ u32 pad0;
     /* +0x1c */ i32 exit_code;
     /* +0x20 */ u64 pad1;

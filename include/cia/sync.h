@@ -9,7 +9,7 @@ int cia_wake_all(u32 *addr, u32 *n_woken);
 
 struct Cia_Mutex typedef Cia_Mutex;
 struct Cia_Mutex {
-    u32 tag;
+    _Atomic(u32) tag;
 };
 
 void cia_mutex_init(Cia_Mutex *mutex);
