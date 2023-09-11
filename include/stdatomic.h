@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <cia/def.h>
 #include <wchar.h>
 #include <stddef.h>
 

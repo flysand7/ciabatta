@@ -1,6 +1,9 @@
 
 #pragma once
 
+#include <cia/def.h>
+#include <tinyrt.h>
+
 typedef int (*thrd_start_t)(void *);
 
 struct thrd_t typedef thrd_t;
