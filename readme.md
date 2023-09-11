@@ -59,7 +59,7 @@ time is discouraged.
 | <stdio.h>       | Input/output.                        | Partial     |
 | <stdlib.h>      | General utilities.                   | none        |
 | <stdnoreturn.h> | `_Noreturn`.                         | none        |
-| <string.h>      | String handling.                     | none        |
+| <string.h>      | String handling.                     | Partial     |
 | <tgmath.h>      | Type-generic math.                   | none        |
 | <threads.h>     | Threads.                             | Partial     |
 | <time.h>        | Date and time.                       | none        |
