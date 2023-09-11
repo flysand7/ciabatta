@@ -30,6 +30,7 @@
 #include "src/stdlib-thread/thread.c"
 
 // Module stdlib_file
+#include "src/stdlib-file/common.c"
 #include "src/stdlib-file/file.c"
 #include "src/stdlib-file/fmt.c"
 

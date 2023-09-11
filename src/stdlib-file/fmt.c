@@ -82,6 +82,7 @@ int printf(const char *restrict fmt, ...) {
     i64 buf_start_idx = 0;
     i64 buf_end_idx = 0;
     u64 unused;
+    cia_mutex_lock(&stdout->mutex);
     for(i64 i = 0; fmt[i] != 0;) {
         buf_start_idx = i;
         buf_end_idx = i;
@@ -98,7 +99,7 @@ int printf(const char *restrict fmt, ...) {
                 , &unused
             );
             if(status != _RT_STATUS_OK) {
-                return -1;
+                goto _error;
             }
             ret_printed += buf_size;
         }
@@ -129,16 +130,21 @@ int printf(const char *restrict fmt, ...) {
             int ch = va_arg(args, int);
             _RT_Status status = _rt_file_write(&stdout->rt_file, 1, &ch, &unused);
             if(status != _RT_STATUS_OK) {
-                return -1;
+                goto _error;
             }
             arg_chars = 1;
         }
         i += 1;
         if(arg_chars < 0) {
-            return -1;
+            goto _error;
         }
         ret_printed += arg_chars;
     }
+    cia_mutex_unlock(&stdout->mutex);
     va_end(args);
     return ret_printed;
+_error:
+    cia_mutex_unlock(&stdout->mutex);
+    va_end(args);
+    return -1;
 }

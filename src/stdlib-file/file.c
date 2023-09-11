@@ -1,12 +1,4 @@
 
-FILE *stdin;
-FILE *stdout;
-FILE *stderr;
-
-static Cia_Pool _page_allocator;
-static Cia_Pool _file_pool;
-static Cia_Mutex _g_pool_mutex;
-
 static void _fileapi_init() {
     cia_pool_create(&_file_pool, cia_allocator_pages(), 0x1000, sizeof(FILE), 16);
     stdin = cia_pool_alloc(&_file_pool);
