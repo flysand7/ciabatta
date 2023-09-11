@@ -12,7 +12,7 @@
 #endif
 
 // Scheduler on linux has too coarse granularity
-// to allow a thread to a very tiny bit of work
+// to allow a thread to kind of a lot of work
 // before switching to another thread. If we
 // introduce an arbitrary delay, the threads will
 // be able to be run in a random order better.
@@ -100,15 +100,7 @@ int main() {
     // Check to see the cnt variable
     int result = atomic_load_explicit(&g_shared_state.cnt, memory_order_relaxed);
     if(result == 0) {
-        char msg[] = "Result was 0\n";
-        fwrite(msg, 1, sizeof msg, stdout);
-    }
-    else if(result == 1) {
-        char msg[] = "Result was 1\n";
-        fwrite(msg, 1, sizeof msg, stdout);
-    }
-    else {
-        char msg[] = "Result was 2\n";
+        char msg[] = "This shouldn't happen in sequentially-consistent model!\n";
         fwrite(msg, 1, sizeof msg, stdout);
     }
     return 0;

@@ -32,3 +32,6 @@
 // Module stdlib_file
 #include "src/stdlib-file/file.c"
 
+// Module stdlib_string
+#include "src/stdlib-string/mem.c"
+#include "src/stdlib-string/str.c"
