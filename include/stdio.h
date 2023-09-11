@@ -4,6 +4,7 @@
 #include <cia/def.h>
 #include <cia/sync.h>
 #include <tinyrt.h>
+#include <stdarg.h>
 
 typedef struct FILE FILE;
 struct FILE {
@@ -23,3 +24,5 @@ int fputc(int c, FILE *file);
 size_t fread(void *restrict buf, size_t size, size_t count, FILE *restrict file);
 size_t fwrite(void const *restrict buf, size_t size, size_t count, FILE *restrict file);
 int fclose(FILE *file);
+
+int printf(char const *restrict fmt, ...);
