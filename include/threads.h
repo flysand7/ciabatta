@@ -19,3 +19,4 @@ enum {
 int thrd_create(thrd_t *thr, thrd_start_t func, void *arg);
 int thrd_join(thrd_t thr, int *out_exit_code);
 int thrd_detach(thrd_t thr);
+void thrd_yield();

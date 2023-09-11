@@ -18,6 +18,7 @@ void cia_mutex_lock(Cia_Mutex *mutex) {
             , memory_order_acquire
             , memory_order_relaxed
         );
+        
         // We got the mutex, lets bail
         if(p_tag == _CIA_MUTEX_FREE) {
             break;

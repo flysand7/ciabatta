@@ -22,3 +22,7 @@ int thrd_join(thrd_t thr, int *out_exit_code) {
     }
     return thrd_error;
 }
+
+void thrd_yield(void) {
+    _rt_thread_yield();
+}

@@ -96,6 +96,15 @@ static _RT_Status _rt_thread_detach(_RT_Thread *thread) {
     return _RT_STATUS_OK;
 }
 
+static _RT_Status _rt_thread_yield() {
+    i64 status = syscall(SYS_sched_yield);
+    if(status != 0) {
+        // shouldn't happen on linux
+        return _RT_ERROR_GENERIC;
+    }
+    return _RT_STATUS_OK;
+}
+
 static _RT_Status _rt_thread_terminate(_RT_Thread *thread) {
     return _RT_ERROR_NOT_IMPLEMENTED;
 }

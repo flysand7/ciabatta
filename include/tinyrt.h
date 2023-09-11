@@ -58,6 +58,7 @@ static _RT_Status _rt_thread_create(_RT_Thread *thread, int (*thread_fn)(void *c
 static _RT_Status _rt_thread_join(_RT_Thread *thread, int *out_exit_code);
 static _RT_Status _rt_thread_detach(_RT_Thread *thread);
 static _RT_Status _rt_thread_terminate(_RT_Thread *thread);
+static _RT_Status _rt_thread_yield();
 static _RT_Status _rt_thread_sleep(u64 time);
 static _RT_Status _rt_thread_get_timer_freq(u64 *freq);
 
