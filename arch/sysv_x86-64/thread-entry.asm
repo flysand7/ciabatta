@@ -44,6 +44,8 @@ _rt_thread_start:
     ; If child, jump to thread function
     pop rax ; thread_fn
     pop rdi ; ctx
+    ; Align the stack
+    and rsp, -16
     call rax
     ; Make return value the first arg and call thread finish routine
     mov rdi, rax
