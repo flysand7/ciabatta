@@ -108,14 +108,43 @@ int printf(const char *restrict fmt, ...) {
         }
         // fmt[i] == '%'
         i += 1;
+        // Check int sizes
+        int int_arg_size = 32;
+        if(fmt[i] == 'I') {
+            if(fmt[i+1] == '3' && fmt[i+2] == '2') {
+                int_arg_size = 32;
+            }
+            else if(fmt[i+1] == '6' && fmt[i+2] == '4') {
+                int_arg_size = 64;
+            }
+            else {
+                goto _error;
+            }
+            i += 3;
+        }
         int arg_chars;
         if(fmt[i] == 'd') {
-            int arg = va_arg(args, int);
-            arg_chars = print_int((i64)arg);
+            i64 arg;
+            if(int_arg_size == 32) {
+                arg = (i64)va_arg(args, i32);
+            }
+            else if(int_arg_size == 64) {
+                arg = va_arg(args, i64);
+            }
+            else {
+                goto _error;
+            }
+            arg_chars = print_int(arg);
             
         }
         else if(fmt[i] == 'u') {
-            unsigned int arg = va_arg(args, unsigned int);
+            u32 arg;
+            if(int_arg_size == 32) {
+                arg = va_arg(args, u32);
+            }
+            else if(int_arg_size == 64) {
+                arg = va_arg(args, u64);
+            }
             arg_chars = print_uint((u64)arg);
         }
         else if(fmt[i] == 'p') {

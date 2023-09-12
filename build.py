@@ -155,6 +155,8 @@ cc_defines_pop()
 cc_flags_pop()
 
 # Build the ciabatta
+cc_flags_push()
+cc_flags.append('-Wno-format'); # until i find way to disable clang warning on %I64d
 print_step("Building lib/cia.a\n")
 assemble_obj('bin/thread-entry.o', [f'arch/{target_abi}_{target_arch}/thread-entry.asm'], ['-f "elf64"'])
 compile_obj('bin/cia.o', ['cia.c'])
@@ -163,3 +165,5 @@ archive('lib/cia.a', ['bin/cia.o', 'bin/thread-entry.o'])
 # Build the test
 if test_file != None:
     compile_exe('a', [test_file, 'lib/cia.a'], ['-Wl,-dynamic-linker,lib/ld-cia.so'])
+
+cc_flags_pop()

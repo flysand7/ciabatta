@@ -4,8 +4,8 @@
 #include <stdio.h>
 
 #if 1
-    enum memory_order store_memory_order = memory_order_acquire;
-    enum memory_order load_memory_order = memory_order_release;
+    enum memory_order store_memory_order = memory_order_release;
+    enum memory_order load_memory_order = memory_order_acquire;
 #else
     enum memory_order store_memory_order = memory_order_seq_cst;
     enum memory_order load_memory_order = memory_order_seq_cst;
@@ -35,8 +35,7 @@ static Shared_State g_shared_state = {0};
 int tx(void *ctx) {
     arbitrary_delay(delay_that_works);
     Shared_State *ss = ctx;
-    char msg[] = "Thread tx running\n";
-    fwrite(msg, 1, sizeof msg, stdout);
+    printf("Thread %s running\n", "tx");
     atomic_store_explicit(&ss->x, 1, store_memory_order);
     return 0;
 }
@@ -45,8 +44,7 @@ int tx(void *ctx) {
 int ty(void *ctx) {
     arbitrary_delay(delay_that_works);
     Shared_State *ss = ctx;
-    char msg[] = "Thread ty running\n";
-    fwrite(msg, 1, sizeof msg, stdout);
+    printf("Thread %s running\n", "ty");
     atomic_store_explicit(&ss->y, 1, store_memory_order);
     return 0;
 }
@@ -55,8 +53,7 @@ int ty(void *ctx) {
 int t1(void *ctx) {
     arbitrary_delay(delay_that_works);
     Shared_State *ss = ctx;
-    char msg[] = "Thread t1 running\n";
-    fwrite(msg, 1, sizeof msg, stdout);
+    printf("Thread %s running\n", "t1");
     while(atomic_load_explicit(&ss->x, load_memory_order) == 0)
         ;
     if(atomic_load_explicit(&ss->y, load_memory_order) == 1) {
@@ -69,8 +66,7 @@ int t1(void *ctx) {
 int t2(void *ctx) {
     arbitrary_delay(delay_that_works);
     Shared_State *ss = ctx;
-    char msg[] = "Thread t2 running\n";
-    fwrite(msg, 1, sizeof msg, stdout);
+    printf("Thread %s running\n", "t2");
     while(atomic_load_explicit(&ss->y, load_memory_order) == 0)
         ;
     if(atomic_load_explicit(&ss->x, load_memory_order) == 1) {
@@ -88,8 +84,8 @@ int main() {
     for(int i = 0; i < 4; ++i) {
         int status = thrd_create(&threads[i], thread_funcs[i], &g_shared_state);
         if(status != thrd_success) {
-            char msg[] = "Thread unable to start\n";
-            fwrite(msg, 1, sizeof msg, stdout);
+            printf("Thread unable to start\n");
+            return 1;
         }
     }
     // Wait for threads to complete
@@ -99,9 +95,6 @@ int main() {
     }
     // Check to see the cnt variable
     int result = atomic_load_explicit(&g_shared_state.cnt, memory_order_relaxed);
-    if(result == 0) {
-        char msg[] = "This shouldn't happen in sequentially-consistent model!\n";
-        fwrite(msg, 1, sizeof msg, stdout);
-    }
+    printf("result: %d\n", result);
     return 0;
 }
