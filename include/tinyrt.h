@@ -62,6 +62,9 @@ static _RT_Status _rt_thread_yield();
 static _RT_Status _rt_thread_sleep(u64 time);
 static _RT_Status _rt_thread_get_timer_freq(u64 *freq);
 
+// TODO: maybe replace with kill of single thread
+static _RT_Status _rt_thread_cancell_all_running();
+
 // Environment API
 static _RT_Status _rt_shell_exec(char const *cmd);
 static _RT_Status _rt_env_get(char const *name);

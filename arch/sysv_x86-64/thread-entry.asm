@@ -4,6 +4,7 @@ bits 64
 section .text
 global _rt_thread_start
 
+extern _rt_thread_setup
 extern _rt_thread_finish
 
 ; flags, &stack[-2], &parent_tid, &child_tid, 0
@@ -42,11 +43,11 @@ _rt_thread_start:
     test eax, eax
     jnz .exit
     ; If child, jump to thread function
-    pop rax ; thread_fn
-    pop rdi ; ctx
+    pop rdi ; thread_fn
+    pop rsi ; ctx
     ; Align the stack
     and rsp, -16
-    call rax
+    call _rt_thread_setup
     ; Make return value the first arg and call thread finish routine
     mov rdi, rax
     call _rt_thread_finish

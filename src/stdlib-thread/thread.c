@@ -26,3 +26,8 @@ int thrd_join(thrd_t thr, int *out_exit_code) {
 void thrd_yield(void) {
     _rt_thread_yield();
 }
+
+/* remove later */
+void thrd_terminate(thrd_t thr) {
+    _rt_thread_terminate(&thr.thread);
+}

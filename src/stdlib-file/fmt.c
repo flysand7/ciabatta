@@ -138,14 +138,24 @@ int printf(const char *restrict fmt, ...) {
             
         }
         else if(fmt[i] == 'u') {
-            u32 arg;
+            u64 arg;
             if(int_arg_size == 32) {
                 arg = va_arg(args, u32);
             }
             else if(int_arg_size == 64) {
                 arg = va_arg(args, u64);
             }
-            arg_chars = print_uint((u64)arg);
+            arg_chars = print_uint(arg);
+        }
+        else if(fmt[i] == 'x') {
+            u64 arg;
+            if(int_arg_size == 32) {
+                arg = va_arg(args, u32);
+            }
+            else if(int_arg_size == 64) {
+                arg = va_arg(args, u64);
+            }
+            print_hex(arg);
         }
         else if(fmt[i] == 'p') {
             void *arg = va_arg(args, void *);

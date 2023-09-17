@@ -1,6 +1,4 @@
 
-#include <syscall.h>
-
 static char stack_chk_fail_msg[] =
     "Stack check failed. "
     "You've got a stack corruption somewhere. "
@@ -13,6 +11,7 @@ void __stack_chk_fail(void) {
 
 extern int main(int argc, char **argv, char **envp);
 static void _fileapi_init();
+static void _rt_threads_setup();
 
 void _start(_LD_CRT_Params *params) {
     cia_stack_size = params->stack_size;
@@ -22,9 +21,8 @@ void _start(_LD_CRT_Params *params) {
     // char **envp = argv + (argc + 1);
     // init(argc, argv, envp);
     _fileapi_init();
+    _rt_threads_setup();
     int code = main(0, NULL, NULL);
-    // fini();
-    // glibc bug
-    // dl_fini();
+    _rt_thread_cancell_all_running();
     sys_exit(code);
 }

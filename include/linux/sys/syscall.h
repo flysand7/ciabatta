@@ -417,6 +417,19 @@ static inline i64 sys_arch_prctl(int code, u64 value) {
     return syscall(SYS_arch_prctl, code, value);
 }
 
-static inline i64 sys_gettid() {
+static inline u32 sys_gettid() {
     return syscall(SYS_gettid);
 }
+
+static inline u32 sys_getpid() {
+    return syscall(SYS_getpid);
+}
+
+static inline i32 sys_tkill(u32 tid, i32 sig) {
+    return syscall(SYS_tkill, tid, sig);
+}
+
+static inline i32 sys_tgkill(u32 tgid, u32 tid, i32 sig) {
+    return syscall(SYS_tgkill, tgid, tid, sig);
+}
+
